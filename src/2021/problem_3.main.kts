@@ -9,7 +9,7 @@ fun List<Int>.toBinaryInt() = this.joinToString("").toInt(2)
 // Part 1
 val bitCount = data.reduce { acc, it -> acc.zip(it, Int::plus) }
 val cutoff = data.size / 2
-val gamma = bitCount.map { if (it > cutoff) 1 else 0 }.toBinaryInt()
+val gamma = bitCount.map { if (it >= cutoff) 1 else 0 }.toBinaryInt()
 val epsilon = bitCount.map { if (it < cutoff) 1 else 0  }.toBinaryInt()
 println(gamma * epsilon)
 
