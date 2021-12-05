@@ -25,6 +25,6 @@ fun getRating(subset: List<List<Int>>, position: Int = 0, bitSelector: (Boolean)
     }
 }
 
-val oxygen = getRating(lines) { if (it) 1 else 0}
+val oxygen = getRating(lines) { if (it) 1 else 0 }
 val co2 = getRating(lines) { if (it) 0 else 1 }
 println(oxygen * co2)
