@@ -1,7 +1,5 @@
 #!/usr/bin/env kotlin
 
-import java.io.File
-
 class Square(val number: Int, var marked: Boolean = false) {
     fun observe(pick: Int) { 
         if (pick == number) marked = true 
@@ -28,7 +26,7 @@ fun parseSquare(num: String) = Square(num.toInt())
 fun parseRow(line: String) = Row(line.trim().split(whitespace).map(::parseSquare))
 fun parseBoard(lines: List<String>) = Board(lines.map(::parseRow))
 
-val lines = File(args[0]).readLines()
+val lines = java.io.File(args[0]).readLines()
 val picks = lines.first().split(",").map { it.toInt() }
 val boardLines = lines.drop(2)
 val boardSize = boardLines.takeWhile { it != "" }.size

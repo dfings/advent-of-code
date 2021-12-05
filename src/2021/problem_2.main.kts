@@ -1,9 +1,7 @@
 #!/usr/bin/env kotlin
 
-import java.io.File
-
 data class Command(val direction: String, val step: Int)
-val cmds = File(args[0])
+val cmds = java.io.File(args[0])
     .readLines()
     .map { it.split(" ") }
     .map { Command(it[0], it[1].toInt())}

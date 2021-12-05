@@ -1,8 +1,6 @@
 #!/usr/bin/env kotlin
 
-import java.io.File
-
-val lines = File(args[0]).readLines().map { it.toList().map(Character::getNumericValue) }
+val lines = java.io.File(args[0]).readLines().map { it.toList().map(Character::getNumericValue) }
 
 fun List<Int>.toBinaryInt() = this.joinToString("").toInt(2)
 
