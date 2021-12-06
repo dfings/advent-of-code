@@ -1,14 +1,14 @@
 #!/usr/bin/env kotlin
 
+import kotlin.math.sign
+
 data class Point(val x: Int, val y: Int)
 data class Line(val a: Point, val b: Point) {
     val diagonal: Boolean = a.x != b.x && a.y != b.y
-    val points: List<Point> get() = when {
-        a.x == b.x -> (a.y..b.y).map { Point(a.x, it) }
-        a.y == b.y -> (a.x..b.x).map { Point(it, a.y) }
-        a.y < b.y -> (0..b.x-a.x).map { Point(a.x + it, a.y + it) }
-        else -> (0..b.x-a.x).map { Point(a.x + it, a.y - it)}
-    }
+    val xStep: Int = (b.x - a.x).sign
+    val yStep: Int = (b.y - a.y).sign
+    val steps: Int = if (a.x == b.x) b.y - a.y else b.x - a.x
+    val points: List<Point> = (0..steps).map { Point(a.x + xStep * it, a.y + yStep * it) }
 }
 
 fun parsePoint(raw: List<String>) = Point(raw[0].toInt(), raw[1].toInt())
