@@ -6,7 +6,7 @@ fun runGenerations(start: Map<Int, Long>, generations: Int): Map<Int, Long> =
             null
         } else {
             i + 1 to fish.flatMap { (timer, count) ->
-                if (timer == 0) listOf(8 to count, 6 to count) else  listOf(timer - 1 to count)
+                if (timer == 0) listOf(8 to count, 6 to count) else listOf(timer - 1 to count)
             }.groupBy { it.first }.mapValues { it.value.sumOf { it.second } }
         }
     }.last().second
