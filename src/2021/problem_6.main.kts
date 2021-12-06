@@ -5,16 +5,9 @@ fun runGenerations(start: Map<Int, Long>, generations: Int): Map<Int, Long> =
         if (i == generations) {
             null
         } else {
-            val next = mutableMapOf<Int, Long>()
-            fish.forEach { timer, count ->
-                if (timer == 0) {
-                    next.put(8, count)
-                    next.put(6, count + next.getOrDefault(6, 0L))
-                } else {
-                    next.put(timer - 1, count + next.getOrDefault(timer - 1, 0L))
-                }
-            }
-            i + 1 to next
+            i + 1 to fish.flatMap { (timer, count) ->
+                if (timer == 0) listOf(8 to count, 6 to count) else  listOf(timer - 1 to count)
+            }.groupBy { it.first }.mapValues { it.value.sumOf { it.second } }
         }
     }.last().second
     
