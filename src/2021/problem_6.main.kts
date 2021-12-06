@@ -1,7 +1,7 @@
 #!/usr/bin/env kotlin
 
 fun runGenerations(start: List<Long>, generations: Int): List<Long> {
-    var state = ArrayDeque(start)
+    val state = ArrayDeque(start)
     repeat (generations) { 
         val spawn = state.removeFirst()
         state.add(spawn)
