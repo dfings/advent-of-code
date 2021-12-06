@@ -20,7 +20,7 @@ fun parseLine(raw: List<String>): Line {
 val lines = java.io.File(args[0]).readLines().map { parseLine(it.split(",", " -> ")) }
 
 val nonDiagonalPoints = lines.filterNot { it.diagonal }.flatMap { it.points }
-println(nonDiagonalPoints.groupingBy { it }.eachCount().filterValues { it > 1 }.size)
+println(nonDiagonalPoints.groupBy { it }.count { it.value.size > 1 })
 
 val allPoints = lines.flatMap { it.points }
-println(allPoints.groupingBy { it }.eachCount().filterValues { it > 1 }.size)
+println(allPoints.groupBy { it }.count { it.value.size > 1 })
