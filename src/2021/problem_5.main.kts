@@ -1,12 +1,10 @@
 #!/usr/bin/env kotlin
 
-import kotlin.math.sign
-
 data class Point(val x: Int, val y: Int)
 data class Line(val a: Point, val b: Point) {
     val diagonal: Boolean = a.x != b.x && a.y != b.y
-    val xStep: Int = (b.x - a.x).sign
-    val yStep: Int = (b.y - a.y).sign
+    val xStep: Int = b.x.compareTo(a.x)
+    val yStep: Int = b.y.compareTo(a.y)
     val steps: Int = if (a.x == b.x) b.y - a.y else b.x - a.x
     val points: List<Point> = (0..steps).map { Point(a.x + xStep * it, a.y + yStep * it) }
 }
