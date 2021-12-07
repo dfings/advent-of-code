@@ -3,9 +3,10 @@
 import kotlin.math.abs
 
 val crabs = java.io.File(args[0]).readLines().first().split(",").map { it.toInt() }
-val low = crabs.minOrNull()!!
-val high = crabs.maxOrNull()!!
-println((low..high).map { x -> crabs.sumOf { abs(it - x) } }.minOrNull())
+val range = (crabs.minOrNull()!!..crabs.maxOrNull()!!)
 
-fun cost(x: Int) = (1..x).sum()
-println((low..high).map { x -> crabs.sumOf { cost(abs(it - x)) } }.minOrNull())
+fun linearTotalCost(x: Int) = crabs.sumOf { abs(it - x) }
+println(range.map(::linearTotalCost).minOrNull())
+
+fun increasingTotalCost(x: Int) = crabs.sumOf { (1..abs(it - x)).sum() }
+println(range.map(::increasingTotalCost).minOrNull())
