@@ -3,7 +3,7 @@
 import kotlin.math.abs
 
 val crabs = java.io.File(args[0]).readLines().first().split(",").map { it.toInt() }
-val range = (crabs.minOrNull()!!..crabs.maxOrNull()!!)
+val range = (crabs.minOf { it }..crabs.maxOf { it })
 
 fun linearTotalCost(x: Int) = crabs.sumOf { abs(it - x) }
 println(range.map(::linearTotalCost).minOrNull())
