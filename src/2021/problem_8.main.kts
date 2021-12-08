@@ -15,7 +15,6 @@ println(entries.map { it.output }.sumOf { it.count {  it.length in uniqueLengths
 
 // Part 2
 val digits = listOf("abcefg", "cf", "acdeg", "acdfg", "bcdf", "abdfg", "abdefg", "acf", "abcdefg", "abcdfg")
-fun List<String>.histogram(): Map<Char, Int> = flatMap { it.toList() }.groupingBy { it }.eachCount()
 fun Entry.decode(): Int {
     val histogram = input.flatMap { it.toList() }.groupingBy { it }.eachCount()
 
