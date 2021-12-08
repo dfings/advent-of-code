@@ -16,11 +16,11 @@ println(entries.map { it.output }.sumOf { it.count {  it.length in targetLengths
 // Part 2
 val digits = listOf("abcefg", "cf", "acdeg", "acdfg", "bcdf", "abdfg", "abdefg", "acf", "abcdefg", "abcdfg")
 fun Entry.decode(): Int {
-    val histogram = input.flatMap { it.toList() }.groupingBy { it }.eachCount()
-
     val decoder = mutableMapOf<Char, Char>()
     val aOrC = mutableSetOf<Char>()
     val dOrG = mutableSetOf<Char>()
+
+    val histogram = input.flatMap { it.toList() }.groupingBy { it }.eachCount()
     histogram.forEach { (key, value) ->
         when (value) {
             6 -> decoder[key] = 'b'
