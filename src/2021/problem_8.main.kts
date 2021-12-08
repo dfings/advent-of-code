@@ -33,14 +33,14 @@ fun Entry.decode(): Int {
     }
 
     val one = input.filter { it.length == 2 }.single()
-    val c = one.toList().filterNot(decoder::containsKey).single()
+    val c = one.toList().single { it !in decoder.keys }
     decoder[c] = 'c'
-    decoder[aOrC.filterNot { it == c }.single()] = 'a'
+    decoder[aOrC.single { it != c }] = 'a'
 
     val four = input.filter { it.length == 4 }.single()
-    val d = four.toList().filterNot(decoder::containsKey).single()
+    val d = four.toList().single { it !in decoder.keys }
     decoder[d] = 'd'
-    decoder[dOrG.filterNot { it == d }.single()] = 'g'
+    decoder[dOrG.single { it != d }] = 'g'
     
     val decoded = output.map { it.toList().map(decoder::getValue).sorted().joinToString("") }
     return decoded.map(digits::indexOf).joinToString("").toInt()
