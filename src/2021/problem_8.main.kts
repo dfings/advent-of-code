@@ -10,8 +10,8 @@ fun String.toEntry(): Entry {
 val entries = java.io.File(args[0]).readLines().map { it.toEntry() }
 
 // Part 1
-val uniqueLengths = setOf(2, 3, 4, 7)
-println(entries.map { it.output }.sumOf { it.count {  it.length in uniqueLengths } })
+val targetLengths = setOf(2, 3, 4, 7)
+println(entries.map { it.output }.sumOf { it.count {  it.length in targetLengths } })
 
 // Part 2
 val digits = listOf("abcefg", "cf", "acdeg", "acdfg", "bcdf", "abdfg", "abdefg", "acf", "abcdefg", "abcdfg")
