@@ -23,8 +23,8 @@ fun Entry.decode(): Int {
     val histogram = input.flatMap { it.toList() }.groupingBy { it }.eachCount()
     histogram.forEach { (key, value) ->
         when (value) {
-            6 -> decoder[key] = 'b'
             4 -> decoder[key] = 'e'
+            6 -> decoder[key] = 'b'
             7 -> dOrG.add(key)
             8 -> aOrC.add(key)
             9 -> decoder[key] = 'f'
