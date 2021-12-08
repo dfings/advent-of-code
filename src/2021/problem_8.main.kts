@@ -32,12 +32,12 @@ fun Entry.decode(): Int {
         }
     }
 
-    val one = checkNotNull(input.find { it.length == 2 })
+    val one = input.filter { it.length == 2 }.single()
     val c = one.toList().filterNot(decoder::containsKey).single()
     decoder[c] = 'c'
     decoder[(aOrC - setOf(c)).single()] = 'a'
 
-    val four = checkNotNull(input.find { it.length == 4 })
+    val four = input.filter { it.length == 4 }.single()
     val d = four.toList().filterNot(decoder::containsKey).single()
     decoder[d] = 'd'
     decoder[(dOrG - setOf(d)).single()] = 'g'
