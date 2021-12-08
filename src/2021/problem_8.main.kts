@@ -21,13 +21,13 @@ fun Entry.decode(): Int {
     val dOrG = mutableListOf<Char>()
 
     val histogram = input.flatMap { it.toList() }.groupingBy { it }.eachCount()
-    histogram.forEach { (key, value) ->
-        when (value) {
-            4 -> decoder[key] = 'e'
-            6 -> decoder[key] = 'b'
-            7 -> dOrG.add(key)
-            8 -> aOrC.add(key)
-            9 -> decoder[key] = 'f'
+    histogram.forEach { (letter, count) ->
+        when (count) {
+            4 -> decoder[letter] = 'e'
+            6 -> decoder[letter] = 'b'
+            7 -> dOrG.add(letter)
+            8 -> aOrC.add(letter)
+            9 -> decoder[letter] = 'f'
             else -> throw IllegalStateException()
         }
     }
