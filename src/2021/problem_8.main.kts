@@ -4,7 +4,7 @@ data class Entry(val input: List<String>, val output: List<String>)
 
 fun String.sorted(): String = toList().sorted().joinToString("")
 fun String.toEntry(): Entry {
-    val chunks = split("|").map { it.trim().split(" ").map { it.sorted() } }
+    val chunks = split(" | ").map { it.split(" ").map { it.sorted() } }
     return Entry(chunks[0], chunks[1])
 }
 val entries = java.io.File(args[0]).readLines().map { it.toEntry() }
