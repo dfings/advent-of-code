@@ -41,4 +41,4 @@ fun basinSize(start: Point): Int {
     return visited.size
 }
 
-println(lowPoints.map(::basinSize).sorted().reversed().take(3).reduce(Int::times))
+println(lowPoints.map(::basinSize).sorted().takeLast(3).reduce(Int::times))
