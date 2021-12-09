@@ -23,7 +23,7 @@ println(lowPoints.sumOf { 1 + height(it.x, it.y)})
 
 fun basinSize(start: Point): Int {
     val frontier = ArrayDeque<Point>()
-    val visited = mutableSetOf<Point>()
+    val visited = HashSet<Point>()
 
     frontier.add(start)
     while (!frontier.isEmpty()) {
