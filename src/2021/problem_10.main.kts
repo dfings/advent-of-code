@@ -4,8 +4,6 @@ val legalPairs = mapOf('(' to ')', '[' to ']', '{' to '}', '<' to '>')
 val corruptionScores = mapOf(')' to 3, ']' to 57, '}' to 1197, '>' to 25137)
 val completionScores = mapOf('(' to 1, '[' to 2, '{' to 3, '<' to 4)
 
-val lines = java.io.File(args[0]).readLines()
-
 sealed interface LineState
 object Ok: LineState
 class Corrupt(val score: Int): LineState
@@ -27,7 +25,7 @@ fun String.detectCorruption(): LineState {
     }
 }
 
-val states = lines.map { it.detectCorruption() }
+val states = java.io.File(args[0]).readLines().map { it.detectCorruption() }
 println(states.filterIsInstance<Corrupt>().sumOf { it.score })
 
 val incompleteScores = states.filterIsInstance<Incomplete>().map { it.score }.sorted()
