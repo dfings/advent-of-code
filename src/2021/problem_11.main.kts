@@ -22,11 +22,11 @@ class Board(val octopuses: List<List<Octopus>>) {
         return flashed.size
     }
     
-    fun Octopus.neighbors() = listOf(
+    fun Octopus.neighbors() = listOfNotNull(
         octopusAt(x - 1, y - 1),  octopusAt(x, y - 1), octopusAt(x + 1, y - 1),
         octopusAt(x - 1, y),                           octopusAt(x + 1, y),
         octopusAt(x - 1, y + 1),  octopusAt(x, y + 1), octopusAt(x + 1, y + 1),
-    ).filterNotNull()
+    )
 
     fun octopusAt(x: Int, y: Int): Octopus? =
         if (x < 0 || x > xMax || y < 0 || y > yMax) null else octopuses[y][x]
@@ -34,8 +34,8 @@ class Board(val octopuses: List<List<Octopus>>) {
 
 val board = Board(
     java.io.File(args[0]).readLines().mapIndexed { y, line ->
-        line.chunked(1).mapIndexed { x, char -> 
-            Octopus(x, y, char.toInt())
+        line.mapIndexed { x, char -> 
+            Octopus(x, y, char.digitToInt())
         } 
     }
 )
