@@ -1,7 +1,7 @@
 #!/usr/bin/env kotlin
 
 class Octopus(val x: Int, val y: Int, var energy: Int) {
-    fun shouldFlash() = energy > 9
+    val shouldFlash: Boolean get() = energy > 9
 }
 
 class Board(val octopuses: List<List<Octopus>>) {
@@ -11,14 +11,14 @@ class Board(val octopuses: List<List<Octopus>>) {
 
     fun step(): Int {
         all.forEach { it.energy++ }
-        var pending = all.filter { it.shouldFlash() }
+        var pending = all.filter { it.shouldFlash }
         val flashed = HashSet<Octopus>()
         while (!pending.isEmpty()) {
             flashed.addAll(pending)
             pending.forEach { it.neighbors().forEach { it.energy++ } }
-            pending = all.filter { it.shouldFlash() && it !in flashed }
+            pending = all.filter { it.shouldFlash && it !in flashed }
         }
-        all.filter { it.shouldFlash() }.forEach { it.energy = 0 }
+        all.filter { it.shouldFlash }.forEach { it.energy = 0 }
         return flashed.size
     }
     
