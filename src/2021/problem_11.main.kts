@@ -4,10 +4,16 @@ class Octopus(val x: Int, val y: Int, var energy: Int) {
     val shouldFlash: Boolean get() = energy > 9
 }
 
-class Board(val octopuses: List<List<Octopus>>) {
+class Cave(val octopuses: List<List<Octopus>>) {
     val all = octopuses.flatten()
     val xMax = octopuses[0].lastIndex
     val yMax = octopuses.lastIndex
+
+    fun start() = sequence {
+        while(true) {
+            yield(step())
+        }
+    }
 
     fun step(): Int {
         all.forEach { it.energy++ }
@@ -32,7 +38,7 @@ class Board(val octopuses: List<List<Octopus>>) {
         if (x < 0 || x > xMax || y < 0 || y > yMax) null else octopuses[y][x]
 }
 
-val board = Board(
+fun cave() = Cave(
     java.io.File(args[0]).readLines().mapIndexed { y, line ->
         line.mapIndexed { x, char -> 
             Octopus(x, y, char.digitToInt())
@@ -40,17 +46,5 @@ val board = Board(
     }
 )
 
-var stepCount = 0
-var totalFlashed = 0
-var allFlashedAt = -1
-while (stepCount < 100 || allFlashedAt == -1) {
-    stepCount++
-    val flashedCount = board.step()
-    if (allFlashedAt == -1 && flashedCount == board.all.size) {
-        allFlashedAt = stepCount
-    }
-    totalFlashed += flashedCount
-    if (stepCount == 100) println("Step 100 count: $totalFlashed")
-    if (allFlashedAt != -1) println("All flashed at: $stepCount")
-}
-
+println(cave().start().take(100).sum())
+println(cave().run { start().takeWhile { it != all.size }.count() + 1 } )
