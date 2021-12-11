@@ -1,6 +1,6 @@
 #!/usr/bin/env kotlin
 
-val board = java.io.File(args[0]).readLines().map { it.chunked(1).map { it.toInt() } }
+val board = java.io.File(args[0]).readLines().map { it.map { it.digitToInt() } }
 
 val xMax = board[0].lastIndex
 val yMax = board.lastIndex

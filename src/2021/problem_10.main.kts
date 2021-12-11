@@ -11,7 +11,7 @@ class Incomplete(val score: Long): LineState
 
 fun String.detectCorruption(): LineState {
     val stack = ArrayDeque<Char>()
-    toList().forEach {
+    forEach {
         if (it in legalPairs.keys) {
             stack.addFirst(it)
         } else if (legalPairs[stack.removeFirst()] != it) {
