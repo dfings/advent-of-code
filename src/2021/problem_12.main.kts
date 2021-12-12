@@ -4,8 +4,6 @@ data class Edge(val src: String, val dst: String)
 
 data class Path(val edges: List<Edge> = listOf()) {
     operator fun plus(edge: Edge) = Path(edges + edge)
-    fun canAdd(edge: Edge) =
-        edge.dst.all(Char::isUpperCase) || (edge.dst != "start" && edges.none { it.dst == edge.dst })
 }
 
 class Graph(val edges: List<Edge>) {
@@ -19,11 +17,16 @@ class Graph(val edges: List<Edge>) {
         if (edge.dst == "end") {
             return listOf(currentPath + edge)
         }
-        val nextEdges = edges.filter { edge.dst == it.src && currentPath.canAdd(it) }
+        val nextEdges = edges.filter { 
+            edge.dst == it.src && 
+            (edge.dst.all(Char::isUpperCase) || 
+            currentPath.edges.count { it.dst == edge.dst } == 0)
+        }
         return nextEdges.map { findAllPaths(it, currentPath + edge) }.flatten()
     }
 }
 
 fun String.toEdges() = split("-").let { listOf(Edge(it[0], it[1]), Edge(it[1], it[0])) }
-val graph = Graph(java.io.File(args[0]).readLines().flatMap { it.toEdges() })
+val lines = java.io.File(args[0]).readLines()
+val graph = Graph(lines.flatMap { it.toEdges() }.filter { it.src != "end" && it.dst != "start"})
 println(graph.findAllPaths().size)
