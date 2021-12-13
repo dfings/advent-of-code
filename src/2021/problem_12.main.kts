@@ -20,14 +20,12 @@ class Graph(val edges: List<Edge>) {
         cave: Cave, 
         currentPath: Path,
         canVisitSmallCave: Path.(Cave) -> Boolean,
-    ): List<Path> {
-        if (cave.name == "end") {
-            return listOf(currentPath + cave)
-        }
-        val nextEdges = edges.filter { 
-            cave == it.src && (!cave.isSmall || currentPath.canVisitSmallCave(cave))
-        }
-        return nextEdges.map { findAllPaths(it.dst, currentPath + cave, canVisitSmallCave) }.flatten()
+    ): List<Path> = when {
+        cave.name == "end" -> listOf(currentPath + cave)
+        cave.isSmall && !currentPath.canVisitSmallCave(cave) -> listOf()
+        else -> edges.filter { cave == it.src }.map { 
+            findAllPaths(it.dst, currentPath + cave, canVisitSmallCave) 
+        }.flatten()
     }
 }
 
