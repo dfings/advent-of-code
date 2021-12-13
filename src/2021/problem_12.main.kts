@@ -1,32 +1,45 @@
 #!/usr/bin/env kotlin
 
-data class Edge(val src: String, val dst: String)
+data class Cave(val name: String) {
+    val isSmall = name.all(Char::isLowerCase)
+}
+
+data class Edge(val src: Cave, val dst: Cave)
 
 data class Path(val edges: List<Edge> = listOf()) {
     operator fun plus(edge: Edge) = Path(edges + edge)
+    val smallCavesList: List<Cave> = edges.map { it.dst }.filter { it.isSmall }
+    val smallCavesSet: Set<Cave> = smallCavesList.toSet()
 }
 
 class Graph(val edges: List<Edge>) {
-    fun findAllPaths(): List<Path> =
-        edges.filter { it.src == "start" }.map { findAllPaths(it, Path()) }.flatten()
+    fun findAllPaths(canVisitSmallCave: Path.(Cave) -> Boolean): List<Path> =
+        edges.filter { it.src.name == "start" }.map { findAllPaths(it, Path(), canVisitSmallCave) }.flatten()
 
     fun findAllPaths(
         edge: Edge, 
-        currentPath: Path
+        currentPath: Path,
+        canVisitSmallCave: Path.(Cave) -> Boolean,
     ): List<Path> {
-        if (edge.dst == "end") {
+        if (edge.dst.name == "end") {
             return listOf(currentPath + edge)
         }
         val nextEdges = edges.filter { 
             edge.dst == it.src && 
-            (edge.dst.all(Char::isUpperCase) || 
-            currentPath.edges.count { it.dst == edge.dst } == 0)
+            (!edge.dst.isSmall || currentPath.canVisitSmallCave(edge.dst))
         }
-        return nextEdges.map { findAllPaths(it, currentPath + edge) }.flatten()
+        return nextEdges.map { findAllPaths(it, currentPath + edge, canVisitSmallCave) }.flatten()
     }
 }
 
-fun String.toEdges() = split("-").let { listOf(Edge(it[0], it[1]), Edge(it[1], it[0])) }
-val lines = java.io.File(args[0]).readLines()
-val graph = Graph(lines.flatMap { it.toEdges() }.filter { it.src != "end" && it.dst != "start"})
-println(graph.findAllPaths().size)
+fun String.toEdges() = split("-").map { Cave(it) }.let {
+    listOf(Edge(it[0], it[1]), Edge(it[1], it[0])).filter { 
+        it.src.name != "end" && it.dst.name != "start"
+    } 
+}
+val graph = Graph(java.io.File(args[0]).readLines().flatMap { it.toEdges() })
+
+println(graph.findAllPaths { !smallCavesSet.contains(it) }.size)
+println(graph.findAllPaths { 
+    smallCavesSet.size == smallCavesList.size || !smallCavesSet.contains(it) 
+}.size)
