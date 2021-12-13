@@ -15,11 +15,11 @@ data class Path(val caves: List<Cave>) {
 class Graph(val edges: List<Edge>) {
     fun findAllPaths(
         cave: Cave = Cave("start"), 
-        currentPath: Path = Path(listOf()),
+        currentPath: Path = Path(emptyList()),
         canVisitSmallCave: Path.(Cave) -> Boolean,
     ): List<Path> = when {
         cave.name == "end" -> listOf(currentPath + cave)
-        cave.isSmall && !currentPath.canVisitSmallCave(cave) -> listOf()
+        cave.isSmall && !currentPath.canVisitSmallCave(cave) -> emptyList()
         else -> edges.filter { cave == it.src }.map { 
             findAllPaths(it.dst, currentPath + cave, canVisitSmallCave) 
         }.flatten()
