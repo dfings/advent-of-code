@@ -6,19 +6,16 @@ data class Cave(val name: String) {
 
 data class Edge(val src: Cave, val dst: Cave)
 
-data class Path(val caves: List<Cave> = listOf()) {
+data class Path(val caves: List<Cave>) {
     operator fun plus(cave: Cave) = Path(caves + cave)
     val smallCavesList: List<Cave> = caves.filter { it.isSmall }
     val smallCavesSet: Set<Cave> = smallCavesList.toSet()
 }
 
 class Graph(val edges: List<Edge>) {
-    fun findAllPaths(canVisitSmallCave: Path.(Cave) -> Boolean): List<Path> =
-        findAllPaths(Cave("start"), Path(), canVisitSmallCave)
-
     fun findAllPaths(
-        cave: Cave, 
-        currentPath: Path,
+        cave: Cave = Cave("start"), 
+        currentPath: Path = Path(listOf()),
         canVisitSmallCave: Path.(Cave) -> Boolean,
     ): List<Path> = when {
         cave.name == "end" -> listOf(currentPath + cave)
