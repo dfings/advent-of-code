@@ -1,13 +1,29 @@
 #!/usr/bin/env kotlin
 
+fun solve(initial: String, rules: Map<String, List<String>>, rounds: Int): Long {
+    val histogram = initial.groupingBy { it }.eachCount().mapValues { it.value.toLong() }.toMutableMap()
+    var polymer = initial.windowed(2).groupingBy { it }.eachCount().mapValues { it.value.toLong() }
+    repeat (rounds) {
+        val updated = polymer.toMutableMap()
+        for ((pair, count) in polymer) {
+            val split = rules[pair]
+            if (split != null) {
+                updated.compute(pair) { _, v -> (v ?: 0) - count }
+                updated.compute(split[0]) { _, v -> (v ?: 0) + count } 
+                updated.compute(split[1]) { _, v -> (v ?: 0) + count } 
+                histogram.compute(split[0][1]) { _, v -> (v ?: 0) + count }
+            }
+        }
+        polymer = updated.toMap()
+    }
+    return histogram.maxOf { it.value } - histogram.minOf { it.value }
+}
+
 val lines = java.io.File(args[0]).readLines()
 val initial = lines.first()
-val rules = lines.drop(2).map { it.split(" -> ").let { it[0] to it[1] } }.toMap()
+val rules = lines.drop(2).map { 
+    it.split(" -> ").let { it[0] to listOf(it[0][0] + it[1], it[1] + it[0][1]) } 
+}.toMap()
 
-fun String.insertPairs() = windowed(2).map { pair -> 
-    rules[pair]?.let { pair[0] + it + pair[1] } ?: pair
-}.reduce { acc, it -> acc + it.drop(1) }
-
-val round10 = (1..10).fold(initial) { acc, it -> println(it); acc.insertPairs() }
-val histogram = round10.groupingBy { it }.eachCount()
-println(histogram.maxOf { it.value } - histogram.minOf { it.value })
+println(solve(initial, rules, 10))
+println(solve(initial, rules, 40))
