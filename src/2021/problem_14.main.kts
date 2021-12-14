@@ -3,7 +3,7 @@
 fun <T> Iterable<T>.histogram(): Map<T, Long> = 
     groupingBy { it }.eachCount().mapValues { it.value.toLong() }
 
-fun <T> MutableMap<T, Long>.incrementKey(key: T, amount: Long) =
+fun <T> MutableMap<T, Long>.increment(key: T, amount: Long) =
     compute(key) { _, v -> (v ?: 0L) + amount }
 
 fun solve(initial: String, rules: Map<String, List<String>>, rounds: Int): Long {
@@ -14,11 +14,11 @@ fun solve(initial: String, rules: Map<String, List<String>>, rounds: Int): Long 
             val split: List<String>? = rules[pair]
             if (split != null) {
                 // All instances of the given pair are replaced by the 2 new pairs.
-                pairCounts.incrementKey(pair, -count)
-                pairCounts.incrementKey(split[0], count)
-                pairCounts.incrementKey(split[1], count)
+                pairCounts.increment(pair, -count)
+                pairCounts.increment(split[0], count)
+                pairCounts.increment(split[1], count)
                 // The element histogram increases by the middle element.
-                elementCounts.incrementKey(split[0][1], count)
+                elementCounts.increment(split[0][1], count)
             }
         }
     }
