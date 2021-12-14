@@ -1,11 +1,10 @@
 #!/usr/bin/env kotlin
 
-fun <T> MutableMap<T, Long>.incrementKey(key: T, amount: Long) {
-    compute(key) { _, v -> (v ?: 0L) + amount }
-}
-
 fun <T> Iterable<T>.histogram(): Map<T, Long> = 
     groupingBy { it }.eachCount().mapValues { it.value.toLong() }
+
+fun <T> MutableMap<T, Long>.incrementKey(key: T, amount: Long) =
+    compute(key) { _, v -> (v ?: 0L) + amount }
 
 fun solve(initial: String, rules: Map<String, List<String>>, rounds: Int): Long {
     val histogram = initial.toList().histogram().toMutableMap()
