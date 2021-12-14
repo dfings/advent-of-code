@@ -8,7 +8,7 @@ fun <T> MutableMap<T, Long>.incrementKey(key: T, amount: Long) =
 
 fun solve(initial: String, rules: Map<String, List<String>>, rounds: Int): Long {
     val elementCounts = initial.toList().histogram().toMutableMap()
-    var pairCounts = initial.windowed(2).histogram().toMutableMap()
+    val pairCounts = initial.windowed(2).histogram().toMutableMap()
     repeat (rounds) {
         for ((pair, count) in pairCounts.toMap()) {
             val split: List<String>? = rules[pair]
