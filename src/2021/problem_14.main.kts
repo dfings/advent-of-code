@@ -7,22 +7,22 @@ fun <T> MutableMap<T, Long>.incrementKey(key: T, amount: Long) =
     compute(key) { _, v -> (v ?: 0L) + amount }
 
 fun solve(initial: String, rules: Map<String, List<String>>, rounds: Int): Long {
-    val histogram = initial.toList().histogram().toMutableMap()
-    var polymer = initial.windowed(2).histogram().toMutableMap()
+    val elementCounts = initial.toList().histogram().toMutableMap()
+    var pairCounts = initial.windowed(2).histogram().toMutableMap()
     repeat (rounds) {
-        for ((pair, count) in polymer.toMap()) {
+        for ((pair, count) in pairCounts.toMap()) {
             val split: List<String>? = rules[pair]
             if (split != null) {
                 // All instances of the given pair are replaced by the 2 new pairs.
-                polymer.incrementKey(pair, -count)
-                polymer.incrementKey(split[0], count)
-                polymer.incrementKey(split[1], count)
-                // The histogram increases by the middle element.
-                histogram.incrementKey(split[0][1], count)
+                pairCounts.incrementKey(pair, -count)
+                pairCounts.incrementKey(split[0], count)
+                pairCounts.incrementKey(split[1], count)
+                // The element histogram increases by the middle element.
+                elementCounts.incrementKey(split[0][1], count)
             }
         }
     }
-    return histogram.maxOf { it.value } - histogram.minOf { it.value }
+    return elementCounts.maxOf { it.value } - elementCounts.minOf { it.value }
 }
 
 val lines = java.io.File(args[0]).readLines()
