@@ -12,11 +12,13 @@ class Graph(val vertexes: List<List<Vertex>>) {
     val yMax = vertexes.lastIndex
 
     fun computeShortestPath(): Int {
-        val queue = HashSet<Vertex>()
-        vertexes[0][0].distance = 0
-        queue.add(vertexes[0][0])
+        val start = vertexes[0][0]
+        val target = vertexes[yMax][xMax]
+        start.distance = 0
+        val queue = mutableSetOf<Vertex>(start)
         while (!queue.isEmpty()) {
             val vertex = queue.minByOrNull { it.distance }!!
+            if (vertex == target) break
             vertex.neighbors().forEach { 
                 val distance = vertex.distance + it.weight
                 if (distance < it.distance) {
@@ -26,7 +28,7 @@ class Graph(val vertexes: List<List<Vertex>>) {
             }
             queue.remove(vertex)
         }
-        return vertexes[yMax][xMax].distance
+        return target.distance
     }
 
     fun Vertex.neighbors() = listOfNotNull(
