@@ -5,7 +5,6 @@ class Vertex(
     val y: Int, 
     val weight: Int, 
     var distance: Int = Int.MAX_VALUE, 
-    var previous: Vertex? = null
 )
 
 class Graph(val vertexes: List<List<Vertex>>) {
@@ -21,7 +20,6 @@ class Graph(val vertexes: List<List<Vertex>>) {
                 val distance = vertex.distance + it.weight
                 if (distance < it.distance) {
                     it.distance = distance
-                    it.previous = vertex
                 }
             }
             unvisited.remove(vertex)
