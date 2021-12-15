@@ -4,7 +4,7 @@ class Vertex(
     val x: Int, 
     val y: Int, 
     val weight: Int, 
-    var distance: Int = Int.MAX_VALUE, 
+    var distance: Int = Int.MAX_VALUE,
 )
 
 class Graph(val vertexes: List<List<Vertex>>) {
@@ -15,18 +15,17 @@ class Graph(val vertexes: List<List<Vertex>>) {
         val start = vertexes[0][0]
         val target = vertexes[yMax][xMax]
         start.distance = 0
-        val queue = mutableSetOf<Vertex>(start)
-        while (!queue.isEmpty()) {
-            val vertex = queue.minByOrNull { it.distance }!!
-            if (vertex == target) break
+        val frontier = mutableSetOf<Vertex>(start)
+        while (!frontier.isEmpty()) {
+            val vertex = frontier.minByOrNull { it.distance }!!
             vertex.neighbors().forEach { 
                 val distance = vertex.distance + it.weight
                 if (distance < it.distance) {
                     it.distance = distance
-                    queue.add(it)
+                    frontier.add(it)
                 }
             }
-            queue.remove(vertex)
+            frontier.remove(vertex)
         }
         return target.distance
     }
