@@ -7,10 +7,8 @@ class Graph(val vertexes: List<List<Vertex>>) {
     val yMax = vertexes.lastIndex
 
     fun computeShortestPath(): Int {
-        val start = vertexes[0][0]
-        val target = vertexes[yMax][xMax]
-        start.distance = 0
-        val frontier = mutableSetOf<Vertex>(start)
+        vertexes[0][0].distance = 0
+        val frontier = mutableSetOf<Vertex>(vertexes[0][0])
         while (!frontier.isEmpty()) {
             val vertex = frontier.minByOrNull { it.distance }!!
             vertex.neighbors().forEach { 
@@ -22,7 +20,7 @@ class Graph(val vertexes: List<List<Vertex>>) {
             }
             frontier.remove(vertex)
         }
-        return target.distance
+        return vertexes[yMax][xMax].distance
     }
 
     fun Vertex.neighbors() = listOfNotNull(
