@@ -1,8 +1,5 @@
 #!/usr/bin/env kotlin
 
-import java.util.Comparator
-import java.util.PriorityQueue
-
 class Vertex(
     val x: Int, 
     val y: Int, 
@@ -15,19 +12,19 @@ class Graph(val vertexes: List<List<Vertex>>) {
     val yMax = vertexes.lastIndex
 
     fun computeShortestPath(): Int {
-        val queue = PriorityQueue<Vertex>(Comparator.comparing { it.distance })
+        val queue = HashSet<Vertex>()
         vertexes[0][0].distance = 0
         queue.add(vertexes[0][0])
         while (!queue.isEmpty()) {
-            val vertex = queue.poll()
+            val vertex = queue.minByOrNull { it.distance }!!
             vertex.neighbors().forEach { 
                 val distance = vertex.distance + it.weight
                 if (distance < it.distance) {
                     it.distance = distance
-                    queue.remove(it)
                     queue.add(it)
                 }
             }
+            queue.remove(vertex)
         }
         return vertexes[yMax][xMax].distance
     }
