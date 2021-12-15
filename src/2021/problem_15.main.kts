@@ -1,11 +1,6 @@
 #!/usr/bin/env kotlin
 
-class Vertex(
-    val x: Int, 
-    val y: Int, 
-    val weight: Int, 
-    var distance: Int = Int.MAX_VALUE,
-)
+class Vertex(val x: Int, val y: Int, val weight: Int,  var distance: Int = Int.MAX_VALUE)
 
 class Graph(val vertexes: List<List<Vertex>>) {
     val xMax = vertexes[0].lastIndex
