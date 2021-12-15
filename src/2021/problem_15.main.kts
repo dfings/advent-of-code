@@ -24,6 +24,7 @@ class Graph(val vertexes: List<List<Vertex>>) {
                 val distance = vertex.distance + it.weight
                 if (distance < it.distance) {
                     it.distance = distance
+                    queue.remove(it)
                     queue.add(it)
                 }
             }
