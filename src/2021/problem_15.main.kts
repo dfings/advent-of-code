@@ -11,11 +11,11 @@ class Graph(val vertexes: List<List<Vertex>>) {
         val frontier = mutableSetOf<Vertex>(vertexes[0][0])
         while (!frontier.isEmpty()) {
             val vertex = frontier.minByOrNull { it.distance }!!
+            frontier.remove(vertex)
             vertex.neighbors().filter { it.distance == Int.MAX_VALUE }.forEach { 
                 it.distance = vertex.distance + it.weight
                 frontier.add(it)
             }
-            frontier.remove(vertex)
         }
         return vertexes[yMax][xMax].distance
     }
