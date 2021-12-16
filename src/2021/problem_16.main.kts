@@ -33,8 +33,8 @@ fun parseLiteral(version: Int, iter: Iterator<Char>): Literal {
 }
 
 fun parseLengthDelimitedOperator(version: Int, typeId: Int, iter: Iterator<Char>): Operator {
-    val length = iter.take(15).binaryToInt()
     val subpackets = mutableListOf<Packet>() 
+    val length = iter.take(15).binaryToInt()
     var remaining = length
     while (remaining > 0) {
         subpackets.add(parsePacket(iter))
