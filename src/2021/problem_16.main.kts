@@ -11,6 +11,8 @@ sealed class Packet(val version: Int, val length: Int)
 class Literal(version: Int, length: Int, val value: Long) : Packet(version, length)
 class Operator(version: Int, val typeId: Int, length: Int, val subpackets: List<Packet>) : Packet(version, length)
 
+fun List<Packet>.totalLength() = sumOf { it.length }
+
 fun Iterator<Char>.parsePacket(): Packet {
     val version = take(3).binaryToInt()
     val typeId = take(3).binaryToInt()
@@ -32,19 +34,18 @@ fun Iterator<Char>.parseLiteral(version: Int): Literal {
 
 fun Iterator<Char>.parseLengthDelimitedOperator(version: Int, typeId: Int): Operator {
     val subpackets = mutableListOf<Packet>() 
-    val length = take(15).binaryToInt()
-    var remaining = length
+    var remaining = take(15).binaryToInt()
     while (remaining > 0) {
         subpackets.add(parsePacket())
         remaining -= subpackets.last().length
     }
-    return Operator(version, typeId, 22 + length, subpackets)
+    return Operator(version, typeId, 22 + subpackets.totalLength(), subpackets)
 }
 
 fun Iterator<Char>.parsePacketDelimitedOperator(version: Int, typeId: Int): Operator {
     val subpacketCount = take(11).binaryToInt()
     val subpackets = (1..subpacketCount).map { parsePacket() }
-    return Operator(version, typeId, 18 + subpackets.sumOf { it.length }, subpackets)
+    return Operator(version, typeId, 18 + subpackets.totalLength(), subpackets)
 }
 
 val input = java.io.File(args[0]).readLines().single()
