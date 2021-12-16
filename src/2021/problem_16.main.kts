@@ -78,7 +78,7 @@ fun Packet.evaluate(): Long = when (this) {
 println(packet.evaluate())
 
 fun Packet.render(): String = when (this) {
-    is Literal -> "${value}"
+    is Literal -> "$value"
     is Operator -> {
         val results = subpackets.map { it.render() }
         when (typeId) {
