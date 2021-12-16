@@ -22,14 +22,12 @@ fun Iterator<Char>.parsePacket(): Packet {
 }
 
 fun Iterator<Char>.parseLiteral(version: Int): Literal {
-    var blockCount = 0
     val encoded = mutableListOf<Char>()
     do {
-        blockCount++
         val partial = take(5)
         encoded += partial.drop(1)
     } while (partial.first() == '1')
-    return Literal(version, 6 + blockCount * 5, encoded.binaryToLong())
+    return Literal(version, 6 + (encoded.size / 4) * 5, encoded.binaryToLong())
 }
 
 fun Iterator<Char>.parseLengthDelimitedOperator(version: Int, typeId: Int): Operator {
