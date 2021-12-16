@@ -4,7 +4,7 @@
 fun <T> Iterator<T>.take(n: Int) = (1..n).map { next() }
 fun List<Char>.binaryToInt() = joinToString("").toInt(radix = 2)
 fun List<Char>.binaryToLong() = joinToString("").toLong(radix = 2)
-fun Char.hexToBinaryString() = Integer.toBinaryString((1 shl 4) or digitToInt(radix = 16)).drop(1)
+fun Char.hexToBinaryString() = Integer.toBinaryString(digitToInt(radix = 16)).padStart(4, '0')
 
 // AST definition
 sealed class Packet(val version: Int, val length: Int)
@@ -80,17 +80,18 @@ println(packet.evaluate())
 fun Packet.render(): String = when (this) {
     is Literal -> "$value"
     is Operator -> {
-        val results = subpackets.map { it.render() }
-        when (typeId) {
-            0 -> if (results.size == 1) results[0] else "(${results.joinToString(" + ")})"
-            1 -> if (results.size == 1) results[0] else "(${results.joinToString(" * ")})"
-            2 -> "min(${results.joinToString(", ")})"
-            3 -> "max(${results.joinToString(", ")})"
-            5 -> "(${results[0]} > ${results[1]})"
-            6 -> "(${results[0]} < ${results[1]})"
-            7 -> "(${results[0]} == ${results[1]})"
+        val results = subpackets.map { it.render() }.joinToString(" ")
+        val op = when (typeId) {
+            0 -> "+"
+            1 -> "*"
+            2 -> "min"
+            3 -> "max"
+            5 -> ">"
+            6 -> "<"
+            7 -> "=="
             else -> error("")
         }
+        "($op $results)"
     }
     else -> error("")
 }
