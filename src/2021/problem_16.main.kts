@@ -1,5 +1,7 @@
 #!/usr/bin/env kotlin
 
+import kotlin.text.removeSurrounding
+
 // Utility
 fun Iterator<Char>.take(n: Int) = (1..n).map { next() }
 fun List<Char>.binaryToInt() = joinToString("").toInt(radix = 2)
@@ -76,3 +78,22 @@ fun applyOperators(packet: Packet): Long = when (packet) {
     else -> error("")
 }
 println(applyOperators(packet))
+
+fun renderOperators(packet: Packet): String = when (packet) {
+    is Literal -> "${packet.value}"
+    is Operator -> {
+        val results = packet.subpackets.map { renderOperators(it) }
+        when (packet.typeId) {
+            0 -> if (results.size == 1) results[0] else "(${results.joinToString(" + ")})"
+            1 -> if (results.size == 1) results[0] else "(${results.joinToString(" * ")})"
+            2 -> "min(${results.joinToString(", ").removeSurrounding("(", ")")})"
+            3 -> "max(${results.joinToString(", ").removeSurrounding("(", ")")})"
+            5 -> "(${results[0]} > ${results[1]})"
+            6 -> "(${results[0]} < ${results[1]})"
+            7 -> "(${results[0]} == ${results[1]})"
+            else -> error("")
+        }
+    }
+    else -> error("")
+}
+println(renderOperators(packet))
