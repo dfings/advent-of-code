@@ -1,7 +1,5 @@
 #!/usr/bin/env kotlin
 
-import kotlin.text.removeSurrounding
-
 // Utility
 fun Iterator<Char>.take(n: Int) = (1..n).map { next() }
 fun List<Char>.binaryToInt() = joinToString("").toInt(radix = 2)
@@ -86,8 +84,8 @@ fun Packet.render(): String = when (this) {
         when (typeId) {
             0 -> if (results.size == 1) results[0] else "(${results.joinToString(" + ")})"
             1 -> if (results.size == 1) results[0] else "(${results.joinToString(" * ")})"
-            2 -> "min(${results.joinToString(", ").removeSurrounding("(", ")")})"
-            3 -> "max(${results.joinToString(", ").removeSurrounding("(", ")")})"
+            2 -> "min(${results.joinToString(", ")})"
+            3 -> "max(${results.joinToString(", ")})"
             5 -> "(${results[0]} > ${results[1]})"
             6 -> "(${results[0]} < ${results[1]})"
             7 -> "(${results[0]} == ${results[1]})"
