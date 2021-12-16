@@ -34,10 +34,9 @@ fun Iterator<Char>.parseLiteral(version: Int): Literal {
 
 fun Iterator<Char>.parseLengthDelimitedOperator(version: Int, typeId: Int): Operator {
     val subpackets = mutableListOf<Packet>() 
-    var remaining = take(15).binaryToInt()
-    while (remaining > 0) {
+    val length = take(15).binaryToInt()
+    while (subpackets.totalLength() < length) {
         subpackets.add(parsePacket())
-        remaining -= subpackets.last().length
     }
     return Operator(version, typeId, 22 + subpackets.totalLength(), subpackets)
 }
