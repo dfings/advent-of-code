@@ -1,7 +1,7 @@
 #!/usr/bin/env kotlin
 
 // Utility
-fun Iterator<Char>.take(n: Int) = (1..n).map { next() }
+fun <T> Iterator<T>.take(n: Int) = (1..n).map { next() }
 fun List<Char>.binaryToInt() = joinToString("").toInt(radix = 2)
 fun List<Char>.binaryToLong() = joinToString("").toLong(radix = 2)
 fun Char.hexToBinaryString() = Integer.toBinaryString((1 shl 4) or digitToInt(radix = 16)).drop(1)
