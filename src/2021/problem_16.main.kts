@@ -61,3 +61,24 @@ fun sumVersions(packet: Packet): Int {
     }
 }
 println(sumVersions(packet))
+
+fun applyOperators(packet: Packet): Long {
+    return when (packet) {
+        is Literal -> packet.value
+        is Operator -> {
+            val results = packet.subpackets.map { applyOperators(it) }
+            when (packet.typeId) {
+                0 -> results.sum()
+                1 -> results.reduce(Long::times)
+                2 -> results.minOf { it }
+                3 -> results.maxOf { it }
+                5 -> if (results[0] > results[1]) 1 else 0
+                6 -> if (results[0] < results[1]) 1 else 0
+                7 -> if (results[0] == results[1]) 1 else 0
+                else -> error("")
+            }
+        }
+        else -> error("")
+    }
+}
+println(applyOperators(packet))
