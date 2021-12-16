@@ -53,18 +53,18 @@ val input = java.io.File(args[0]).readLines().single()
 val binary = input.map { it.hexToBinaryString() }.joinToString("").toList()
 val packet = binary.iterator().parsePacket()
 
-fun sumVersions(packet: Packet): Int = when (packet) {
-    is Literal -> packet.version
-    is Operator -> packet.version + packet.subpackets.map { sumVersions(it) }.sum()
+fun Packet.versionSum(): Int = when (this) {
+    is Literal -> version
+    is Operator -> version + subpackets.map { it.versionSum() }.sum()
     else -> error("")
 }
-println(sumVersions(packet))
+println(packet.versionSum())
 
-fun applyOperators(packet: Packet): Long = when (packet) {
-    is Literal -> packet.value
+fun Packet.evaluate(): Long = when (this) {
+    is Literal -> value
     is Operator -> {
-        val results = packet.subpackets.map { applyOperators(it) }
-        when (packet.typeId) {
+        val results = subpackets.map { it.evaluate() }
+        when (typeId) {
             0 -> results.sum()
             1 -> results.reduce(Long::times)
             2 -> results.minOf { it }
@@ -77,13 +77,13 @@ fun applyOperators(packet: Packet): Long = when (packet) {
     }
     else -> error("")
 }
-println(applyOperators(packet))
+println(packet.evaluate())
 
-fun renderOperators(packet: Packet): String = when (packet) {
-    is Literal -> "${packet.value}"
+fun Packet.render(): String = when (this) {
+    is Literal -> "${value}"
     is Operator -> {
-        val results = packet.subpackets.map { renderOperators(it) }
-        when (packet.typeId) {
+        val results = subpackets.map { it.render() }
+        when (typeId) {
             0 -> if (results.size == 1) results[0] else "(${results.joinToString(" + ")})"
             1 -> if (results.size == 1) results[0] else "(${results.joinToString(" * ")})"
             2 -> "min(${results.joinToString(", ").removeSurrounding("(", ")")})"
@@ -96,4 +96,4 @@ fun renderOperators(packet: Packet): String = when (packet) {
     }
     else -> error("")
 }
-println(renderOperators(packet))
+println(packet.render())
