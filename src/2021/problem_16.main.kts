@@ -7,9 +7,50 @@ fun List<Char>.binaryToLong() = joinToString("").toLong(radix = 2)
 fun Char.hexToBinaryString() = Integer.toBinaryString(digitToInt(radix = 16)).padStart(4, '0')
 
 // AST definition
-sealed class Packet(val version: Int)
-class Literal(version: Int, val value: Long) : Packet(version)
-class Operator(version: Int, val typeId: Int, val packets: List<Packet>) : Packet(version)
+sealed interface Packet {
+    fun versionSum(): Int
+    fun evaluate(): Long
+    fun render(): String
+}
+
+data class Literal(val version: Int, val value: Long) : Packet {
+    override fun versionSum() = version
+    override fun evaluate() = value
+    override fun render() = "$value"
+}
+
+data class Operator(val version: Int, val typeId: Int, val packets: List<Packet>) : Packet {
+    override fun versionSum() = version + packets.sumOf(Packet::versionSum)
+
+    override fun evaluate(): Long {
+        val results = packets.map { it.evaluate() }
+        return when (typeId) {
+            0 -> results.sum()
+            1 -> results.reduce(Long::times)
+            2 -> results.minOf { it }
+            3 -> results.maxOf { it }
+            5 -> if (results[0] > results[1]) 1 else 0
+            6 -> if (results[0] < results[1]) 1 else 0
+            7 -> if (results[0] == results[1]) 1 else 0
+            else -> error("Bad typeId: $typeId")
+        }
+    }
+
+    override fun render(): String {
+        val results = packets.map { it.render() }.joinToString(" ")
+        val op = when (typeId) {
+            0 -> "+"
+            1 -> "*"
+            2 -> "min"
+            3 -> "max"
+            5 -> ">"
+            6 -> "<"
+            7 -> "=="
+            else -> error("")
+        }
+        return "($op $results)"
+    }
+}
 
 fun Iterator<Char>.parsePacket(): Packet {
     val version = take(3).binaryToInt()
@@ -50,48 +91,7 @@ val input = java.io.File(args[0]).readLines().single()
 val binary = input.map { it.hexToBinaryString() }.joinToString("").toList()
 val packet = binary.iterator().parsePacket()
 
-fun Packet.versionSum(): Int = when (this) {
-    is Literal -> version
-    is Operator -> version + packets.sumOf { it.versionSum() }
-    else -> error("")
-}
 println(packet.versionSum())
-
-fun Packet.evaluate(): Long = when (this) {
-    is Literal -> value
-    is Operator -> {
-        val results = packets.map { it.evaluate() }
-        when (typeId) {
-            0 -> results.sum()
-            1 -> results.reduce(Long::times)
-            2 -> results.minOf { it }
-            3 -> results.maxOf { it }
-            5 -> if (results[0] > results[1]) 1 else 0
-            6 -> if (results[0] < results[1]) 1 else 0
-            7 -> if (results[0] == results[1]) 1 else 0
-            else -> error("")
-        }
-    }
-    else -> error("")
-}
 println(packet.evaluate())
-
-fun Packet.render(): String = when (this) {
-    is Literal -> "$value"
-    is Operator -> {
-        val results = packets.map { it.render() }.joinToString(" ")
-        val op = when (typeId) {
-            0 -> "+"
-            1 -> "*"
-            2 -> "min"
-            3 -> "max"
-            5 -> ">"
-            6 -> "<"
-            7 -> "=="
-            else -> error("")
-        }
-        "($op $results)"
-    }
-    else -> error("")
-}
 println(packet.render())
+println(packet)
