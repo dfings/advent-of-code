@@ -7,11 +7,9 @@ fun List<Char>.binaryToLong() = joinToString("").toLong(radix = 2)
 fun Char.hexToBinaryString() = Integer.toBinaryString(digitToInt(radix = 16)).padStart(4, '0')
 
 // AST definition
-sealed class Packet(val version: Int, val length: Int)
-class Literal(version: Int, length: Int, val value: Long) : Packet(version, length)
-class Operator(version: Int, val typeId: Int, length: Int, val subpackets: List<Packet>) : Packet(version, length)
-
-fun List<Packet>.totalLength() = sumOf { it.length }
+sealed class Packet(val version: Int)
+class Literal(version: Int, val value: Long) : Packet(version)
+class Operator(version: Int, val typeId: Int, val subpackets: List<Packet>) : Packet(version)
 
 fun Iterator<Char>.parsePacket(): Packet {
     val version = take(3).binaryToInt()
@@ -29,22 +27,23 @@ fun Iterator<Char>.parseLiteral(version: Int): Literal {
         val partial = take(5)
         encoded += partial.drop(1)
     } while (partial.first() == '1')
-    return Literal(version, 6 + (encoded.size / 4) * 5, encoded.binaryToLong())
+    return Literal(version, encoded.binaryToLong())
 }
 
 fun Iterator<Char>.parseLengthDelimitedOperator(version: Int, typeId: Int): Operator {
-    val subpackets = mutableListOf<Packet>() 
     val length = take(15).binaryToInt()
-    while (subpackets.totalLength() < length) {
-        subpackets.add(parsePacket())
+    val subiter = take(length).iterator()
+    val subpackets = mutableListOf<Packet>() 
+    while (subiter.hasNext()) {
+        subpackets.add(subiter.parsePacket())
     }
-    return Operator(version, typeId, 22 + subpackets.totalLength(), subpackets)
+    return Operator(version, typeId, subpackets)
 }
 
 fun Iterator<Char>.parsePacketDelimitedOperator(version: Int, typeId: Int): Operator {
     val subpacketCount = take(11).binaryToInt()
     val subpackets = (1..subpacketCount).map { parsePacket() }
-    return Operator(version, typeId, 18 + subpackets.totalLength(), subpackets)
+    return Operator(version, typeId, subpackets)
 }
 
 val input = java.io.File(args[0]).readLines().single()
