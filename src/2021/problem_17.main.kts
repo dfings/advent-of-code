@@ -1,7 +1,6 @@
 #!/usr/bin/env kotlin
 
 data class Point(val x: Int, val y: Int) {
-    constructor(x: String, y: String) : this(x.toInt(), y.toInt())
     operator fun plus(p: Point) = Point(x + p.x, y + p.y)
 }
 
@@ -31,7 +30,7 @@ fun Point.fire() = generateSequence(Vector(ZERO, this)) {
 val regex = kotlin.text.Regex("target area: x=(\\d+)..(\\d+), y=(-\\d+)..(-\\d+)")
 val input = java.io.File(args[0]).readLines().single()
 val (xMin, xMax, yMin, yMax) = checkNotNull(regex.find(input)).destructured
-val target = Target(Point(xMin, yMin), Point(xMax, yMax))
+val target = Target(Point(xMin.toInt(), yMin.toInt()), Point(xMax.toInt(), yMax.toInt()))
 val hits = sequence {
     for (x in 1..target.max.x) {
         for (y in target.min.y..-target.min.y) {
