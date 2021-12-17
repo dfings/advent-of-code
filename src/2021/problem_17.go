@@ -22,12 +22,7 @@ func Max(x, y int) int {
 }
 
 func main() {
-	var t Target
-	t.xMin = 150
-	t.xMax = 171
-	t.yMin = -129
-	t.yMax = -70
-
+	t := Target{ xMin: 150, xMax: 171, yMin: -129, yMax: -70}
 	yMax := 0
 	hits := 0
 	for x := 1; x <= t.xMax; x++ {
