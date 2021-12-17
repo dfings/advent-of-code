@@ -22,7 +22,7 @@ func Max(x, y int) int {
 }
 
 func main() {
-	t := Target{ xMin: 150, xMax: 171, yMin: -129, yMax: -70}
+	t := Target{xMin: 150, xMax: 171, yMin: -129, yMax: -70}
 	yMax := 0
 	hits := 0
 	for x := 1; x <= t.xMax; x++ {
@@ -34,10 +34,7 @@ func main() {
 					hits++
 					break
 				}
-				px += vx
-				py += vy
-				vx = Max(0, vx-1)
-				vy -= 1
+				px, py, vx, vy = px+vx, py+vy, Max(0, vx-1), vy-1
 			}
 		}
 	}
