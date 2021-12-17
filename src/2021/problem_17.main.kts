@@ -3,17 +3,19 @@
 data class Point(val x: Int, val y: Int) {
     constructor(x: String, y: String) : this(x.toInt(), y.toInt())
     operator fun plus(p: Point) = Point(x + p.x, y + p.y)
+    companion object {
+        val ZERO = Point(0, 0)
+        val DRAG_XY = Point(-1, -1)
+        val DRAG_Y = Point(0, -1)
+    }
 }
 
-val ZERO = Point(0, 0)
-val DRAG_XY = Point(-1, -1)
-val DRAG_Y = Point(0, -1)
-
-data class Vector(val position: Point, val velocity: Point)
-fun Vector.next() = Vector(
-    position + velocity, 
-    if (velocity.x > 0) velocity + DRAG_XY else velocity + DRAG_Y
-)
+data class Vector(val position: Point, val velocity: Point) {
+    fun next() = Vector(
+        position + velocity, 
+        if (velocity.x > 0) velocity + Point.DRAG_XY else velocity + Point.DRAG_Y
+    )
+}
 
 enum class State { PENDING, HIT, MISS }
 
@@ -26,9 +28,9 @@ data class Target(val min: Point, val max: Point) {
     }
 }
 
-fun Point.fire() = generateSequence(Vector(ZERO, this)) { it.next() }
+fun Point.fire() = generateSequence(Vector(Point.ZERO, this)) { it.next() }
 
-val regex = kotlin.text.Regex("target area: x=(-?\\d+)..(-?\\d+), y=(-?\\d+)..(-?\\d+)")
+val regex = kotlin.text.Regex("target area: x=(\\d+)..(\\d+), y=(-\\d+)..(-\\d+)")
 val input = java.io.File(args[0]).readLines().single()
 val (xMin, xMax, yMin, yMax) = checkNotNull(regex.find(input)).destructured
 val target = Target(Point(xMin, yMin), Point(xMax, yMax))
