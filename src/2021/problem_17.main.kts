@@ -5,16 +5,18 @@ data class Point(val x: Int, val y: Int) {
     operator fun plus(p: Point) = Point(x + p.x, y + p.y)
     companion object {
         val ZERO = Point(0, 0)
-        val DRAG_XY = Point(-1, -1)
-        val DRAG_Y = Point(0, -1)
     }
 }
 
 data class Vector(val position: Point, val velocity: Point) {
     fun next() = Vector(
         position + velocity, 
-        if (velocity.x > 0) velocity + Point.DRAG_XY else velocity + Point.DRAG_Y
-    )
+        if (velocity.x > 0) velocity + DRAG_XY else velocity + DRAG_Y
+    )    
+    companion object {
+        val DRAG_XY = Point(-1, -1)
+        val DRAG_Y = Point(0, -1)
+    }
 }
 
 enum class State { PENDING, HIT, MISS }
