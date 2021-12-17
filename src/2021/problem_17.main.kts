@@ -19,6 +19,7 @@ fun Vector.next() = Vector(
 enum class State { PENDING, HIT, MISS }
 
 data class Target(val min: Point, val max: Point) {
+    fun stateOf(v: Vector) = stateOf(v.position)
     fun stateOf(p: Point) = when {
         p.x > max.x || p.y < min.y -> State.MISS
         p.x < min.x || p.y > max.y -> State.PENDING
@@ -35,8 +36,8 @@ val target = Target(Point(xMin, yMin), Point(xMax, yMax))
 val hits = sequence {
     for (x in 1..target.max.x) {
         for (y in target.min.y..1000) {
-            val trajectory = Point(x, y).fire().takeWhile { target.stateOf(it.position) != State.MISS }
-            if (target.stateOf(trajectory.last().position) == State.HIT) yield(trajectory)
+            val trajectory = Point(x, y).fire().takeWhile { target.stateOf(it) != State.MISS }
+            if (target.stateOf(trajectory.last()) == State.HIT) yield(trajectory)
         }
     }
 }
