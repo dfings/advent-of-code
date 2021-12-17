@@ -26,7 +26,7 @@ data class Target(val min: Point, val max: Point) {
     }
 }
 
-fun Point.fire(): Sequence<Vector> = generateSequence(Vector(ZERO, this)) { it.next() }
+fun Point.fire() = generateSequence(Vector(ZERO, this)) { it.next() }
 
 val regex = kotlin.text.Regex("target area: x=(-?\\d+)..(-?\\d+), y=(-?\\d+)..(-?\\d+)")
 val input = java.io.File(args[0]).readLines().single()
