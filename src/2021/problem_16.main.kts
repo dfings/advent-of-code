@@ -9,7 +9,7 @@ fun Char.hexToBinaryString() = Integer.toBinaryString(digitToInt(radix = 16)).pa
 // AST definition
 sealed class Packet(val version: Int)
 class Literal(version: Int, val value: Long) : Packet(version)
-class Operator(version: Int, val typeId: Int, val subpackets: List<Packet>) : Packet(version)
+class Operator(version: Int, val typeId: Int, val packets: List<Packet>) : Packet(version)
 
 fun Iterator<Char>.parsePacket(): Packet {
     val version = take(3).binaryToInt()
@@ -32,18 +32,18 @@ fun Iterator<Char>.parseLiteral(version: Int): Literal {
 
 fun Iterator<Char>.parseLengthDelimitedOperator(version: Int, typeId: Int): Operator {
     val length = take(15).binaryToInt()
-    val subiter = take(length).iterator()
-    val subpackets = mutableListOf<Packet>() 
-    while (subiter.hasNext()) {
-        subpackets.add(subiter.parsePacket())
+    val iter = take(length).iterator()
+    val packets = mutableListOf<Packet>() 
+    while (iter.hasNext()) {
+        packets.add(iter.parsePacket())
     }
-    return Operator(version, typeId, subpackets)
+    return Operator(version, typeId, packets)
 }
 
 fun Iterator<Char>.parsePacketDelimitedOperator(version: Int, typeId: Int): Operator {
-    val subpacketCount = take(11).binaryToInt()
-    val subpackets = (1..subpacketCount).map { parsePacket() }
-    return Operator(version, typeId, subpackets)
+    val packetCount = take(11).binaryToInt()
+    val packets = (1..packetCount).map { parsePacket() }
+    return Operator(version, typeId, packets)
 }
 
 val input = java.io.File(args[0]).readLines().single()
@@ -52,7 +52,7 @@ val packet = binary.iterator().parsePacket()
 
 fun Packet.versionSum(): Int = when (this) {
     is Literal -> version
-    is Operator -> version + subpackets.map { it.versionSum() }.sum()
+    is Operator -> version + packets.map { it.versionSum() }.sum()
     else -> error("")
 }
 println(packet.versionSum())
@@ -60,7 +60,7 @@ println(packet.versionSum())
 fun Packet.evaluate(): Long = when (this) {
     is Literal -> value
     is Operator -> {
-        val results = subpackets.map { it.evaluate() }
+        val results = packets.map { it.evaluate() }
         when (typeId) {
             0 -> results.sum()
             1 -> results.reduce(Long::times)
@@ -79,7 +79,7 @@ println(packet.evaluate())
 fun Packet.render(): String = when (this) {
     is Literal -> "$value"
     is Operator -> {
-        val results = subpackets.map { it.render() }.joinToString(" ")
+        val results = packets.map { it.render() }.joinToString(" ")
         val op = when (typeId) {
             0 -> "+"
             1 -> "*"
