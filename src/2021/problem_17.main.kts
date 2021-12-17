@@ -11,7 +11,10 @@ val DRAG_XY = Point(1, 1)
 val DRAG_Y = Point(0, 1)
 
 data class Vector(val position: Point, val velocity: Point)
-fun Vector.next() = Vector(position + velocity, if (velocity.x > 0) velocity - DRAG_XY else velocity - DRAG_Y)
+fun Vector.next() = Vector(
+    position + velocity, 
+    if (velocity.x > 0) velocity - DRAG_XY else velocity - DRAG_Y
+)
 
 enum class State { PENDING, HIT, MISS }
 
@@ -27,29 +30,16 @@ fun Point.fire(): Sequence<Vector> = generateSequence(Vector(ZERO, this)) { it.n
 
 val regex = kotlin.text.Regex("target area: x=(-?\\d+)..(-?\\d+), y=(-?\\d+)..(-?\\d+)")
 val input = java.io.File(args[0]).readLines().single()
-val match = regex.find(input)!!
-val (xMin, xMax, yMin, yMax) = match.destructured
+val (xMin, xMax, yMin, yMax) = checkNotNull(regex.find(input)).destructured
 val target = Target(Point(xMin, yMin), Point(xMax, yMax))
-println(target)
-
-val candidates = sequence {
+val hits = sequence {
     for (x in 1..target.max.x) {
-        for (y in target.min.y..2000) {
-            yield(Point(x, y))
+        for (y in target.min.y..1000) {
+            val trajectory = Point(x, y).fire().takeWhile { target.stateOf(it.position) != State.MISS }
+            if (target.stateOf(trajectory.last().position) == State.HIT) yield(trajectory)
         }
     }
 }
 
-val bestY = candidates.maxOf {
-    val trajectory = it.fire().takeWhile { target.stateOf(it.position) != State.MISS }
-    val lastPosition = trajectory.last().position
-    if (target.stateOf(lastPosition) == State.HIT) trajectory.maxOf { it.position.y } else -1
-}
-println(bestY)
-
-val totalVelocities = candidates.sumOf {
-    val trajectory = it.fire().takeWhile { target.stateOf(it.position) != State.MISS }
-    val lastPosition = trajectory.last().position
-    if (target.stateOf(lastPosition) == State.HIT) 1L else 0L
-}
-println(totalVelocities)
+println(hits.maxOf { it.maxOf { it.position.y } })
+println(hits.count())
