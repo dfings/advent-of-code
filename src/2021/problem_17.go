@@ -4,8 +4,7 @@ import "fmt"
 
 func main() {
 	xMin, xMax, yMin, yMax := 150, 171, -129, -70
-	yBest := 0
-	hits := 0
+	yBest, hits := 0, 0
 	for x := 1; x <= xMax; x++ {
 		for y := yMin; y <= -yMin; y++ {
 			px, py, vx, vy := 0, 0, x, y
