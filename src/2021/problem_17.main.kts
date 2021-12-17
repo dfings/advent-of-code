@@ -34,7 +34,7 @@ val (xMin, xMax, yMin, yMax) = checkNotNull(regex.find(input)).destructured
 val target = Target(Point(xMin, yMin), Point(xMax, yMax))
 val hits = sequence {
     for (x in 1..target.max.x) {
-        for (y in target.min.y..1000) {
+        for (y in target.min.y..-target.min.y) {
             val trajectory = Point(x, y).fire().takeWhile { target.stateOf(it) != State.MISS }
             if (target.stateOf(trajectory.last()) == State.HIT) yield(trajectory)
         }
