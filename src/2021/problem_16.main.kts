@@ -52,7 +52,7 @@ val packet = binary.iterator().parsePacket()
 
 fun Packet.versionSum(): Int = when (this) {
     is Literal -> version
-    is Operator -> version + packets.map { it.versionSum() }.sum()
+    is Operator -> version + packets.sumOf { it.versionSum() }
     else -> error("")
 }
 println(packet.versionSum())
