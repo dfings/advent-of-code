@@ -34,7 +34,7 @@ println(target)
 
 val candidates = sequence {
     for (x in 1..target.max.x) {
-        for (y in 1..500) {
+        for (y in target.min.y..2000) {
             yield(Point(x, y))
         }
     }
@@ -46,3 +46,10 @@ val bestY = candidates.maxOf {
     if (target.stateOf(lastPosition) == State.HIT) trajectory.maxOf { it.position.y } else -1
 }
 println(bestY)
+
+val totalVelocities = candidates.sumOf {
+    val trajectory = it.fire().takeWhile { target.stateOf(it.position) != State.MISS }
+    val lastPosition = trajectory.last().position
+    if (target.stateOf(lastPosition) == State.HIT) 1L else 0L
+}
+println(totalVelocities)
