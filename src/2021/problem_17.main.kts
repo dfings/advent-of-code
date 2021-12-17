@@ -3,17 +3,16 @@
 data class Point(val x: Int, val y: Int) {
     constructor(x: String, y: String) : this(x.toInt(), y.toInt())
     operator fun plus(p: Point) = Point(x + p.x, y + p.y)
-    operator fun minus(p: Point) = Point(x - p.x, y - p.y)
 }
 
 val ZERO = Point(0, 0)
-val DRAG_XY = Point(1, 1)
-val DRAG_Y = Point(0, 1)
+val DRAG_XY = Point(-1, -1)
+val DRAG_Y = Point(0, -1)
 
 data class Vector(val position: Point, val velocity: Point)
 fun Vector.next() = Vector(
     position + velocity, 
-    if (velocity.x > 0) velocity - DRAG_XY else velocity - DRAG_Y
+    if (velocity.x > 0) velocity + DRAG_XY else velocity + DRAG_Y
 )
 
 enum class State { PENDING, HIT, MISS }
