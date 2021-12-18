@@ -14,7 +14,7 @@ class Node {
     fun isPair() = left != null
     fun depth(): Int = if (parent == null) 0 else 1 + parent!!.depth()
     fun magnitude(): Int = if (isPair()) 3 * left().magnitude() + 2 * right().magnitude() else value
-    override fun toString() = if (left != null) "[$left,$right]" else "$value"
+    override fun toString() = if (isPair()) "[$left,$right]" else "$value"
 
     companion object {
         fun inner(left: Node, right: Node) = Node().apply {
