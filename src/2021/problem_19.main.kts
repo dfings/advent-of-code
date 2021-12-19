@@ -18,8 +18,7 @@ data class Scanner(val index: Int, val beacons: List<Point>) {
 
 fun Iterator<String>.parseScanner(): Scanner {
     val regex = kotlin.text.Regex("--- scanner (\\d+) ---")
-    val header = next()
-    val (index) = checkNotNull(regex.find(header)).destructured
+    val (index) = checkNotNull(regex.find(next())).destructured
     val beacons = mutableListOf<Point>()
     while (hasNext()) {
         val line = next()
