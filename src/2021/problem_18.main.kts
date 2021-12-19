@@ -53,14 +53,8 @@ fun Iterator<Char>.parseNode(): Node {
     }
 }
 
-fun add(left: Node, right: Node): Node {
-    assert(left.parent == null && right.parent == null)
-    return Node.inner(left, right).also { it.reduce() }
-}
-
-fun Node.reduce() {
-    while (explodeNext(this) || splitNext(this)) {}
-}
+fun add(left: Node, right: Node) = Node.inner(left, right).also { reduce(it) }
+fun reduce(root: Node) = run { while (explodeNext(root) || splitNext(root)) {} }
 
 fun explodeNext(root: Node): Boolean {
     val nodes = root.inOrderList()
