@@ -3,13 +3,14 @@
 import kotlin.math.abs
 
 data class Point(val x: Int, val y: Int, val z: Int) {
-    fun offsetSignature(o: Point) = setOf(abs(x - o.x), abs(y - o.y), abs(z - o.z))
+    fun offsetSignature(o: Point): Set<Int> = setOf(abs(x - o.x), abs(y - o.y), abs(z - o.z))
 }
 
 data class Scanner(val index: Int, val beacons: List<Point>) {
-    val signatures = beacons.flatMap { a -> beacons.mapNotNull { b ->
-        if (a === b) null else a.offsetSignature(b) to (a to b)
-    }}.toMap()
+    val signatures: Map<Set<Int>, Pair<Point, Point>> =
+        beacons.flatMap { a -> beacons.mapNotNull { b ->
+            if (a === b) null else a.offsetSignature(b) to (a to b)
+        }}.toMap()
 
     // 66 = 12 * (12 - 1) / 2
     fun overlaps(o: Scanner) = (signatures.keys intersect o.signatures.keys).size >= 66
