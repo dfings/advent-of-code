@@ -30,11 +30,7 @@ class Node {
 }
 
 fun Node.inOrderList(): List<Node> = 
-    if (isPair) {
-        left().inOrderList() + listOf(this) + right().inOrderList()
-    } else {
-        listOf(this)
-    }
+    if (isPair) left().inOrderList() + listOf(this) + right().inOrderList() else listOf(this)
 
 fun String.parseNode() = iterator().parseNode()
 fun Iterator<Char>.parseNode(): Node {
@@ -71,9 +67,8 @@ fun explodeNext(root: Node): Boolean {
 
 fun splitNext(root: Node): Boolean {
     val nodes = root.inOrderList()
-    val index = nodes.indexOfFirst { !it.isPair && it.value >= 10 }
-    if (index == -1) return false
-    val node = nodes[index]
+    val node = nodes.find { !it.isPair && it.value >= 10 }
+    if (node == null) return false
     node.left = Node.leaf(node.value / 2).also { it.parent = node }
     node.right = Node.leaf((node.value + 1) / 2).also { it.parent = node }
     node.value = -1
