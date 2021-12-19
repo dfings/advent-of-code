@@ -67,8 +67,7 @@ fun explodeNext(root: Node): Boolean {
 }
 
 fun splitNext(root: Node): Boolean {
-    val nodes = root.inOrderList()
-    val node = nodes.find { it.isValue && it.value >= 10 }
+    val node = root.inOrderList().find { it.isValue && it.value >= 10 }
     if (node == null) return false
     node.left = Node.leaf(node.value / 2).also { it.parent = node }
     node.right = Node.leaf((node.value + 1) / 2).also { it.parent = node }
