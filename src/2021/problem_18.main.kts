@@ -86,15 +86,10 @@ val lines = java.io.File(args[0]).readLines()
 val nodes = lines.map { it.parseNode() }
 println(nodes.reduce(::add).magnitude())
 
-var maxMagnitude = 0
-for (i in lines.indices) {
-    for (j in lines.indices) {
-        if (i != j) {
-            val magnitude = add(lines[i].parseNode(), lines[j].parseNode()).magnitude()
-            if (magnitude > maxMagnitude) {
-                maxMagnitude = magnitude
-            }
-        }
-    }
-}
+fun <T> Iterable<T>.cartesianProduct() = flatMap { i -> map { j -> i to j } }
+
+val maxMagnitude =
+    lines.indices.cartesianProduct().filter { (i, j) -> i != j }.map { (i, j) ->
+        add(lines[i].parseNode(), lines[j].parseNode()).magnitude()
+    }.maxOf { it }
 println(maxMagnitude)
