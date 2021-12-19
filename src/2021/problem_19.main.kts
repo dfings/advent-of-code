@@ -33,10 +33,10 @@ fun Iterator<String>.parseScanner(): Scanner {
 }
 
 val lines = java.io.File(args[0]).readLines()
-val scanners = mutableListOf<Scanner>()
-lines.iterator().let { 
-    while (it.hasNext()) {
-        scanners.add(it.parseScanner())
+val scanners = buildList {
+    val iter = lines.iterator()
+    while (iter.hasNext()) {
+        add(iter.parseScanner())
     }
 }
 
