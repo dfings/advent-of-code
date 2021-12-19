@@ -12,6 +12,7 @@ class Node {
     fun right() = right!!
 
     val isPair: Boolean get() = left != null
+    val isValue: Boolean get() = !isPair
     val depth: Int get() = parent?.let { 1 + it.depth } ?: 0
     val magnitude: Int get() = if (isPair) 3 * left().magnitude + 2 * right().magnitude else value
     
@@ -57,8 +58,8 @@ fun explodeNext(root: Node): Boolean {
     val index = nodes.indexOfFirst { it.isPair && it.depth >= 4 }
     if (index == -1) return false
     val node = nodes[index]
-    nodes.subList(0, index - 1).lastOrNull { !it.isPair }?.let { it.value += node.left().value }
-    nodes.subList(index + 2, nodes.size).firstOrNull { !it.isPair }?.let { it.value += node.right().value }
+    nodes.subList(0, index - 1).lastOrNull { it.isValue }?.let { it.value += node.left().value }
+    nodes.subList(index + 2, nodes.size).firstOrNull { it.isValue }?.let { it.value += node.right().value }
     node.left = null
     node.right = null
     node.value = 0
@@ -67,7 +68,7 @@ fun explodeNext(root: Node): Boolean {
 
 fun splitNext(root: Node): Boolean {
     val nodes = root.inOrderList()
-    val node = nodes.find { !it.isPair && it.value >= 10 }
+    val node = nodes.find { it.isValue && it.value >= 10 }
     if (node == null) return false
     node.left = Node.leaf(node.value / 2).also { it.parent = node }
     node.right = Node.leaf((node.value + 1) / 2).also { it.parent = node }
