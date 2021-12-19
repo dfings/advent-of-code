@@ -76,8 +76,7 @@ fun splitNext(root: Node): Boolean {
 }
 
 val lines = java.io.File(args[0]).readLines()
-val nodes = lines.map { it.parseNode() }
-println(nodes.reduce(::add).magnitude)
+println(lines.map { it.parseNode() }.reduce(::add).magnitude)
 
 fun <T> Iterable<T>.cartesianProduct() = flatMap { i -> map { j -> i to j } }
 
