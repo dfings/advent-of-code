@@ -18,17 +18,17 @@ data class Scanner(val index: Int, val beacons: List<Point>) {
 
 fun Iterator<String>.parseScanner(): Scanner {
     val regex = kotlin.text.Regex("--- scanner (\\d+) ---")
-    val (index) = checkNotNull(regex.find(next())).destructured
+    val index = regex.find(next())!!.groupValues[1].toInt()
     val beacons = mutableListOf<Point>()
     while (hasNext()) {
         val line = next()
         if (line.isEmpty()) {
             break
         }
-        val (x, y, z) = line.split(",")
-        beacons += Point(x.toInt(), y.toInt(), z.toInt())
+        val (x, y, z) = line.split(",").map { it.toInt() }
+        beacons += Point(x, y, z)
     }
-    return Scanner(index.toInt(), beacons)
+    return Scanner(index, beacons)
 }
 
 val lines = java.io.File(args[0]).readLines()
