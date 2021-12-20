@@ -5,6 +5,7 @@ import kotlin.math.abs
 data class Point(val x: Int, val y: Int, val z: Int) {
     operator fun minus(o: Point): Point = Point(x - o.x, y - o.y, z - o.z)
     fun offsetSignature(o: Point): Set<Int> = setOf(abs(x - o.x), abs(y - o.y), abs(z - o.z))
+    fun manhattanDistance(o: Point): Int = abs(x - o.x) + abs(y - o.y) + abs(z - o.z)
 }
 
 typealias Extractor = (Point) -> Int
@@ -23,10 +24,10 @@ val transforms = listOf(
     // X -> X
     Transform(X, Y, Z), Transform(X, NY, NZ), Transform(X, NZ, Y), Transform(X, Z, NY),
     Transform(NX, Y, NZ), Transform(NX, NY, Z), Transform(NX, NZ, NY), Transform(NX, Z, Y),
-    // X -> Y
+    // Y -> X
     Transform(Y, NX, Z), Transform(Y, X, NZ), Transform(Y, Z, X), Transform(Y, NZ, NX),
     Transform(NY, X, Z), Transform(NY, NX, NZ), Transform(NY, NZ, X), Transform(NY, Z, NX),
-    // X -> Z
+    // Z -> X
     Transform(Z, X, Y), Transform(Z, NX, NY), Transform(Z, Y, NX), Transform(Z, NY, X),
     Transform(NZ, NX, Y), Transform(NZ, X, NY), Transform(NZ, NY, NX), Transform(NZ, Y, X),
 )
@@ -75,16 +76,15 @@ val overlaps = scanners.flatMap { a -> scanners.map { b -> a to b } }
     .groupBy { it.first }
     .mapValues { it.value.map { it.second } }
 
-println(overlaps)
-
 val scanner0 = scanners[0]
 val normalizedScanners = mutableMapOf(0 to scanner0)
+val scannerLocations = mutableMapOf(0 to Point(0, 0, 0))
 val queue = ArrayDeque<Pair<Int, Int>>(overlaps.getValue(0).map { 0 to it })
 while (!queue.isEmpty()) {
     val (referenceScannerIndex, nonNormalizedScannerIndex) = queue.removeFirst()
     if (nonNormalizedScannerIndex in normalizedScanners) continue
 
-    val referenceScanner = scanners[referenceScannerIndex]
+    val referenceScanner = normalizedScanners.getValue(referenceScannerIndex)
     val nonNormalizedScanner = scanners[nonNormalizedScannerIndex]
 
     val commonSignatures = referenceScanner.commonSignatures(nonNormalizedScanner)
@@ -100,13 +100,12 @@ while (!queue.isEmpty()) {
         } else {
             transform(pair2.second) - pair1.first
         }
-    println(scannerOffset)
 
     val normalizedScanner = nonNormalizedScanner.normalize(transform, scannerOffset)
     normalizedScanners[normalizedScanner.index] = normalizedScanner
-    println(transforms.indexOf(transform))
-    println((referenceScanner.beacons.toSet() intersect normalizedScanner.beacons.toSet()).size)
+    scannerLocations[normalizedScanner.index] = scannerOffset
     queue.addAll(overlaps.getValue(normalizedScanner.index).map { normalizedScanner.index to it })
 }
 
 println(normalizedScanners.values.flatMap { it.beacons }.toSet().size)
+println(scannerLocations.values.flatMap { a -> scannerLocations.values.map { b -> a.manhattanDistance(b) } }.maxOf { it} )
