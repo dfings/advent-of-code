@@ -49,5 +49,6 @@ class Grid(val points: Map<Point, Char>, val default: Char = '.') {
 val lines = java.io.File(args[0]).readLines()
 val code = lines.first()
 val grid = Grid(lines.drop(2).flatMapIndexed { y, line -> line.mapIndexed { x, char -> Point(x, y) to char } }.toMap())
-println((1..2).fold(grid) { acc, _ -> acc.enhance(code) }.countLights())
-println((1..50).fold(grid) { acc, _ -> acc.enhance(code) }.countLights())
+val enhancedGrids = generateSequence(grid) { it.enhance(code) }
+println(enhancedGrids.elementAt(2).countLights())
+println(enhancedGrids.elementAt(50).countLights())
