@@ -17,8 +17,8 @@ class Grid(val points: Map<Point, Char>, val default: Char = '.') {
             else -> error("Oops")
         }
         val newPoints = buildMap {
-            for (x in (xMin - 2 .. xMax + 2)) {
-                for (y in (yMin - 2 .. yMax + 2)) {
+            for (x in (xMin - 1 .. xMax + 1)) {
+                for (y in (yMin - 1 .. yMax + 1)) {
                     val p = Point(x, y)
                     put(p, code[toBinaryInt(p)])
                 }
