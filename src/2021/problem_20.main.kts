@@ -35,6 +35,8 @@ class Grid(val points: Map<Point, Char>, val default: Char = '.') {
         valueAt(p.x - 1, p.y + 1), valueAt(p.x, p.y + 1), valueAt(p.x + 1, p.y + 1),
     ).joinToString("").toInt(radix = 2)
 
+    fun countLights() = points.values.count { it == '#' }
+
     override fun toString(): String {
         return (yMin..yMax).map { y ->
             (xMin..xMax).map { x ->
@@ -47,4 +49,5 @@ class Grid(val points: Map<Point, Char>, val default: Char = '.') {
 val lines = java.io.File(args[0]).readLines()
 val code = lines.first()
 val grid = Grid(lines.drop(2).flatMapIndexed { y, line -> line.mapIndexed { x, char -> Point(x, y) to char } }.toMap())
-println(grid.enhance(code).enhance(code).points.values.count { it == '#' })
+println((1..2).fold(grid) { acc, _ -> acc.enhance(code) }.countLights())
+println((1..50).fold(grid) { acc, _ -> acc.enhance(code) }.countLights())
