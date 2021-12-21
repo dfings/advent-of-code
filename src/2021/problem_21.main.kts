@@ -43,3 +43,27 @@ while (stateCounts.keys.any { it.isActive(21) }) {
     stateCounts = advanceDiracState(stateCounts, 1)
 }
 println(stateCounts.entries.partition { it.key.scores[0] >= 21 }.toList().map { it.sumOf { it.value } }.maxOf { it })
+
+// Alternate part 2
+val cachedWinCounts = mutableMapOf<Pair<GameState, Int>, Pair<Long, Long>>()
+fun getWinCount(gameState: GameState, player: Int): Pair<Long, Long> {
+    val cached = cachedWinCounts.get(gameState to player)
+    if (cached != null) return cached
+
+    val winCount = mutableListOf(0L, 0L)
+    for (roll1 in 1..3) for (roll2 in 1..3) for (roll3 in 1..3) {
+        val roll = roll1 + roll2 + roll3
+        val nextState = gameState.advance(player, roll)
+        if (nextState.scores[player] >= 21) {
+            winCount[player] = winCount[player] + 1
+        } else {
+            val nextStateWinCounts = getWinCount(nextState, 1 - player)
+            winCount[0] += nextStateWinCounts.first
+            winCount[1] += nextStateWinCounts.second
+        }
+    }
+
+    cachedWinCounts[gameState to player] = winCount[0] to winCount[1]
+    return winCount[0] to winCount[1]
+}
+println(getWinCount(GameState(initialPositions), 0).toList().maxOf { it })
