@@ -45,8 +45,8 @@ while (stateCounts.keys.any { it.isActive(21) }) {
 println(stateCounts.entries.partition { it.key.scores[0] >= 21 }.toList().map { it.sumOf { it.value } }.maxOf { it })
 
 // Alternate part 2
-val cachedWinCounts = mutableMapOf<Pair<GameState, Int>, Pair<Long, Long>>()
-fun getWinCount(gameState: GameState, player: Int): Pair<Long, Long> {
+val cachedWinCounts = mutableMapOf<Pair<GameState, Int>, List<Long>>()
+fun getWinCount(gameState: GameState, player: Int): List<Long> {
     val cached = cachedWinCounts.get(gameState to player)
     if (cached != null) return cached
 
@@ -55,15 +55,15 @@ fun getWinCount(gameState: GameState, player: Int): Pair<Long, Long> {
         val roll = roll1 + roll2 + roll3
         val nextState = gameState.advance(player, roll)
         if (nextState.scores[player] >= 21) {
-            winCount[player] = winCount[player] + 1
+            winCount[player] += 1L
         } else {
             val nextStateWinCounts = getWinCount(nextState, 1 - player)
-            winCount[0] += nextStateWinCounts.first
-            winCount[1] += nextStateWinCounts.second
+            winCount[0] += nextStateWinCounts[0]
+            winCount[1] += nextStateWinCounts[1]
         }
     }
 
-    cachedWinCounts[gameState to player] = winCount[0] to winCount[1]
-    return winCount[0] to winCount[1]
+    cachedWinCounts[gameState to player] = winCount
+    return winCount
 }
-println(getWinCount(GameState(initialPositions), 0).toList().maxOf { it })
+println(getWinCount(GameState(initialPositions), 0).maxOf { it })
