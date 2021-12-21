@@ -3,19 +3,16 @@
 val lines = java.io.File(args[0]).readLines()
 val initialPositions = lines.map { it.split(": ").mapNotNull { it.toIntOrNull() }.single() }
 
-data class GameState(val positions: Pair<Int, Int>, val scores: Pair<Int, Int> = 0 to 0) {
-    fun isActive(cutoff: Int) = scores.first < cutoff && scores.second < cutoff
+data class GameState(val positions: List<Int>, val scores: List<Int> = listOf(0, 0)) {
+    fun isActive(cutoff: Int) = scores.all { it < cutoff }
 
-    fun advance(player: Int, roll: Int) =
-        if (player == 1) {
-            val p = nextPosition(positions.first, roll)
-            val s = scores.first + p
-            GameState(positions.copy(first = p), scores.copy(first = s))
-        } else {
-            val p = nextPosition(positions.second, roll)
-            val s = scores.second + p
-            GameState(positions.copy(second = p), scores.copy(second = s))
-        }
+    fun advance(player: Int, roll: Int): GameState {
+        val newPositions = positions.toMutableList()
+        newPositions[player] = nextPosition(positions[player], roll)
+        val newScores = scores.toMutableList()
+        newScores[player] = scores[player] + newPositions[player]
+        return GameState(newPositions, newScores)
+    }
 
     fun nextPosition(current: Int, move: Int) = (current + move - 1) % 10 + 1
 }
@@ -24,14 +21,14 @@ data class GameState(val positions: Pair<Int, Int>, val scores: Pair<Int, Int> =
 
 fun Iterator<Int>.roll() = (0..2).sumOf { next() }
 val dice = generateSequence(1) { 1 + (it % 100) }.iterator()
-var gameState = GameState(initialPositions[0] to initialPositions[1])
+var gameState = GameState(initialPositions)
 var turnCount = 0
 while (gameState.isActive(1000)) {
     turnCount++
-    gameState = gameState.advance(1, dice.roll())
+    gameState = gameState.advance(0, dice.roll())
     if (!gameState.isActive(1000)) break
     turnCount++
-    gameState = gameState.advance(2, dice.roll())
+    gameState = gameState.advance(1, dice.roll())
 }
 println(gameState.scores.toList().minOf { it} * (turnCount * 3))
 
@@ -47,11 +44,11 @@ fun advanceDiracState(start: Map<GameState, Long>, player: Int): Map<GameState, 
     }
 }
 
-var stateCounts = mapOf(GameState(initialPositions[0] to initialPositions[1]) to 1L)
+var stateCounts = mapOf(GameState(initialPositions) to 1L)
 while (stateCounts.keys.any { it.isActive(21) }) {
+    stateCounts = advanceDiracState(stateCounts, 0)
     stateCounts = advanceDiracState(stateCounts, 1)
-    stateCounts = advanceDiracState(stateCounts, 2)
 }
-val player1Wins = stateCounts.entries.filter { it.key.scores.first >= 21 }.sumOf { it.value }
-val player2Wins = stateCounts.entries.filter { it.key.scores.second >= 21 }.sumOf { it.value }
+val player1Wins = stateCounts.entries.filter { it.key.scores[0] >= 21 }.sumOf { it.value }
+val player2Wins = stateCounts.entries.filter { it.key.scores[1] >= 21 }.sumOf { it.value }
 println(listOf(player1Wins, player2Wins).maxOf { it })
