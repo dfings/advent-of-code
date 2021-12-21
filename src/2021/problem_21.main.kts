@@ -5,6 +5,7 @@ val initialPositions = lines.map { it.split(": ").mapNotNull { it.toIntOrNull() 
 
 data class GameState(val positions: List<Int>, val scores: List<Int> = listOf(0, 0)) {
     fun isActive(cutoff: Int) = scores.all { it < cutoff }
+    fun nextPosition(current: Int, move: Int) = (current + move - 1) % 10 + 1
 
     fun advance(player: Int, roll: Int): GameState {
         val newPositions = positions.toMutableList()
@@ -13,17 +14,14 @@ data class GameState(val positions: List<Int>, val scores: List<Int> = listOf(0,
         newScores[player] = scores[player] + newPositions[player]
         return GameState(newPositions, newScores)
     }
-
-    fun nextPosition(current: Int, move: Int) = (current + move - 1) % 10 + 1
 }
 
 // Part 1
-fun Iterator<Int>.roll() = next() + next() + next()
 val dice = generateSequence(1) { 1 + (it % 100) }.iterator()
 var gameState = GameState(initialPositions)
 var turnCount = 0
 while (gameState.isActive(1000)) {
-    gameState = gameState.advance(turnCount++ % 2, dice.roll())
+    gameState = gameState.advance(turnCount++ % 2, dice.next() + dice.next() + dice.next())
 }
 println(gameState.scores.toList().minOf { it} * (turnCount * 3))
 
