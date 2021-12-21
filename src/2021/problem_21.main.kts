@@ -29,7 +29,7 @@ println(gameState.players.minOf { it.score * (turnCount * 3) })
 
 // Part 2
 fun GameState.isDiracGameOver() = isGameOver(21)
-fun takeTurnDiracState(start: Map<GameState, Long>): Map<GameState, Long> = buildMap {
+fun takeDiracTurn(start: Map<GameState, Long>): Map<GameState, Long> = buildMap {
     start.entries.filter { it.key.isDiracGameOver() }.forEach { put(it.key, it.value) }
     for ((startGameState, count) in start.entries.filter { !it.key.isDiracGameOver() }) {
         for (roll1 in 1..3) for (roll2 in 1..3) for (roll3 in 1..3) {
@@ -42,7 +42,7 @@ fun takeTurnDiracState(start: Map<GameState, Long>): Map<GameState, Long> = buil
 
 var stateCounts = mapOf(GameState(initialPositions) to 1L)
 while (!stateCounts.keys.all { it.isDiracGameOver() }) {
-    stateCounts = takeTurnDiracState(stateCounts)
+    stateCounts = takeDiracTurn(stateCounts)
 }
 println(stateCounts.entries.partition { it.key.players[0].score >= 21 }.toList().map { it.sumOf { it.value } }.maxOf { it })
 
