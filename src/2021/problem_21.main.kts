@@ -24,11 +24,7 @@ val dice = generateSequence(1) { 1 + (it % 100) }.iterator()
 var gameState = GameState(initialPositions)
 var turnCount = 0
 while (gameState.isActive(1000)) {
-    turnCount++
-    gameState = gameState.advance(0, dice.roll())
-    if (!gameState.isActive(1000)) break
-    turnCount++
-    gameState = gameState.advance(1, dice.roll())
+    gameState = gameState.advance(turnCount++ % 2, dice.roll())
 }
 println(gameState.scores.toList().minOf { it} * (turnCount * 3))
 
