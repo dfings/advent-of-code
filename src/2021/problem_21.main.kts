@@ -19,7 +19,7 @@ data class GameState(val positions: List<Int>, val scores: List<Int> = listOf(0,
 
 // Part 1
 
-fun Iterator<Int>.roll() = (0..2).sumOf { next() }
+fun Iterator<Int>.roll() = next() + next() + next()
 val dice = generateSequence(1) { 1 + (it % 100) }.iterator()
 var gameState = GameState(initialPositions)
 var turnCount = 0
