@@ -42,6 +42,4 @@ while (stateCounts.keys.any { it.isActive(21) }) {
     stateCounts = advanceDiracState(stateCounts, 0)
     stateCounts = advanceDiracState(stateCounts, 1)
 }
-val player1Wins = stateCounts.entries.filter { it.key.scores[0] >= 21 }.sumOf { it.value }
-val player2Wins = stateCounts.entries.filter { it.key.scores[1] >= 21 }.sumOf { it.value }
-println(listOf(player1Wins, player2Wins).maxOf { it })
+println(stateCounts.entries.partition { it.key.scores[0] >= 21 }.toList().map { it.sumOf { it.value } }.maxOf { it })
