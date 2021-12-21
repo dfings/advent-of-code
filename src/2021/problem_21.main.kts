@@ -47,10 +47,7 @@ println(stateCounts.entries.partition { it.key.players[0].score >= 21 }.toList()
 
 // Alternate part 2
 val cachedWinCounts = mutableMapOf<Pair<GameState, Int>, List<Long>>()
-fun getWinCount(gameState: GameState, player: Int): List<Long> {
-    val cached = cachedWinCounts.get(gameState to player)
-    if (cached != null) return cached
-
+fun getWinCount(gameState: GameState, player: Int): List<Long> = cachedWinCounts.getOrPut(gameState to player) {
     val winCount = mutableListOf(0L, 0L)
     for (roll1 in 1..3) for (roll2 in 1..3) for (roll3 in 1..3) {
         val roll = roll1 + roll2 + roll3
@@ -63,8 +60,6 @@ fun getWinCount(gameState: GameState, player: Int): List<Long> {
             winCount[1] += nextStateWinCounts[1]
         }
     }
-
-    cachedWinCounts[gameState to player] = winCount
-    return winCount
+    winCount
 }
 println(getWinCount(GameState(initialPositions), 0).maxOf { it })
