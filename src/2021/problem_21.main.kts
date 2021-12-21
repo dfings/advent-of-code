@@ -4,8 +4,7 @@ val lines = java.io.File(args[0]).readLines()
 val initialPositions = lines.map { Player(it.split(": ").mapNotNull { it.toIntOrNull() }.single()) }
 
 data class Player(val position: Int, val score: Int = 0) {
-    fun takeTurn(roll: Int) = nextPosition(position, roll).let { Player(it, score + it) }
-    fun nextPosition(current: Int, move: Int) = (current + move - 1) % 10 + 1
+    fun takeTurn(roll: Int) = ((position + roll - 1) % 10 + 1).let { Player(it, score + it) }
 }
 
 data class GameState(val players: List<Player>, val activePlayer: Int = 0) {
@@ -29,9 +28,10 @@ while (!gameState.isGameOver(1000)) {
 println(gameState.players.minOf { it.score * (turnCount * 3) })
 
 // Part 2
+fun GameState.isDiracGameOver() = isGameOver(21)
 fun takeTurnDiracState(start: Map<GameState, Long>): Map<GameState, Long> = buildMap {
-    start.entries.filter { it.key.isGameOver(21) }.forEach { put(it.key, it.value) }
-    for ((startGameState, count) in start.entries.filter { !it.key.isGameOver(21) }) {
+    start.entries.filter { it.key.isDiracGameOver() }.forEach { put(it.key, it.value) }
+    for ((startGameState, count) in start.entries.filter { !it.key.isDiracGameOver() }) {
         for (roll1 in 1..3) for (roll2 in 1..3) for (roll3 in 1..3) {
             val roll = roll1 + roll2 + roll3
             val nextState = startGameState.takeTurn(roll)
@@ -41,7 +41,7 @@ fun takeTurnDiracState(start: Map<GameState, Long>): Map<GameState, Long> = buil
 }
 
 var stateCounts = mapOf(GameState(initialPositions) to 1L)
-while (!stateCounts.keys.all { it.isGameOver(21) }) {
+while (!stateCounts.keys.all { it.isDiracGameOver() }) {
     stateCounts = takeTurnDiracState(stateCounts)
 }
 println(stateCounts.entries.partition { it.key.players[0].score >= 21 }.toList().map { it.sumOf { it.value } }.maxOf { it })
@@ -53,7 +53,7 @@ fun getWinCount(gameState: GameState): List<Long> = cachedWinCounts.getOrPut(gam
     for (roll1 in 1..3) for (roll2 in 1..3) for (roll3 in 1..3) {
         val roll = roll1 + roll2 + roll3
         val nextState = gameState.takeTurn(roll)
-        if (nextState.isGameOver(21)) {
+        if (nextState.isDiracGameOver()) {
             winCount[gameState.lastActivePlayer] += 1L
         } else {
             val nextStateWinCounts = getWinCount(nextState)
