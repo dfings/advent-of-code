@@ -11,8 +11,7 @@ data class Sector(val x: IntRange, val y: IntRange, val z: IntRange) {
         check(z.start <= z.endInclusive)
     }
 
-    val volume: Long 
-        get() = (x.endInclusive - x.start + 1L) * (y.endInclusive - y.start + 1) * (z.endInclusive - z.start + 1)
+    val volume = (x.endInclusive - x.start + 1L) * (y.endInclusive - y.start + 1) * (z.endInclusive - z.start + 1)
 
     fun contains(p: Point) = p.x in x && p.y in y && p.z in z
 
@@ -56,25 +55,36 @@ fun split(a: Sector, b: Sector) = buildList {
     }
 }
 
-val on = mutableSetOf<Sector>()
-var count = 0
-instructions.forEach { instruction ->
-    val matching = on.filter { instruction.sector.intersects(it) }.toMutableSet()
-    matching.add(instruction.sector)
-    while(true) {
-        val toSplit = matching.firstNotNullOfOrNull { a -> matching.firstNotNullOfOrNull { b -> if (a !== b && a.intersects(b)) a to b else null } }
-        if (toSplit == null) break
-        val splits = split(toSplit.first, toSplit.second)
-        matching.addAll(splits)
-        matching.removeAll(toSplit.toList())
-    }
+val sectorComparator: java.util.Comparator<Sector> = java.util.Comparator.comparing<Sector, Long> { -it.volume } 
+    .thenComparing { it: Sector -> it.x.start }
+    .thenComparing { it: Sector -> it.x.endInclusive }
+    .thenComparing { it: Sector -> it.y.start }
+    .thenComparing { it: Sector -> it.y.endInclusive }
+    .thenComparing { it: Sector -> it.z.start }
+    .thenComparing { it: Sector -> it.z.endInclusive }
 
-    val newMatching = matching.filter { instruction.sector.contains(it) }
+val sectors = java.util.TreeSet<Sector>(sectorComparator)
+sectors.addAll(instructions.map { it.sector })
+println(sectors.size)
+while(true) {
+    val toSplit = sectors.firstNotNullOfOrNull { a -> sectors.firstNotNullOfOrNull { b -> if (a !== b && a.intersects(b)) a to b else null } }
+    if (toSplit == null) break
+    println(toSplit)
+    val splits = split(toSplit.first, toSplit.second)
+    println(splits)
+    sectors.addAll(splits)
+    sectors.removeAll(toSplit.toList())
+    println(sectors.size)
+}
+println(sectors.size)
+
+val on = mutableSetOf<Sector>()
+instructions.forEach { instruction ->
+    val matching = sectors.filter { instruction.sector.contains(it) }
     if (instruction.on) {
-        on.addAll(newMatching)
+        on.addAll(matching)
     } else {
-        on.removeAll(newMatching)
+        on.removeAll(matching)
     }
-    println(count++)
 }
 println(on.map { it.volume }.sum())
