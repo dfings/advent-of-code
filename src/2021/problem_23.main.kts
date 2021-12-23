@@ -46,11 +46,10 @@ fun State.successors(slotsPerRoom: Int) = sequence {
     fun Amphipod.canMoveToRoom(to: Point) = 
         canMoveThroughHall(to) && amphipods.none { it.p.x == type.roomX() && it.type != type }
 
-    amphipods.forEach { a ->
-        if (a.shouldStayPut()) return@forEach
-        if (a.p.y > 0) {
-            HALLWAY.forEach { if (a.canMoveToHall(it)) yield(move(a, it)) }
-        } else {
+    amphipods.forEach { a -> when {
+        a.shouldStayPut() -> {}
+        a.p.y > 0 -> HALLWAY.forEach { if (a.canMoveToHall(it)) yield(move(a, it)) }
+        else -> {
             val roomX = a.type.roomX()
             if (a.canMoveToRoom(Point(roomX, 1))) {
                 val minOccupiedSlot = amphipods.filter { it.p.x == roomX }.minOfOrNull { it.p.y }
@@ -58,7 +57,7 @@ fun State.successors(slotsPerRoom: Int) = sequence {
                 yield(move(a, Point(roomX, availableSlot)))
             }
         }
-    }
+    }}
 }
 
 fun State.done() = amphipods.none { it.p.x != it.type.roomX() }
