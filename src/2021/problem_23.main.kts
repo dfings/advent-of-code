@@ -21,14 +21,14 @@ fun String.roomColumn() = when(this) {
 }
 
 data class Position(val type: String, val loc: Point)
-data class State(val positions: Set<Position>)
+data class State(val positions: List<Position>)
 class Step(val state: State, val totalEnergyCost: Int)
 
 fun Step.move(from: Position, to: Position): Step {
-    val newState = State(state.positions.toMutableSet().apply {
+    val newState = State(state.positions.toMutableList().apply {
         remove(from)
         add(to)
-    })
+    }.sortedBy { it.hashCode() }) // Need some consistent order for dedupe purposes.
     val cost = from.type.cost() * from.loc.manhattanDistance(to.loc)
     return Step(newState, totalEnergyCost + cost)
 }
@@ -74,7 +74,7 @@ fun Step.done() = state.positions.none { it.loc.x != it.type.roomColumn() }
 
 val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
 val input = java.io.File(args[0]).readLines()
-val map = mutableSetOf<Position>()
+val map = mutableListOf<Position>()
 val rooms = Array(4) { mutableSetOf<Point>() }
 input.drop(2).dropLast(1).forEachIndexed { index, value ->
     rooms[0].add(Point(2, 1 + index))
