@@ -35,7 +35,7 @@ fun Step.move(from: Position, to: Position): Step {
 
 fun State.estimateRemainingCost(): Int {
     val wrongPlace = positions.filter { it.loc.x != it.type.roomColumn() }
-    return wrongPlace.sumOf { it.loc.manhattanDistance(Point(it.type.roomColumn(), 1)) * it.type.cost() }
+    return wrongPlace.sumOf { (it.loc.y + it.loc.manhattanDistance(Point(it.type.roomColumn(), 1))) * it.type.cost() }
 }
 
 fun Step.successors(room: String.() -> Set<Point>): List<Step> {
@@ -97,11 +97,14 @@ input.drop(2).dropLast(1).forEachIndexed { index, value ->
 val initialState = State(map)
 val initialStep = Step(initialState, 0, 0, initialState.estimateRemainingCost())
 
-val frontier = mutableSetOf<Step>(initialStep)
+val start = System.nanoTime()
+val frontier = java.util.PriorityQueue<Step>() { 
+    a: Step, b: Step -> b.totalEnergyCostEstimate.compareTo(a.totalEnergyCostEstimate) 
+}
+frontier.add(initialStep)
 val seen = mutableSetOf<State>()
 while (!frontier.isEmpty()) {
-    val step = frontier.minByOrNull { it.totalEnergyCostEstimate }!!
-    frontier.remove(step)
+    val step = frontier.poll()
     if (step.state in seen) continue
     seen.add(step.state)
     
@@ -118,3 +121,4 @@ while (!frontier.isEmpty()) {
         }
     })
 }
+println("${(System.nanoTime() - start)/1000000}")
