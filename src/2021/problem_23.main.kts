@@ -15,7 +15,7 @@ data class State(val amphipods: List<Amphipod>, val totalEnergyCost: Int)
 
 fun Point.manhattanDistance(p: Point): Int = abs(x - p.x) + abs(y - p.y)
 
-val HALLWAY = setOf(Point(0, 0), Point(1, 0), Point(3, 0), Point(5, 0), Point(7, 0), Point(9, 0), Point(10, 0))
+val HALLWAY = listOf(Point(0, 0), Point(1, 0), Point(3, 0), Point(5, 0), Point(7, 0), Point(9, 0), Point(10, 0))
 
 fun State.move(a: Amphipod, to: Point) = State(
     amphipods.toMutableList().apply {
@@ -32,20 +32,20 @@ fun State.successors(slotsPerRoom: Int) = sequence {
     fun Amphipod.shouldStayPut() =
         p.x == type.roomX && roomOnlyHasCorrectTypes()
 
-    fun Amphipod.canMoveThroughHall(to: Point) =
-        (p.x < to.x && amphipods.none { it.p.y == 0 && it.p.x > p.x && it.p.x <= to.x } ||
-        (p.x > to.x && amphipods.none { it.p.y == 0 && it.p.x < p.x && it.p.x >= to.x }))
+    fun Amphipod.canMoveThroughHall(x: Int) =
+        (p.x < x && amphipods.none { it.p.y == 0 && it.p.x > p.x && it.p.x <= x } ||
+        (p.x > x && amphipods.none { it.p.y == 0 && it.p.x < p.x && it.p.x >= x }))
 
-    fun Amphipod.canMoveToHall(to: Point) =
-        canMoveThroughHall(to) && amphipods.none { p.x == it.p.x && p.y > it.p.y }
+    fun Amphipod.canMoveToHall() =
+        p.y > 0 && amphipods.none { p.x == it.p.x && p.y > it.p.y }
 
-    fun Amphipod.canMoveToRoom(to: Point) = 
-        canMoveThroughHall(to) && roomOnlyHasCorrectTypes()
+    fun Amphipod.canMoveToRoom() = 
+        p.y == 0 && canMoveThroughHall(type.roomX) && roomOnlyHasCorrectTypes()
 
     amphipods.forEach { a -> when {
         a.shouldStayPut() -> {}
-        a.p.y > 0 -> HALLWAY.forEach { if (a.canMoveToHall(it)) yield(move(a, it)) }
-        a.canMoveToRoom(Point(a.type.roomX, 1)) -> {
+        a.canMoveToHall() ->  HALLWAY.forEach { if (a.canMoveThroughHall(it.x)) yield(move(a, it)) }
+        a.canMoveToRoom() -> {
             val minOccupiedSlot = amphipods.filter { it.p.x == a.type.roomX }.minOfOrNull { it.p.y }
             val availableSlot = minOccupiedSlot?.minus(1) ?: slotsPerRoom
             yield(move(a, Point(a.type.roomX, availableSlot)))
