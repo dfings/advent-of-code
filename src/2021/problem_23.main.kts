@@ -2,9 +2,6 @@
 
 import kotlin.math.abs
 
-val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
-val input = java.io.File(args[0]).readLines()
-
 data class Point(val x: Int, val y: Int)
 fun Point.manhattanDistance(p: Point): Int = abs(x - p.x) + abs(y - p.y)
 
@@ -14,18 +11,17 @@ val ROOM_B = setOf(Point(4, 1), Point(4, 2))
 val ROOM_C = setOf(Point(6, 1), Point(6, 2))
 val ROOM_D = setOf(Point(8, 1), Point(8, 2))
 
-fun String.room() = when(this) {
-    "A" -> ROOM_A
-    "B" -> ROOM_B
-    "C" -> ROOM_C
-    else -> ROOM_D
-}
-
 fun String.cost() = when(this) {
     "A" -> 1
     "B" -> 10
     "C" -> 100
     else -> 1000
+}
+fun String.roomColumn() = when(this) {
+    "A" -> 2
+    "B" -> 4
+    "C" -> 6
+    else -> 8
 }
 
 data class Position(val type: String, val loc: Point)
@@ -42,11 +38,11 @@ fun Step.move(from: Position, to: Position): Step {
 }
 
 fun State.estimateRemainingCost(): Int {
-    val wrongPlace = positions.filter { it.loc !in it.type.room() }
-    return wrongPlace.sumOf { it.loc.manhattanDistance(it.type.room().first()) * it.type.cost() }
+    val wrongPlace = positions.filter { it.loc.x != it.type.roomColumn() }
+    return wrongPlace.sumOf { it.loc.manhattanDistance(Point(it.type.roomColumn(), 1)) * it.type.cost() }
 }
 
-fun Step.successors(): List<Step> {
+fun Step.successors(room: String.() -> Set<Point>): List<Step> {
     val positions = state.positions
     val occupied = positions.map { it.loc }.toSet()
 
@@ -99,14 +95,23 @@ fun State.render(): String {
     return output.joinToString("")
 }
 
-val (r11, r21, r31, r41) = checkNotNull(regex.find(input[2])).destructured
-val (r12, r22, r32, r42) = checkNotNull(regex.find(input[3])).destructured
-val initialState = State(setOf(
-    Position(r11, ROOM_A.first()), Position(r12, ROOM_A.last()),
-    Position(r21, ROOM_B.first()), Position(r22, ROOM_B.last()),
-    Position(r31, ROOM_C.first()), Position(r32, ROOM_C.last()),
-    Position(r41, ROOM_D.first()), Position(r42, ROOM_D.last()),
-))
+val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
+val input = java.io.File(args[0]).readLines()
+val map = mutableSetOf<Position>()
+val rooms = Array(4) { mutableSetOf<Point>() }
+input.drop(2).dropLast(1).forEachIndexed { index, value ->
+    val (a, b, c, d) = checkNotNull(regex.find(value)).destructured
+    map.add(Position(a, Point(2, 1 + index)))
+    map.add(Position(b, Point(4, 1 + index)))
+    map.add(Position(c, Point(6, 1 + index)))
+    map.add(Position(d, Point(8, 1 + index)))
+    rooms[0].add(Point(2, 1 + index))
+    rooms[1].add(Point(4, 1 + index))
+    rooms[2].add(Point(6, 1 + index))
+    rooms[3].add(Point(8, 1 + index))
+}
+
+val initialState = State(map)
 val initialStep = Step(initialState, 0, 0, initialState.estimateRemainingCost())
 
 val frontier = mutableSetOf<Step>(initialStep)
@@ -122,5 +127,12 @@ while (!frontier.isEmpty()) {
         println(step.totalEnergyCost)
         break
     }
-    frontier.addAll(step.successors())
+    frontier.addAll(step.successors {
+        when(this) {
+            "A" -> rooms[0]
+            "B" -> rooms[1]
+            "C" -> rooms[2]
+            else -> rooms[3]
+        }
+    })
 }
