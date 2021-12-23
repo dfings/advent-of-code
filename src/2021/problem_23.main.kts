@@ -78,19 +78,6 @@ fun Step.successors(room: String.() -> Set<Point>): List<Step> {
 
 fun Step.done() = totalEnergyCost == totalEnergyCostEstimate
 
-fun State.render(): String {
-    val output = mutableListOf<String>()
-    for (y in 0..(positions.maxOf { it.loc.y })) {
-        for (x in 0..10) {
-            val loc = Point(x, y)
-            val p = positions.firstOrNull { it.loc == loc }
-            if (p == null) output.add(".") else output.add(p.type)
-        }
-        output.add("\n")
-    }
-    return output.joinToString("")
-}
-
 val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
 val input = java.io.File(args[0]).readLines()
 val map = mutableSetOf<Position>()
