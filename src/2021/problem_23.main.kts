@@ -50,6 +50,9 @@ fun Step.successors(): List<Step> {
     val positions = state.positions
     val occupied = positions.map { it.loc }.toSet()
 
+    fun shouldStayPut(p: Position) =
+        p.loc in p.type.room() && positions.none { it.loc in p.type.room() && it.type != p.type }
+
     fun canMoveThroughHall(from: Point, to: Point) =
         (from.x < to.x && occupied.none { it.y == 0 && it.x > from.x && it.x <= to.x } ||
         (from.x > to.x && occupied.none { it.y == 0 && it.x < from.x && it.x >= to.x }))
@@ -61,9 +64,7 @@ fun Step.successors(): List<Step> {
         canMoveThroughHall(from, to) && positions.none { it.loc in type.room() && it.type != type }
 
     return positions.flatMap { p ->
-        if (p.loc.y == 2 && occupied.contains(p.loc.copy(y = 1))) return@flatMap emptyList()
-        val homeRoom = p.type.room()
-        if (p.loc in homeRoom && positions.none { it !== p && it.loc.x == p.loc.x && it.loc.y > 0 && it.type != p.type }) return@flatMap emptyList()
+        if (shouldStayPut(p)) return@flatMap emptySet()
         buildSet {
             if (p.loc.y > 0) {
                 for (h in HALLWAY) {
@@ -72,14 +73,11 @@ fun Step.successors(): List<Step> {
                     }
                 }
             } else {
+                val homeRoom = p.type.room()
                 val h = homeRoom.first()
                 if (canMoveToRoom(p.type, p.loc, h)) {
-                    val homeRoomOccupancy = positions.filter { it.loc in homeRoom }
-                    if (homeRoomOccupancy.isEmpty()) {
-                        add(move(p, p.copy(loc = homeRoom.last())))
-                    } else if (homeRoomOccupancy.all { it.type == p.type }) {
-                        add(move(p, p.copy(loc = homeRoom.first())))
-                    }
+                    val availableSlot = (occupied intersect homeRoom).minOfOrNull { it.y }?.minus(1) ?: homeRoom.maxOf { it.y}
+                    add(move(p, p.copy(loc = h.copy(y = availableSlot))))
                 }
             }
         }
