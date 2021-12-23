@@ -22,7 +22,7 @@ fun String.roomColumn() = when(this) {
 
 data class Position(val type: String, val loc: Point)
 data class State(val positions: Set<Position>)
-class Step(val state: State, val totalEnergyCost: Int)
+class Step(val state: State, val energyCost: Int, val totalEnergyCost: Int, val totalEnergyCostEstimate: Int, val last: Step? = null)
 
 fun Step.move(from: Position, to: Position): Step {
     val newState = State(state.positions.toMutableSet().apply {
@@ -30,7 +30,12 @@ fun Step.move(from: Position, to: Position): Step {
         add(to)
     })
     val cost = from.type.cost() * from.loc.manhattanDistance(to.loc)
-    return Step(newState, totalEnergyCost + cost)
+    return Step(newState, cost, totalEnergyCost + cost, totalEnergyCost + cost + newState.estimateRemainingCost(), this)
+}
+
+fun State.estimateRemainingCost(): Int {
+    val wrongPlace = positions.filter { it.loc.x != it.type.roomColumn() }
+    return wrongPlace.sumOf { (it.loc.y + it.loc.manhattanDistance(Point(it.type.roomColumn(), 1))) * it.type.cost() }
 }
 
 fun Step.successors(room: String.() -> Set<Point>): List<Step> {
@@ -71,7 +76,7 @@ fun Step.successors(room: String.() -> Set<Point>): List<Step> {
     }
 }
 
-fun Step.done() = state.positions.none { it.loc.x != it.type.roomColumn() }
+fun Step.done() = totalEnergyCost == totalEnergyCostEstimate
 
 val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
 val input = java.io.File(args[0]).readLines()
@@ -90,16 +95,13 @@ input.drop(2).dropLast(1).forEachIndexed { index, value ->
 }
 
 val initialState = State(map)
-val initialStep = Step(initialState, 0)
+val initialStep = Step(initialState, 0, 0, initialState.estimateRemainingCost())
 
-val start = System.nanoTime()
-val frontier = java.util.PriorityQueue<Step>() { 
-    a: Step, b: Step -> b.totalEnergyCost.compareTo(a.totalEnergyCost) 
-}
-frontier.add(initialStep)
+val frontier = mutableSetOf<Step>(initialStep)
 val seen = mutableSetOf<State>()
 while (!frontier.isEmpty()) {
-    val step = frontier.poll()
+    val step = frontier.minByOrNull { it.totalEnergyCostEstimate }!!
+    frontier.remove(step)
     if (step.state in seen) continue
     seen.add(step.state)
     
@@ -116,4 +118,3 @@ while (!frontier.isEmpty()) {
         }
     })
 }
-println("${(System.nanoTime() - start)/1000000}")
