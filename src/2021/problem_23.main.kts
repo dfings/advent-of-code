@@ -22,7 +22,7 @@ fun String.roomColumn() = when(this) {
 
 data class Position(val type: String, val loc: Point)
 data class State(val positions: Set<Position>)
-class Step(val state: State, val energyCost: Int, val totalEnergyCost: Int)
+class Step(val state: State, val totalEnergyCost: Int)
 
 fun Step.move(from: Position, to: Position): Step {
     val newState = State(state.positions.toMutableSet().apply {
@@ -30,7 +30,7 @@ fun Step.move(from: Position, to: Position): Step {
         add(to)
     })
     val cost = from.type.cost() * from.loc.manhattanDistance(to.loc)
-    return Step(newState, cost, totalEnergyCost + cost)
+    return Step(newState, totalEnergyCost + cost)
 }
 
 fun Step.successors(room: String.() -> Set<Point>): List<Step> {
@@ -90,7 +90,7 @@ input.drop(2).dropLast(1).forEachIndexed { index, value ->
 }
 
 val initialState = State(map)
-val initialStep = Step(initialState, 0, 0)
+val initialStep = Step(initialState, 0)
 
 val start = System.nanoTime()
 val frontier = java.util.PriorityQueue<Step>() { 
