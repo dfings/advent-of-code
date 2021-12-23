@@ -32,7 +32,7 @@ fun State.move(a: Amphipod, to: Point) = State(
     totalEnergyCost + a.type.cost() * a.p.manhattanDistance(to)
 ) 
 
-fun State.successors(slotsPerRoom: Int): List<State> {
+fun State.successors(slotsPerRoom: Int) = sequence {
     fun Amphipod.shouldStayPut() =
         p.x == type.roomX() && amphipods.none { it.p.x == type.roomX() && it.type != type }
 
@@ -46,18 +46,16 @@ fun State.successors(slotsPerRoom: Int): List<State> {
     fun Amphipod.canMoveToRoom(to: Point) = 
         canMoveThroughHall(to) && amphipods.none { it.p.x == type.roomX() && it.type != type }
 
-    return amphipods.flatMap { a ->
-        if (a.shouldStayPut()) return@flatMap emptyList()
-        buildList {
-            if (a.p.y > 0) {
-                HALLWAY.forEach { if (a.canMoveToHall(it)) add(move(a, it)) }
-            } else {
-                val roomX = a.type.roomX()
-                if (a.canMoveToRoom(Point(roomX, 1))) {
-                    val minOccupiedSlot = amphipods.filter { it.p.x == roomX }.minOfOrNull { it.p.y }
-                    val availableSlot = minOccupiedSlot?.minus(1) ?: slotsPerRoom
-                    add(move(a, Point(roomX, availableSlot)))
-                }
+    amphipods.forEach { a ->
+        if (a.shouldStayPut()) return@forEach
+        if (a.p.y > 0) {
+            HALLWAY.forEach { if (a.canMoveToHall(it)) yield(move(a, it)) }
+        } else {
+            val roomX = a.type.roomX()
+            if (a.canMoveToRoom(Point(roomX, 1))) {
+                val minOccupiedSlot = amphipods.filter { it.p.x == roomX }.minOfOrNull { it.p.y }
+                val availableSlot = minOccupiedSlot?.minus(1) ?: slotsPerRoom
+                yield(move(a, Point(roomX, availableSlot)))
             }
         }
     }
@@ -92,7 +90,7 @@ while (!frontier.isEmpty()) {
         println("Total energy cost: ${state.totalEnergyCost}")
         break
     }
-    frontier.addAll(state.successors(slotsPerRoom))
+    state.successors(slotsPerRoom).forEach { frontier.add(it) }
 }
 println("Runtime: ${(System.nanoTime() - start)/1_000_000}ms")
 println("States explored: ${seen.size}")
