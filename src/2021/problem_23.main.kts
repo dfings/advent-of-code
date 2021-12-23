@@ -35,20 +35,19 @@ fun Step.move(from: Position, to: Position): Step {
 
 fun Step.successors(room: String.() -> Set<Point>): List<Step> {
     val positions = state.positions
-    val occupied = positions.map { it.loc }.toSet()
 
     fun shouldStayPut(p: Position) =
-        p.loc in p.type.room() && positions.none { it.loc in p.type.room() && it.type != p.type }
+        p.loc.x == p.type.roomColumn() && positions.none { it.loc.x == p.type.roomColumn() && it.type != p.type }
 
     fun canMoveThroughHall(from: Point, to: Point) =
-        (from.x < to.x && occupied.none { it.y == 0 && it.x > from.x && it.x <= to.x } ||
-        (from.x > to.x && occupied.none { it.y == 0 && it.x < from.x && it.x >= to.x }))
+        (from.x < to.x && positions.none { it.loc.y == 0 && it.loc.x > from.x && it.loc.x <= to.x } ||
+        (from.x > to.x && positions.none { it.loc.y == 0 && it.loc.x < from.x && it.loc.x >= to.x }))
 
     fun canMoveToHall(from: Point, to: Point) =
-        canMoveThroughHall(from, to) && occupied.none { from.x == it.x && from.y > it.y }
+        canMoveThroughHall(from, to) && positions.none { from.x == it.loc.x && from.y > it.loc.y }
 
     fun canMoveToRoom(type: String, from: Point, to: Point) = 
-        canMoveThroughHall(from, to) && positions.none { it.loc in type.room() && it.type != type }
+        canMoveThroughHall(from, to) && positions.none { it.loc.x == type.roomColumn() && it.type != type }
 
     return positions.flatMap { p ->
         if (shouldStayPut(p)) return@flatMap emptySet()
@@ -63,7 +62,7 @@ fun Step.successors(room: String.() -> Set<Point>): List<Step> {
                 val homeRoom = p.type.room()
                 val h = homeRoom.first()
                 if (canMoveToRoom(p.type, p.loc, h)) {
-                    val availableSlot = (occupied intersect homeRoom).minOfOrNull { it.y }?.minus(1) ?: homeRoom.maxOf { it.y}
+                    val availableSlot = positions.filter { it.loc.x == h.x }.minOfOrNull { it.loc.y }?.minus(1) ?: homeRoom.maxOf { it.y }
                     add(move(p, p.copy(loc = h.copy(y = availableSlot))))
                 }
             }
@@ -118,6 +117,6 @@ while (!frontier.isEmpty()) {
         }
     })
 }
-println("Runtime: ${(System.nanoTime() - start)/1000000}ms")
+println("Runtime: ${(System.nanoTime() - start)/1_000_000}ms")
 println("States explored: ${seen.size}")
 println("Max frontier size: $maxFrontierSize")
