@@ -2,11 +2,11 @@
 
 import kotlin.math.abs
 
-enum class Type(val roomX: Int, val cost: Int) {
-    A(2, 1),
-    B(4, 10),
-    C(6, 100),
-    D(8, 1000),
+enum class Type(val code: String, val roomX: Int, val cost: Int) {
+    AMBER("A", 2, 1),
+    BRONZE("B", 4, 10),
+    COPPER("C", 6, 100),
+    DESERT("D", 8, 1000),
 }
 
 data class Point(val x: Int, val y: Int)
@@ -55,13 +55,7 @@ fun State.successors(slotsPerRoom: Int) = sequence {
 
 fun State.done() = amphipods.none { it.p.x != it.type.roomX }
 
-fun String.toType() = when(this) {
-    "A" -> Type.A
-    "B" -> Type.B
-    "C" -> Type.C
-    "D" -> Type.D
-    else -> error(this)
-}
+fun String.toType() = Type.values().single { this == it.code }
 
 val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
 val input = java.io.File(args[0]).readLines()
