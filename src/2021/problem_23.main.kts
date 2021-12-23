@@ -24,20 +24,17 @@ fun String.roomColumn() = when(this) {
     else -> 8
 }
 
-fun State.move(from: Amphipod, to: Point): State {
-    val cost = from.type.cost() * from.p.manhattanDistance(to)
-    return State(
-        amphipods.toMutableList().apply {
-            remove(from)
-            add(from.copy(p = to))
-        }.sortedBy { it.hashCode() }, // Need some consistent order for dedupe purposes.
-        totalEnergyCost + cost
-    ) 
-}
+fun State.move(from: Amphipod, to: Point) = State(
+    amphipods.toMutableList().apply {
+        remove(from)
+        add(from.copy(p = to))
+    }.sortedBy { it.hashCode() }, // Need some consistent order for dedupe purposes.
+    totalEnergyCost + from.type.cost() * from.p.manhattanDistance(to)
+) 
 
 fun State.successors(room: String.() -> Set<Point>): List<State> {
-    fun shouldStayPut(p: Amphipod) =
-        p.p.x == p.type.roomColumn() && amphipods.none { it.p.x == p.type.roomColumn() && it.type != p.type }
+    fun shouldStayPut(a: Amphipod) =
+        a.p.x == a.type.roomColumn() && amphipods.none { it.p.x == a.type.roomColumn() && it.type != a.type }
 
     fun canMoveThroughHall(from: Point, to: Point) =
         (from.x < to.x && amphipods.none { it.p.y == 0 && it.p.x > from.x && it.p.x <= to.x } ||
@@ -49,22 +46,22 @@ fun State.successors(room: String.() -> Set<Point>): List<State> {
     fun canMoveToRoom(type: String, from: Point, to: Point) = 
         canMoveThroughHall(from, to) && amphipods.none { it.p.x == type.roomColumn() && it.type != type }
 
-    return amphipods.flatMap { p ->
-        if (shouldStayPut(p)) return@flatMap emptyList()
+    return amphipods.flatMap { a ->
+        if (shouldStayPut(a)) return@flatMap emptyList()
         buildList {
-            if (p.p.y > 0) {
+            if (a.p.y > 0) {
                 for (h in HALLWAY) {
-                    if (canMoveToHall(p.p, h)) {
-                        add(move(p, h))
+                    if (canMoveToHall(a.p, h)) {
+                        add(move(a, h))
                     }
                 }
             } else {
-                val homeRoom = p.type.room()
+                val homeRoom = a.type.room()
                 val h = homeRoom.first()
-                if (canMoveToRoom(p.type, p.p, h)) {
+                if (canMoveToRoom(a.type, a.p, h)) {
                     val minOccupiedSlot = amphipods.filter { it.p.x == h.x }.minOfOrNull { it.p.y }
                     val availableSlot = minOccupiedSlot?.minus(1) ?: homeRoom.maxOf { it.y }
-                    add(move(p, h.copy(y = availableSlot)))
+                    add(move(a, h.copy(y = availableSlot)))
                 }
             }
         }
