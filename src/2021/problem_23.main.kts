@@ -50,8 +50,8 @@ fun Step.successors(room: String.() -> Set<Point>): List<Step> {
         canMoveThroughHall(from, to) && positions.none { it.loc.x == type.roomColumn() && it.type != type }
 
     return positions.flatMap { p ->
-        if (shouldStayPut(p)) return@flatMap emptySet()
-        buildSet {
+        if (shouldStayPut(p)) return@flatMap emptyList()
+        buildList {
             if (p.loc.y > 0) {
                 for (h in HALLWAY) {
                     if (canMoveToHall(p.loc, h)) {
