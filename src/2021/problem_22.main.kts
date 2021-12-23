@@ -1,8 +1,5 @@
 #!/usr/bin/env kotlin
 
-import kotlin.math.max
-import kotlin.math.min
-
 data class Point(val x: Int, val y: Int, val z: Int)
 data class Sector(val x: IntRange, val y: IntRange, val z: IntRange)
 data class Instruction(val on: Boolean, val sector: Sector)
