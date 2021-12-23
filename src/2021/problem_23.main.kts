@@ -19,8 +19,7 @@ val HALLWAY = setOf(Point(0, 0), Point(1, 0), Point(3, 0), Point(5, 0), Point(7,
 
 fun State.move(a: Amphipod, to: Point) = State(
     amphipods.toMutableList().apply {
-        remove(a)
-        add(a.copy(p = to))
+        set(indexOf(a), a.copy(p = to))
     }.sortedBy { it.hashCode() }, // Need some consistent order for dedupe purposes.
     totalEnergyCost + a.type.cost * a.p.manhattanDistance(to)
 ) 
