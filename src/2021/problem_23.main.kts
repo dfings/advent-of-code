@@ -32,7 +32,7 @@ fun State.move(from: Amphipod, to: Point) = State(
     totalEnergyCost + from.type.cost() * from.p.manhattanDistance(to)
 ) 
 
-fun State.successors(room: String.() -> Set<Point>): List<State> {
+fun State.successors(slotsPerRoom: Int): List<State> {
     fun shouldStayPut(a: Amphipod) =
         a.p.x == a.type.roomX() && amphipods.none { it.p.x == a.type.roomX() && it.type != a.type }
 
@@ -56,12 +56,11 @@ fun State.successors(room: String.() -> Set<Point>): List<State> {
                     }
                 }
             } else {
-                val homeRoom = a.type.room()
-                val h = homeRoom.first()
-                if (canMoveToRoom(a.type, a.p, h)) {
-                    val minOccupiedSlot = amphipods.filter { it.p.x == h.x }.minOfOrNull { it.p.y }
-                    val availableSlot = minOccupiedSlot?.minus(1) ?: homeRoom.maxOf { it.y }
-                    add(move(a, h.copy(y = availableSlot)))
+                val roomX = a.type.roomX()
+                if (canMoveToRoom(a.type, a.p, Point(roomX, 1))) {
+                    val minOccupiedSlot = amphipods.filter { it.p.x == roomX }.minOfOrNull { it.p.y }
+                    val availableSlot = minOccupiedSlot?.minus(1) ?: slotsPerRoom
+                    add(move(a, Point(roomX, availableSlot)))
                 }
             }
         }
@@ -73,18 +72,14 @@ fun State.done() = amphipods.none { it.p.x != it.type.roomX() }
 val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
 val input = java.io.File(args[0]).readLines()
 val map = mutableListOf<Amphipod>()
-val rooms = Array(4) { mutableSetOf<Point>() }
 input.drop(2).dropLast(1).forEachIndexed { index, value ->
-    rooms[0].add(Point(2, 1 + index))
-    rooms[1].add(Point(4, 1 + index))
-    rooms[2].add(Point(6, 1 + index))
-    rooms[3].add(Point(8, 1 + index))
     val (a, b, c, d) = checkNotNull(regex.find(value)).destructured
-    map.add(Amphipod(a, rooms[0].last()))
-    map.add(Amphipod(b, rooms[1].last()))
-    map.add(Amphipod(c, rooms[2].last()))
-    map.add(Amphipod(d, rooms[3].last()))
+    map.add(Amphipod(a, Point(2, 1 + index)))
+    map.add(Amphipod(b, Point(4, 1 + index)))
+    map.add(Amphipod(c, Point(6, 1 + index)))
+    map.add(Amphipod(d, Point(8, 1 + index)))
 }
+val slotsPerRoom = map.size / 4
 
 val initialState = State(map, 0)
 val start = System.nanoTime()
@@ -104,14 +99,7 @@ while (!frontier.isEmpty()) {
         println("Total energy cost: ${state.totalEnergyCost}")
         break
     }
-    frontier.addAll(state.successors {
-        when(this) {
-            "A" -> rooms[0]
-            "B" -> rooms[1]
-            "C" -> rooms[2]
-            else -> rooms[3]
-        }
-    })
+    frontier.addAll(state.successors(slotsPerRoom))
 }
 println("Runtime: ${(System.nanoTime() - start)/1_000_000}ms")
 println("States explored: ${seen.size}")
