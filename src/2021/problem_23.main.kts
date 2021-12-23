@@ -24,40 +24,40 @@ fun String.roomX() = when(this) {
     else -> 8
 }
 
-fun State.move(from: Amphipod, to: Point) = State(
+fun State.move(a: Amphipod, to: Point) = State(
     amphipods.toMutableList().apply {
-        remove(from)
-        add(from.copy(p = to))
+        remove(a)
+        add(a.copy(p = to))
     }.sortedBy { it.hashCode() }, // Need some consistent order for dedupe purposes.
-    totalEnergyCost + from.type.cost() * from.p.manhattanDistance(to)
+    totalEnergyCost + a.type.cost() * a.p.manhattanDistance(to)
 ) 
 
 fun State.successors(slotsPerRoom: Int): List<State> {
-    fun shouldStayPut(a: Amphipod) =
-        a.p.x == a.type.roomX() && amphipods.none { it.p.x == a.type.roomX() && it.type != a.type }
+    fun Amphipod.shouldStayPut() =
+        p.x == type.roomX() && amphipods.none { it.p.x == type.roomX() && it.type != type }
 
-    fun canMoveThroughHall(from: Point, to: Point) =
-        (from.x < to.x && amphipods.none { it.p.y == 0 && it.p.x > from.x && it.p.x <= to.x } ||
-        (from.x > to.x && amphipods.none { it.p.y == 0 && it.p.x < from.x && it.p.x >= to.x }))
+    fun Amphipod.canMoveThroughHall(to: Point) =
+        (p.x < to.x && amphipods.none { it.p.y == 0 && it.p.x > p.x && it.p.x <= to.x } ||
+        (p.x > to.x && amphipods.none { it.p.y == 0 && it.p.x < p.x && it.p.x >= to.x }))
 
-    fun canMoveToHall(from: Point, to: Point) =
-        canMoveThroughHall(from, to) && amphipods.none { from.x == it.p.x && from.y > it.p.y }
+    fun Amphipod.canMoveToHall(to: Point) =
+        canMoveThroughHall(to) && amphipods.none { p.x == it.p.x && p.y > it.p.y }
 
-    fun canMoveToRoom(type: String, from: Point, to: Point) = 
-        canMoveThroughHall(from, to) && amphipods.none { it.p.x == type.roomX() && it.type != type }
+    fun Amphipod.canMoveToRoom(to: Point) = 
+        canMoveThroughHall(to) && amphipods.none { it.p.x == type.roomX() && it.type != type }
 
     return amphipods.flatMap { a ->
-        if (shouldStayPut(a)) return@flatMap emptyList()
+        if (a.shouldStayPut()) return@flatMap emptyList()
         buildList {
             if (a.p.y > 0) {
                 for (h in HALLWAY) {
-                    if (canMoveToHall(a.p, h)) {
+                    if (a.canMoveToHall(h)) {
                         add(move(a, h))
                     }
                 }
             } else {
                 val roomX = a.type.roomX()
-                if (canMoveToRoom(a.type, a.p, Point(roomX, 1))) {
+                if (a.canMoveToRoom(Point(roomX, 1))) {
                     val minOccupiedSlot = amphipods.filter { it.p.x == roomX }.minOfOrNull { it.p.y }
                     val availableSlot = minOccupiedSlot?.minus(1) ?: slotsPerRoom
                     add(move(a, Point(roomX, availableSlot)))
