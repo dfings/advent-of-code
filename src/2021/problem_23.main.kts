@@ -123,7 +123,6 @@ while (!frontier.isEmpty()) {
     seen.add(step.state)
     
     if (step.done()) {
-        println(step.state.render())
         println(step.totalEnergyCost)
         break
     }
