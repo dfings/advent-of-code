@@ -98,7 +98,9 @@ val frontier = java.util.PriorityQueue<Step>() {
 }
 frontier.add(initialStep)
 val seen = mutableSetOf<State>()
+var maxFrontierSize = 0
 while (!frontier.isEmpty()) {
+    if (frontier.size > maxFrontierSize) maxFrontierSize = frontier.size
     val step = frontier.poll()
     if (step.state in seen) continue
     seen.add(step.state)
@@ -118,3 +120,4 @@ while (!frontier.isEmpty()) {
 }
 println("Runtime: ${(System.nanoTime() - start)/1000000}ms")
 println("States explored: ${seen.size}")
+println("Max frontier size: $maxFrontierSize")
