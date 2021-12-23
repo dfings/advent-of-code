@@ -27,21 +27,25 @@ instructions.forEach { instruction ->
 println(states.values.count { it })
 
 fun IntRange.end() = endInclusive + 1
-val sectors = instructions.map { it.sector }
-val xs = sectors.flatMap { listOf(it.x.start, it.x.end()) }.sorted().distinct()
-val ys = sectors.flatMap { listOf(it.y.start, it.y.end()) }.sorted().distinct()
-val zs = sectors.flatMap { listOf(it.z.start, it.z.end()) }.sorted().distinct()
+fun List<Sector>.boundaries(range: (Sector) -> IntRange): List<Int> = 
+    flatMap { listOf(range(it).start, range(it).end()) }.sorted().distinct()
+fun <T> List<T>.indexMap() = mapIndexed { index, value -> value to index }.toMap()
 
-val xIndex = xs.mapIndexed { index, value -> value to index }.toMap()
-val yIndex = ys.mapIndexed { index, value -> value to index }.toMap()
-val zIndex = zs.mapIndexed { index, value -> value to index }.toMap()
+val sectors = instructions.map { it.sector }
+val xs = sectors.boundaries { it.x }
+val ys = sectors.boundaries { it.y }
+val zs = sectors.boundaries { it.z }
+
+val xIndexMap = xs.indexMap()
+val yIndexMap = ys.indexMap()
+val zIndexMap = zs.indexMap()
 
 val bits = Array(xs.size) { Array(ys.size) { BooleanArray(zs.size) { false } } }
 for (instruction in instructions) {
     val s = instruction.sector
-    for (x in xIndex.getValue(s.x.start) until xIndex.getValue(s.x.end())) {
-        for (y in yIndex.getValue(s.y.start) until yIndex.getValue(s.y.end())) {
-            for (z in zIndex.getValue(s.z.start) until zIndex.getValue(s.z.end())) {
+    for (x in xIndexMap[s.x.start]!! until xIndexMap[s.x.end()]!!) {
+        for (y in yIndexMap[s.y.start]!! until yIndexMap[s.y.end()]!!) {
+            for (z in zIndexMap[s.z.start]!! until zIndexMap[s.z.end()]!!) {
                 bits[x][y][z] = instruction.on
             }
         }
