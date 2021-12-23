@@ -26,8 +26,11 @@ fun State.move(a: Amphipod, to: Point) = State(
 ) 
 
 fun State.successors(slotsPerRoom: Int) = sequence {
+    fun Amphipod.roomOnlyHasCorrectTypes() = 
+        amphipods.none { it.p.x == type.roomX && it.type != type }
+
     fun Amphipod.shouldStayPut() =
-        p.x == type.roomX && amphipods.none { it.p.x == type.roomX && it.type != type }
+        p.x == type.roomX && roomOnlyHasCorrectTypes()
 
     fun Amphipod.canMoveThroughHall(to: Point) =
         (p.x < to.x && amphipods.none { it.p.y == 0 && it.p.x > p.x && it.p.x <= to.x } ||
@@ -37,7 +40,7 @@ fun State.successors(slotsPerRoom: Int) = sequence {
         canMoveThroughHall(to) && amphipods.none { p.x == it.p.x && p.y > it.p.y }
 
     fun Amphipod.canMoveToRoom(to: Point) = 
-        canMoveThroughHall(to) && amphipods.none { it.p.x == type.roomX && it.type != type }
+        canMoveThroughHall(to) && roomOnlyHasCorrectTypes()
 
     amphipods.forEach { a -> when {
         a.shouldStayPut() -> {}
