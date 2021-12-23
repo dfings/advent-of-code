@@ -23,12 +23,12 @@ fun String.roomColumn() = when(this) {
     else -> 8
 }
 
-fun State.move(from: Amphipod, to: Amphipod): State {
-    val cost = from.type.cost() * from.p.manhattanDistance(to.p)
+fun State.move(from: Amphipod, to: Point): State {
+    val cost = from.type.cost() * from.p.manhattanDistance(to)
     return State(
         amphipods.toMutableList().apply {
             remove(from)
-            add(to)
+            add(from.copy(p = to))
         }.sortedBy { it.hashCode() }, // Need some consistent order for dedupe purposes.
         totalEnergyCost + cost
     ) 
@@ -54,7 +54,7 @@ fun State.successors(room: String.() -> Set<Point>): List<State> {
             if (p.p.y > 0) {
                 for (h in HALLWAY) {
                     if (canMoveToHall(p.p, h)) {
-                        add(move(p, p.copy(p = h)))
+                        add(move(p, h))
                     }
                 }
             } else {
@@ -63,7 +63,7 @@ fun State.successors(room: String.() -> Set<Point>): List<State> {
                 if (canMoveToRoom(p.type, p.p, h)) {
                     val minOccupiedSlot = amphipods.filter { it.p.x == h.x }.minOfOrNull { it.p.y }
                     val availableSlot = minOccupiedSlot?.minus(1) ?: homeRoom.maxOf { it.y }
-                    add(move(p, p.copy(p = h.copy(y = availableSlot))))
+                    add(move(p, h.copy(y = availableSlot)))
                 }
             }
         }
