@@ -62,7 +62,8 @@ fun Step.successors(room: String.() -> Set<Point>): List<Step> {
                 val homeRoom = p.type.room()
                 val h = homeRoom.first()
                 if (canMoveToRoom(p.type, p.loc, h)) {
-                    val availableSlot = positions.filter { it.loc.x == h.x }.minOfOrNull { it.loc.y }?.minus(1) ?: homeRoom.maxOf { it.y }
+                    val minOccupiedSlot = positions.filter { it.loc.x == h.x }.minOfOrNull { it.loc.y }
+                    val availableSlot = minOccupiedSlot?.minus(1) ?: homeRoom.maxOf { it.y }
                     add(move(p, p.copy(loc = h.copy(y = availableSlot))))
                 }
             }
