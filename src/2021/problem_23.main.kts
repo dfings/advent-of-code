@@ -3,8 +3,8 @@
 import kotlin.math.abs
 
 data class Point(val x: Int, val y: Int)
-data class Position(val type: String, val loc: Point)
-data class State(val positions: List<Position>, val totalEnergyCost: Int)
+data class Amphipod(val type: String, val p: Point)
+data class State(val amphipods: List<Amphipod>, val totalEnergyCost: Int)
 
 fun Point.manhattanDistance(p: Point): Int = abs(x - p.x) + abs(y - p.y)
 
@@ -23,10 +23,10 @@ fun String.roomColumn() = when(this) {
     else -> 8
 }
 
-fun State.move(from: Position, to: Position): State {
-    val cost = from.type.cost() * from.loc.manhattanDistance(to.loc)
+fun State.move(from: Amphipod, to: Amphipod): State {
+    val cost = from.type.cost() * from.p.manhattanDistance(to.p)
     return State(
-        positions.toMutableList().apply {
+        amphipods.toMutableList().apply {
             remove(from)
             add(to)
         }.sortedBy { it.hashCode() }, // Need some consistent order for dedupe purposes.
@@ -35,46 +35,46 @@ fun State.move(from: Position, to: Position): State {
 }
 
 fun State.successors(room: String.() -> Set<Point>): List<State> {
-    fun shouldStayPut(p: Position) =
-        p.loc.x == p.type.roomColumn() && positions.none { it.loc.x == p.type.roomColumn() && it.type != p.type }
+    fun shouldStayPut(p: Amphipod) =
+        p.p.x == p.type.roomColumn() && amphipods.none { it.p.x == p.type.roomColumn() && it.type != p.type }
 
     fun canMoveThroughHall(from: Point, to: Point) =
-        (from.x < to.x && positions.none { it.loc.y == 0 && it.loc.x > from.x && it.loc.x <= to.x } ||
-        (from.x > to.x && positions.none { it.loc.y == 0 && it.loc.x < from.x && it.loc.x >= to.x }))
+        (from.x < to.x && amphipods.none { it.p.y == 0 && it.p.x > from.x && it.p.x <= to.x } ||
+        (from.x > to.x && amphipods.none { it.p.y == 0 && it.p.x < from.x && it.p.x >= to.x }))
 
     fun canMoveToHall(from: Point, to: Point) =
-        canMoveThroughHall(from, to) && positions.none { from.x == it.loc.x && from.y > it.loc.y }
+        canMoveThroughHall(from, to) && amphipods.none { from.x == it.p.x && from.y > it.p.y }
 
     fun canMoveToRoom(type: String, from: Point, to: Point) = 
-        canMoveThroughHall(from, to) && positions.none { it.loc.x == type.roomColumn() && it.type != type }
+        canMoveThroughHall(from, to) && amphipods.none { it.p.x == type.roomColumn() && it.type != type }
 
-    return positions.flatMap { p ->
+    return amphipods.flatMap { p ->
         if (shouldStayPut(p)) return@flatMap emptyList()
         buildList {
-            if (p.loc.y > 0) {
+            if (p.p.y > 0) {
                 for (h in HALLWAY) {
-                    if (canMoveToHall(p.loc, h)) {
-                        add(move(p, p.copy(loc = h)))
+                    if (canMoveToHall(p.p, h)) {
+                        add(move(p, p.copy(p = h)))
                     }
                 }
             } else {
                 val homeRoom = p.type.room()
                 val h = homeRoom.first()
-                if (canMoveToRoom(p.type, p.loc, h)) {
-                    val minOccupiedSlot = positions.filter { it.loc.x == h.x }.minOfOrNull { it.loc.y }
+                if (canMoveToRoom(p.type, p.p, h)) {
+                    val minOccupiedSlot = amphipods.filter { it.p.x == h.x }.minOfOrNull { it.p.y }
                     val availableSlot = minOccupiedSlot?.minus(1) ?: homeRoom.maxOf { it.y }
-                    add(move(p, p.copy(loc = h.copy(y = availableSlot))))
+                    add(move(p, p.copy(p = h.copy(y = availableSlot))))
                 }
             }
         }
     }
 }
 
-fun State.done() = positions.none { it.loc.x != it.type.roomColumn() }
+fun State.done() = amphipods.none { it.p.x != it.type.roomColumn() }
 
 val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
 val input = java.io.File(args[0]).readLines()
-val map = mutableListOf<Position>()
+val map = mutableListOf<Amphipod>()
 val rooms = Array(4) { mutableSetOf<Point>() }
 input.drop(2).dropLast(1).forEachIndexed { index, value ->
     rooms[0].add(Point(2, 1 + index))
@@ -82,10 +82,10 @@ input.drop(2).dropLast(1).forEachIndexed { index, value ->
     rooms[2].add(Point(6, 1 + index))
     rooms[3].add(Point(8, 1 + index))
     val (a, b, c, d) = checkNotNull(regex.find(value)).destructured
-    map.add(Position(a, rooms[0].last()))
-    map.add(Position(b, rooms[1].last()))
-    map.add(Position(c, rooms[2].last()))
-    map.add(Position(d, rooms[3].last()))
+    map.add(Amphipod(a, rooms[0].last()))
+    map.add(Amphipod(b, rooms[1].last()))
+    map.add(Amphipod(c, rooms[2].last()))
+    map.add(Amphipod(d, rooms[3].last()))
 }
 
 val initialState = State(map, 0)
@@ -94,13 +94,13 @@ val frontier = java.util.PriorityQueue<State>() {
     a: State, b: State -> a.totalEnergyCost.compareTo(b.totalEnergyCost) 
 }
 frontier.add(initialState)
-val seen = mutableSetOf<List<Position>>()
+val seen = mutableSetOf<List<Amphipod>>()
 var maxFrontierSize = 0
 while (!frontier.isEmpty()) {
     if (frontier.size > maxFrontierSize) maxFrontierSize = frontier.size
     val state = frontier.poll()
-    if (state.positions in seen) continue
-    seen.add(state.positions)
+    if (state.amphipods in seen) continue
+    seen.add(state.amphipods)
     
     if (state.done()) {
         println("Total energy cost: ${state.totalEnergyCost}")
