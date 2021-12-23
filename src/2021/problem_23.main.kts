@@ -83,15 +83,15 @@ val input = java.io.File(args[0]).readLines()
 val map = mutableSetOf<Position>()
 val rooms = Array(4) { mutableSetOf<Point>() }
 input.drop(2).dropLast(1).forEachIndexed { index, value ->
-    val (a, b, c, d) = checkNotNull(regex.find(value)).destructured
-    map.add(Position(a, Point(2, 1 + index)))
-    map.add(Position(b, Point(4, 1 + index)))
-    map.add(Position(c, Point(6, 1 + index)))
-    map.add(Position(d, Point(8, 1 + index)))
     rooms[0].add(Point(2, 1 + index))
     rooms[1].add(Point(4, 1 + index))
     rooms[2].add(Point(6, 1 + index))
     rooms[3].add(Point(8, 1 + index))
+    val (a, b, c, d) = checkNotNull(regex.find(value)).destructured
+    map.add(Position(a, rooms[0].last()))
+    map.add(Position(b, rooms[1].last()))
+    map.add(Position(c, rooms[2].last()))
+    map.add(Position(d, rooms[3].last()))
 }
 
 val initialState = State(map)
