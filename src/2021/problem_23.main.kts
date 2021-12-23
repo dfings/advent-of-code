@@ -50,11 +50,7 @@ fun State.successors(slotsPerRoom: Int): List<State> {
         if (a.shouldStayPut()) return@flatMap emptyList()
         buildList {
             if (a.p.y > 0) {
-                for (h in HALLWAY) {
-                    if (a.canMoveToHall(h)) {
-                        add(move(a, h))
-                    }
-                }
+                HALLWAY.forEach { if (a.canMoveToHall(it)) add(move(a, it)) }
             } else {
                 val roomX = a.type.roomX()
                 if (a.canMoveToRoom(Point(roomX, 1))) {
