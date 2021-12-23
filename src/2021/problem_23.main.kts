@@ -71,18 +71,15 @@ fun State.done() = amphipods.none { it.p.x != it.type.roomX() }
 
 val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
 val input = java.io.File(args[0]).readLines()
-val map = mutableListOf<Amphipod>()
-input.drop(2).dropLast(1).forEachIndexed { index, value ->
+val map = input.drop(2).dropLast(1).flatMapIndexed { index, value ->
     val (a, b, c, d) = checkNotNull(regex.find(value)).destructured
-    map.add(Amphipod(a, Point(2, 1 + index)))
-    map.add(Amphipod(b, Point(4, 1 + index)))
-    map.add(Amphipod(c, Point(6, 1 + index)))
-    map.add(Amphipod(d, Point(8, 1 + index)))
+    listOf(Amphipod(a, Point(2, 1 + index)), Amphipod(b, Point(4, 1 + index)),
+           Amphipod(c, Point(6, 1 + index)), Amphipod(d, Point(8, 1 + index)))
 }
 val slotsPerRoom = map.size / 4
 
-val initialState = State(map, 0)
 val start = System.nanoTime()
+val initialState = State(map, 0)
 val frontier = java.util.PriorityQueue<State>() { 
     a: State, b: State -> a.totalEnergyCost.compareTo(b.totalEnergyCost) 
 }
