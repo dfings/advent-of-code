@@ -9,14 +9,15 @@ data class Sector(val x: IntRange, val y: IntRange, val z: IntRange) {
 }
 data class Instruction(val on: Boolean, val sector: Sector)
 
-fun range(start: String, endInclusive: String): IntRange = start.toInt()..endInclusive.toInt()
+fun parseIntRange(start: String, endInclusive: String): IntRange = start.toInt()..endInclusive.toInt()
 val regex = kotlin.text.Regex("(on|off) x=(-?\\d+)..(-?\\d+),y=(-?\\d+)..(-?\\d+),z=(-?\\d+)..(-?\\d+)")
 val input = java.io.File(args[0]).readLines()
 val instructions = input.map {
     val (onOff, xMin, xMax, yMin, yMax, zMin, zMax) = checkNotNull(regex.find(it)).destructured
-    Instruction(onOff == "on", Sector(range(xMin, xMax), range(yMin, yMax), range(zMin, zMax)))
+    Instruction(onOff == "on", Sector(parseIntRange(xMin, xMax), parseIntRange(yMin, yMax), parseIntRange(zMin, zMax)))
 }
 
+// Part 1
 val states = buildMap {
     for (x in -50..50) for (y in -50..50) for (z in -50..50) put(Point(x, y, z), false)
 }.toMutableMap()
@@ -26,6 +27,7 @@ instructions.forEach { instruction ->
 }
 println(states.values.count { it })
 
+// Part 2
 fun IntRange.end() = endInclusive + 1
 fun List<Sector>.boundaries(range: (Sector) -> IntRange): List<Int> = 
     flatMap { listOf(range(it).start, range(it).end()) }.sorted().distinct()
