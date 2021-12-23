@@ -3,6 +3,9 @@
 import kotlin.math.abs
 
 data class Point(val x: Int, val y: Int)
+data class Position(val type: String, val loc: Point)
+data class State(val positions: List<Position>, val totalEnergyCost: Int)
+
 fun Point.manhattanDistance(p: Point): Int = abs(x - p.x) + abs(y - p.y)
 
 val HALLWAY = setOf(Point(0, 0), Point(1, 0), Point(3, 0), Point(5, 0), Point(7, 0), Point(9, 0), Point(10, 0))
@@ -20,22 +23,18 @@ fun String.roomColumn() = when(this) {
     else -> 8
 }
 
-data class Position(val type: String, val loc: Point)
-data class State(val positions: List<Position>)
-class Step(val state: State, val totalEnergyCost: Int)
-
-fun Step.move(from: Position, to: Position): Step {
-    val newState = State(state.positions.toMutableList().apply {
-        remove(from)
-        add(to)
-    }.sortedBy { it.hashCode() }) // Need some consistent order for dedupe purposes.
+fun State.move(from: Position, to: Position): State {
     val cost = from.type.cost() * from.loc.manhattanDistance(to.loc)
-    return Step(newState, totalEnergyCost + cost)
+    return State(
+        positions.toMutableList().apply {
+            remove(from)
+            add(to)
+        }.sortedBy { it.hashCode() }, // Need some consistent order for dedupe purposes.
+        totalEnergyCost + cost
+    ) 
 }
 
-fun Step.successors(room: String.() -> Set<Point>): List<Step> {
-    val positions = state.positions
-
+fun State.successors(room: String.() -> Set<Point>): List<State> {
     fun shouldStayPut(p: Position) =
         p.loc.x == p.type.roomColumn() && positions.none { it.loc.x == p.type.roomColumn() && it.type != p.type }
 
@@ -71,7 +70,7 @@ fun Step.successors(room: String.() -> Set<Point>): List<Step> {
     }
 }
 
-fun Step.done() = state.positions.none { it.loc.x != it.type.roomColumn() }
+fun State.done() = positions.none { it.loc.x != it.type.roomColumn() }
 
 val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
 val input = java.io.File(args[0]).readLines()
@@ -89,27 +88,25 @@ input.drop(2).dropLast(1).forEachIndexed { index, value ->
     map.add(Position(d, rooms[3].last()))
 }
 
-val initialState = State(map)
-val initialStep = Step(initialState, 0)
-
+val initialState = State(map, 0)
 val start = System.nanoTime()
-val frontier = java.util.PriorityQueue<Step>() { 
-    a: Step, b: Step -> a.totalEnergyCost.compareTo(b.totalEnergyCost) 
+val frontier = java.util.PriorityQueue<State>() { 
+    a: State, b: State -> a.totalEnergyCost.compareTo(b.totalEnergyCost) 
 }
-frontier.add(initialStep)
-val seen = mutableSetOf<State>()
+frontier.add(initialState)
+val seen = mutableSetOf<List<Position>>()
 var maxFrontierSize = 0
 while (!frontier.isEmpty()) {
     if (frontier.size > maxFrontierSize) maxFrontierSize = frontier.size
-    val step = frontier.poll()
-    if (step.state in seen) continue
-    seen.add(step.state)
+    val state = frontier.poll()
+    if (state.positions in seen) continue
+    seen.add(state.positions)
     
-    if (step.done()) {
-        println("Total energy cost: ${step.totalEnergyCost}")
+    if (state.done()) {
+        println("Total energy cost: ${state.totalEnergyCost}")
         break
     }
-    frontier.addAll(step.successors {
+    frontier.addAll(state.successors {
         when(this) {
             "A" -> rooms[0]
             "B" -> rooms[1]
