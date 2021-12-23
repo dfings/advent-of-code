@@ -94,7 +94,7 @@ val initialStep = Step(initialState, 0)
 
 val start = System.nanoTime()
 val frontier = java.util.PriorityQueue<Step>() { 
-    a: Step, b: Step -> b.totalEnergyCost.compareTo(a.totalEnergyCost) 
+    a: Step, b: Step -> a.totalEnergyCost.compareTo(b.totalEnergyCost) 
 }
 frontier.add(initialStep)
 val seen = mutableSetOf<State>()
@@ -104,7 +104,7 @@ while (!frontier.isEmpty()) {
     seen.add(step.state)
     
     if (step.done()) {
-        println(step.totalEnergyCost)
+        println("Total energy cost: ${step.totalEnergyCost}")
         break
     }
     frontier.addAll(step.successors {
@@ -116,4 +116,5 @@ while (!frontier.isEmpty()) {
         }
     })
 }
-println("${(System.nanoTime() - start)/1000000}")
+println("Runtime: ${(System.nanoTime() - start)/1000000}ms")
+println("States explored: ${seen.size}")
