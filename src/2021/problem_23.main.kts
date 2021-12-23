@@ -16,6 +16,7 @@ fun String.cost() = when(this) {
     "C" -> 100
     else -> 1000
 }
+
 fun String.roomColumn() = when(this) {
     "A" -> 2
     "B" -> 4
