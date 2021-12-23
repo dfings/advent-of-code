@@ -17,7 +17,7 @@ fun String.cost() = when(this) {
     else -> 1000
 }
 
-fun String.roomColumn() = when(this) {
+fun String.roomX() = when(this) {
     "A" -> 2
     "B" -> 4
     "C" -> 6
@@ -34,7 +34,7 @@ fun State.move(from: Amphipod, to: Point) = State(
 
 fun State.successors(room: String.() -> Set<Point>): List<State> {
     fun shouldStayPut(a: Amphipod) =
-        a.p.x == a.type.roomColumn() && amphipods.none { it.p.x == a.type.roomColumn() && it.type != a.type }
+        a.p.x == a.type.roomX() && amphipods.none { it.p.x == a.type.roomX() && it.type != a.type }
 
     fun canMoveThroughHall(from: Point, to: Point) =
         (from.x < to.x && amphipods.none { it.p.y == 0 && it.p.x > from.x && it.p.x <= to.x } ||
@@ -44,7 +44,7 @@ fun State.successors(room: String.() -> Set<Point>): List<State> {
         canMoveThroughHall(from, to) && amphipods.none { from.x == it.p.x && from.y > it.p.y }
 
     fun canMoveToRoom(type: String, from: Point, to: Point) = 
-        canMoveThroughHall(from, to) && amphipods.none { it.p.x == type.roomColumn() && it.type != type }
+        canMoveThroughHall(from, to) && amphipods.none { it.p.x == type.roomX() && it.type != type }
 
     return amphipods.flatMap { a ->
         if (shouldStayPut(a)) return@flatMap emptyList()
@@ -68,7 +68,7 @@ fun State.successors(room: String.() -> Set<Point>): List<State> {
     }
 }
 
-fun State.done() = amphipods.none { it.p.x != it.type.roomColumn() }
+fun State.done() = amphipods.none { it.p.x != it.type.roomX() }
 
 val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
 val input = java.io.File(args[0]).readLines()
