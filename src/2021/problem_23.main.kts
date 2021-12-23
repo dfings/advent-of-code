@@ -73,7 +73,7 @@ val frontier = java.util.PriorityQueue<State>() {
     a: State, b: State -> a.totalEnergyCost.compareTo(b.totalEnergyCost) 
 }
 frontier.add(initialState)
-val seen = mutableSetOf<List<Amphipod>>()
+val seen = HashSet<List<Amphipod>>()
 var maxFrontierSize = 0
 while (!frontier.isEmpty()) {
     if (frontier.size > maxFrontierSize) maxFrontierSize = frontier.size
