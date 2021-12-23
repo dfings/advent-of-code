@@ -4,9 +4,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 data class Point(val x: Int, val y: Int, val z: Int)
-data class Sector(val x: IntRange, val y: IntRange, val z: IntRange) {
-    fun contains(p: Point) = p.x in x && p.y in y && p.z in z
-}
+data class Sector(val x: IntRange, val y: IntRange, val z: IntRange)
 data class Instruction(val on: Boolean, val sector: Sector)
 
 fun parseIntRange(start: String, endInclusive: String): IntRange = start.toInt()..endInclusive.toInt()
@@ -18,6 +16,7 @@ val instructions = input.map {
 }
 
 // Part 1
+fun Sector.contains(p: Point) = p.x in x && p.y in y && p.z in z
 val states = buildMap {
     for (x in -50..50) for (y in -50..50) for (z in -50..50) put(Point(x, y, z), false)
 }.toMutableMap()
