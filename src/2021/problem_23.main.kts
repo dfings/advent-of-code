@@ -6,10 +6,6 @@ data class Point(val x: Int, val y: Int)
 fun Point.manhattanDistance(p: Point): Int = abs(x - p.x) + abs(y - p.y)
 
 val HALLWAY = setOf(Point(0, 0), Point(1, 0), Point(3, 0), Point(5, 0), Point(7, 0), Point(9, 0), Point(10, 0))
-val ROOM_A = setOf(Point(2, 1), Point(2, 2))
-val ROOM_B = setOf(Point(4, 1), Point(4, 2))
-val ROOM_C = setOf(Point(6, 1), Point(6, 2))
-val ROOM_D = setOf(Point(8, 1), Point(8, 2))
 
 fun String.cost() = when(this) {
     "A" -> 1
