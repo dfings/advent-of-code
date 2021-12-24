@@ -44,9 +44,7 @@ fun State.successors(slotsPerRoom: Int) = sequence {
 
     fun Amphipod.firstOpenSlotInRoom(): Point {
         var minOccupiedY = slotsPerRoom + 1
-        for (a in amphipods) {
-            if (a.p.x == type.roomX && a.p.y < minOccupiedY) minOccupiedY = a.p.y
-        }
+        amphipods.forEach { if (it.p.x == type.roomX && it.p.y < minOccupiedY) minOccupiedY = it.p.y }
         return Point(type.roomX, minOccupiedY - 1)
     }
 
