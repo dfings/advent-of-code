@@ -19,7 +19,7 @@ val HALLWAY = listOf(Point(0, 0), Point(1, 0), Point(3, 0), Point(5, 0), Point(7
 
 fun State.move(a: Amphipod, to: Point) = State(
     amphipods.toMutableList().apply {
-        set(indexOf(a), a.copy(p = to))
+        this[indexOf(a)] = a.copy(p = to)
         sortBy { it.hashCode() } // Need some consistent order for dedupe purposes.
     },
     totalEnergyCost + a.type.cost * a.p.manhattanDistance(to)
@@ -66,7 +66,7 @@ fun solve(initialState: State): Solution {
     val frontier = java.util.PriorityQueue<State>() { 
         a, b -> a.totalEnergyCost.compareTo(b.totalEnergyCost) 
     }
-    frontier.add(initialState)
+    frontier += initialState
     val seen = HashSet<List<Amphipod>>()
     var maxFrontierSize = 0
     while (!frontier.isEmpty()) {
@@ -76,8 +76,8 @@ fun solve(initialState: State): Solution {
             state.amphipods in seen -> {}
             state.done() -> return Solution(state.totalEnergyCost, seen.size, maxFrontierSize)
             else -> {   
-                seen.add(state.amphipods)
-                state.successors(slotsPerRoom).forEach { frontier.add(it) }
+                seen += state.amphipods
+                state.successors(slotsPerRoom).forEach { frontier += it }
             }
         }
     }
