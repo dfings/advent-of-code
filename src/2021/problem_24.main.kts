@@ -1,27 +1,26 @@
 #!/usr/bin/env kotlin
 
-data class State(val registers: LongArray)
 enum class OpCode { INP, ADD, MUL, DIV, MOD, EQL }
-sealed interface Instruction : (State) -> Unit
+sealed interface Instruction : (LongArray) -> Unit
 
 data class BinaryOpOnConstant(val op: OpCode, val register: Int, val constant: Long) : Instruction {
-    override fun invoke(state: State) = when(op) {
-        OpCode.ADD -> state.registers[register] += constant
-        OpCode.MUL -> state.registers[register] *= constant
-        OpCode.DIV -> state.registers[register] /= constant
-        OpCode.MOD -> state.registers[register] %= constant
-        OpCode.EQL -> state.registers[register] = if (state.registers[register] == constant) 1 else 0
+    override fun invoke(registers: LongArray) = when(op) {
+        OpCode.ADD -> registers[register] += constant
+        OpCode.MUL -> registers[register] *= constant
+        OpCode.DIV -> registers[register] /= constant
+        OpCode.MOD -> registers[register] %= constant
+        OpCode.EQL -> registers[register] = if (registers[register] == constant) 1 else 0
         else -> error("")
     }
 }
 
 data class BinaryOpOnRegister(val op: OpCode, val register: Int, val input: Int) : Instruction {
-    override fun invoke(state: State) = when(op) {
-        OpCode.ADD -> state.registers[register] += state.registers[input]
-        OpCode.MUL -> state.registers[register] *= state.registers[input]
-        OpCode.DIV -> state.registers[register] /= state.registers[input]
-        OpCode.MOD -> state.registers[register] %= state.registers[input]
-        OpCode.EQL -> state.registers[register] = if (state.registers[register] == state.registers[input]) 1 else 0
+    override fun invoke(registers: LongArray) = when(op) {
+        OpCode.ADD -> registers[register] += registers[input]
+        OpCode.MUL -> registers[register] *= registers[input]
+        OpCode.DIV -> registers[register] /= registers[input]
+        OpCode.MOD -> registers[register] %= registers[input]
+        OpCode.EQL -> registers[register] = if (registers[register] == registers[input]) 1 else 0
         else -> error("")
     }
 }
@@ -56,9 +55,9 @@ data class Path(val v: Vertex, val number: Long, val fScore: Long)
 fun Path.successors(instructions: List<List<Instruction>>) = sequence {
     if (v.index < 14) {
         for (w in 1L..9L) {
-            val state = State(longArrayOf(w, 0, 0, v.z))
-            instructions[v.index].forEach { it(state) }
-            val zOut = state.registers.last()
+            val registers = longArrayOf(w, 0, 0, v.z)
+            instructions[v.index].forEach { it(registers) }
+            val zOut = registers[3]
             val newNumber = number * 10 + w
             var fScore = newNumber
             repeat (13 - v.index) { fScore *= 10 }
@@ -82,10 +81,15 @@ fun solve(instructions: List<List<Instruction>>, comparator: java.util.Comparato
 }
 
 val instructions = parseInput(java.io.File(args[0]).readLines())
+
+var start = System.nanoTime()
 println(solve(instructions) { 
     a, b -> b.fScore.compareTo(a.fScore) 
 })
+println("Runtime: ${(System.nanoTime() - start)/1_000_000}ms")
 
+start = System.nanoTime()
 println(solve(instructions) { 
     a, b -> a.fScore.compareTo(b.fScore) 
 })
+println("Runtime: ${(System.nanoTime() - start)/1_000_000}ms")
