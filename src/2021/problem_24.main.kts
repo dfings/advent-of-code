@@ -1,7 +1,7 @@
 #!/usr/bin/env kotlin
 
 enum class OpCode { INP, ADD, MUL, DIV, MOD, EQL }
-sealed interface Instruction : (LongArray) -> Unit
+typealias Instruction = (LongArray) -> Unit
 
 data class BinaryOpOnConstant(val op: OpCode, val register: Int, val constant: Long) : Instruction {
     override fun invoke(registers: LongArray) = when(op) {
