@@ -69,13 +69,14 @@ fun solve(initialState: State): Solution {
     while (!frontier.isEmpty()) {
         if (frontier.size > maxFrontierSize) maxFrontierSize = frontier.size
         val state = frontier.poll()
-        if (state.amphipods in seen) continue
-        seen.add(state.amphipods)
-    
-        if (state.done()) {
-            return Solution(state.totalEnergyCost, seen.size, maxFrontierSize)
+        when {
+            state.amphipods in seen -> {}
+            state.done() -> return Solution(state.totalEnergyCost, seen.size, maxFrontierSize)
+            else -> {   
+                seen.add(state.amphipods)
+                state.successors(slotsPerRoom).forEach { frontier.add(it) }
+            }
         }
-        state.successors(slotsPerRoom).forEach { frontier.add(it) }
     }
     error("No solution!")
 }
