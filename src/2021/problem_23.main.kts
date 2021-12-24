@@ -61,7 +61,7 @@ data class Solution(val totalEnergyCost: Int, val statesExplored: Int, val maxFr
 fun solve(initialState: State): Solution {
     val slotsPerRoom = initialState.amphipods.size / 4
     val frontier = java.util.PriorityQueue<State>() { 
-        a: State, b: State -> a.totalEnergyCost.compareTo(b.totalEnergyCost) 
+        a, b -> a.totalEnergyCost.compareTo(b.totalEnergyCost) 
     }
     frontier.add(initialState)
     val seen = HashSet<List<Amphipod>>()
