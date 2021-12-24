@@ -57,35 +57,40 @@ fun State.done() = amphipods.none { it.p.x != it.type.roomX }
 
 fun String.toType() = Type.values().single { this == it.code }
 
+data class Solution(val totalEnergyCost: Int, val statesExplored: Int, val maxFrontierSize: Int)
+fun solve(initialState: State): Solution {
+    val slotsPerRoom = initialState.amphipods.size / 4
+    val frontier = java.util.PriorityQueue<State>() { 
+        a: State, b: State -> a.totalEnergyCost.compareTo(b.totalEnergyCost) 
+    }
+    frontier.add(initialState)
+    val seen = HashSet<List<Amphipod>>()
+    var maxFrontierSize = 0
+    while (!frontier.isEmpty()) {
+        if (frontier.size > maxFrontierSize) maxFrontierSize = frontier.size
+        val state = frontier.poll()
+        if (state.amphipods in seen) continue
+        seen.add(state.amphipods)
+    
+        if (state.done()) {
+            return Solution(state.totalEnergyCost, seen.size, maxFrontierSize)
+        }
+        state.successors(slotsPerRoom).forEach { frontier.add(it) }
+    }
+    error("No solution!")
+}
+
 val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
 val input = java.io.File(args[0]).readLines()
-val map = input.drop(2).dropLast(1).flatMapIndexed { index, value ->
+val amphipods = input.drop(2).dropLast(1).flatMapIndexed { index, value ->
     val (a, b, c, d) = checkNotNull(regex.find(value)).destructured
     listOf(Amphipod(a.toType(), Point(2, 1 + index)), Amphipod(b.toType(), Point(4, 1 + index)),
            Amphipod(c.toType(), Point(6, 1 + index)), Amphipod(d.toType(), Point(8, 1 + index)))
 }
-val slotsPerRoom = map.size / 4
 
 val start = System.nanoTime()
-val initialState = State(map, 0)
-val frontier = java.util.PriorityQueue<State>() { 
-    a: State, b: State -> a.totalEnergyCost.compareTo(b.totalEnergyCost) 
-}
-frontier.add(initialState)
-val seen = HashSet<List<Amphipod>>()
-var maxFrontierSize = 0
-while (!frontier.isEmpty()) {
-    if (frontier.size > maxFrontierSize) maxFrontierSize = frontier.size
-    val state = frontier.poll()
-    if (state.amphipods in seen) continue
-    seen.add(state.amphipods)
-    
-    if (state.done()) {
-        println("Total energy cost: ${state.totalEnergyCost}")
-        break
-    }
-    state.successors(slotsPerRoom).forEach { frontier.add(it) }
-}
+val solution = solve(State(amphipods, 0))
+println("Total energy cost: ${solution.totalEnergyCost}")
+println("States explored: ${solution.statesExplored}")
+println("Max frontier size: ${solution.maxFrontierSize}")
 println("Runtime: ${(System.nanoTime() - start)/1_000_000}ms")
-println("States explored: ${seen.size}")
-println("Max frontier size: $maxFrontierSize")
