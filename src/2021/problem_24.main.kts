@@ -34,15 +34,14 @@ fun parseInput(input: List<String>): List<List<Instruction>> {
     input.forEach {
         val parts = it.split(" ")
         val op = OpCode.valueOf(parts[0].uppercase())
-        if (op == OpCode.INP) {
-            chunkedInstructions.add(current)
-            current = mutableListOf<Instruction>()
-        } else {
-            if (parts[2] in validRegisters) {
-                current.add(BinaryOpOnRegister(op, parts[1].toRegister(), parts[2].toRegister()))
-            } else {
-                current.add(BinaryOpOnConstant(op, parts[1].toRegister(), parts[2].toLong()))
+        val register = parts[1].toRegister()
+        when {
+            op == OpCode.INP -> {
+                chunkedInstructions.add(current)
+                current = mutableListOf<Instruction>()
             }
+            parts[2] in validRegisters -> current.add(BinaryOpOnRegister(op, register, parts[2].toRegister()))
+            else -> current.add(BinaryOpOnConstant(op, register, parts[2].toLong()))
         }
     }
     chunkedInstructions.add(current)
