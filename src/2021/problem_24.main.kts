@@ -49,47 +49,28 @@ fun parseInput(input: List<String>): List<List<Instruction>> {
     return chunkedInstructions.drop(1)
 }
 
-data class Vertex(val z: Long, val index: Int)
-data class Path(val v: Vertex, val number: Long, val fScore: Long)
-
-fun Path.successors(instructions: List<List<Instruction>>) = sequence {
-    if (v.index < 14) {
-        for (w in 1L..9L) {
-            val registers = longArrayOf(w, 0, 0, v.z)
-            instructions[v.index].forEach { it(registers) }
-            val zOut = registers[3]
-            val newNumber = number * 10 + w
-            var fScore = newNumber
-            repeat (13 - v.index) { fScore *= 10 }
-            yield(Path(Vertex(zOut, v.index + 1), newNumber, fScore))
-        }
-    }
-}
-
-fun solve(instructions: List<List<Instruction>>, comparator: java.util.Comparator<Path>): Long {
-    val frontier = java.util.PriorityQueue<Path>(comparator)
-    frontier += Path(Vertex(0, 0), 0, 0)
-    val seen = HashSet<Vertex>()
-    while (!frontier.isEmpty()) {
-        val path = frontier.poll()
-        if (path.v in seen) continue
-        if (path.v.index == 14 && path.v.z == 0L) return path.number
-        seen += path.v
-        path.successors(instructions).forEach { frontier += it }
-    }
-    error("No solution!")
-}
-
 val instructions = parseInput(java.io.File(args[0]).readLines())
+fun HashMap<Pair<Long, Int>, Long>.solve(
+    z: Long, 
+    index: Int, 
+    number: Long, 
+    progression: LongProgression
+): Long = getOrPut(z to index) {
+    if (index == 14) return if (z == 0L) number else -1
+    for (w in progression) {
+        val registers = longArrayOf(w, 0, 0, z)
+        instructions[index].forEach { it(registers) }
+        val newNumber = number * 10 + w        
+        val solution = solve(registers[3], index + 1, newNumber, progression)
+        if (solution != -1L) return@getOrPut solution
+    }
+    return@getOrPut -1L
+}
 
 var start = System.nanoTime()
-println(solve(instructions) { 
-    a, b -> b.fScore.compareTo(a.fScore) 
-})
+println(HashMap<Pair<Long, Int>, Long>().solve(0L, 0, 0L, 9L downTo 1L))
 println("Runtime: ${(System.nanoTime() - start)/1_000_000}ms")
 
 start = System.nanoTime()
-println(solve(instructions) { 
-    a, b -> a.fScore.compareTo(b.fScore) 
-})
+println(HashMap<Pair<Long, Int>, Long>().solve(0L, 0, 0L, 1L..9L))
 println("Runtime: ${(System.nanoTime() - start)/1_000_000}ms")
