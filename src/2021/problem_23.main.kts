@@ -42,13 +42,18 @@ fun State.successors(slotsPerRoom: Int) = sequence {
     fun Amphipod.canMoveToRoom() = 
         p.y == 0 && canMoveThroughHall(type.roomX) && roomOnlyHasCorrectTypes()
 
+    fun Amphipod.firstOpenSlotInRoom(): Point {
+        var minOccupiedY = slotsPerRoom + 1
+        for (a in amphipods) {
+            if (a.p.x == type.roomX && a.p.y < minOccupiedY) minOccupiedY = a.p.y
+        }
+        return Point(type.roomX, minOccupiedY - 1)
+    }
+
     amphipods.forEach { a -> when {
         a.shouldStayPut() -> {}
         a.canMoveToHall() ->  HALLWAY.forEach { if (a.canMoveThroughHall(it.x)) yield(move(a, it)) }
-        a.canMoveToRoom() -> {
-            val minOccupiedSlot = amphipods.filter { it.p.x == a.type.roomX }.minOfOrNull { it.p.y } ?: slotsPerRoom + 1
-            yield(move(a, Point(a.type.roomX, minOccupiedSlot - 1)))
-        }
+        a.canMoveToRoom() ->  yield(move(a, a.firstOpenSlotInRoom()))
         else -> {}
     }}
 }
