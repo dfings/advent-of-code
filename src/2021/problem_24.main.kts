@@ -29,23 +29,22 @@ fun parseInput(input: List<String>): List<List<Instruction>> {
     val validRegisters = setOf("w", "x", "y", "z")
     fun String.toRegister() = this[0] - 'w'
 
-    val chunkedInstructions = mutableListOf<MutableList<Instruction>>()
-    var current = mutableListOf<Instruction>()
+    lateinit var current: ArrayList<Instruction>
+    val perInputInstructions = ArrayList<List<Instruction>>()
     input.forEach {
         val parts = it.split(" ")
         val op = OpCode.valueOf(parts[0].uppercase())
         val register = parts[1].toRegister()
         when {
-            op == OpCode.INP -> {
-                chunkedInstructions.add(current)
-                current = mutableListOf<Instruction>()
+            op == OpCode.INP -> ArrayList<Instruction>().let {
+                current = it
+                perInputInstructions += it
             }
-            parts[2] in validRegisters -> current.add(BinaryOpOnRegister(op, register, parts[2].toRegister()))
-            else -> current.add(BinaryOpOnConstant(op, register, parts[2].toLong()))
+            parts[2] in validRegisters -> current += BinaryOpOnRegister(op, register, parts[2].toRegister())
+            else -> current += BinaryOpOnConstant(op, register, parts[2].toLong())
         }
     }
-    chunkedInstructions.add(current)
-    return chunkedInstructions.drop(1)
+    return perInputInstructions
 }
 
 val instructions = parseInput(java.io.File(args[0]).readLines())
