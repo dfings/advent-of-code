@@ -1,6 +1,6 @@
 #!/usr/bin/env kotlin
 
-data class State(val registers: MutableList<Long> = mutableListOf(0, 0, 0, 0))
+data class State(val registers: LongArray)
 enum class OpCode { INP, ADD, MUL, DIV, MOD, EQL }
 sealed interface Instruction : (State) -> Unit
 
@@ -56,7 +56,7 @@ data class Path(val v: Vertex, val number: Long, val fScore: Long)
 fun Path.successors(instructions: List<List<Instruction>>) = sequence {
     if (v.index < 14) {
         for (w in 1L..9L) {
-            val state = State(mutableListOf(w, 0, 0, v.z))
+            val state = State(longArrayOf(w, 0, 0, v.z))
             instructions[v.index].forEach { it(state) }
             val zOut = state.registers.last()
             val newNumber = number * 10 + w
