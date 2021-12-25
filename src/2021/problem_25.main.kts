@@ -25,7 +25,24 @@ val eastUnblocked = fish.toKeySet { it.value == '>' &&  it.key.east() !in fish }
 val eastBlocked = fish.toKeySet { it.value == '>' &&  it.key.east() in fish }
 val southUnblocked = fish.toKeySet { it.value == 'v' &&  it.key.south() !in fish }
 val southBlocked = fish.toKeySet { it.value == 'v' &&  it.key.south() in fish }
+
 fun Point.hasFish() = this in eastUnblocked || this in eastBlocked || this in southUnblocked || this in southBlocked
+
+fun Point.maybeUnblockEastFish() {
+    west().let { if (eastBlocked.remove(it)) eastUnblocked.add(it) }
+}
+
+fun Point.maybeBlockEastFish() {
+    west().let { if (eastUnblocked.remove(it)) eastBlocked.add(it) }
+}
+
+fun Point.maybeUnblockSouthFish() {
+    north().let { if (southBlocked.remove(it)) southUnblocked.add(it) }
+}
+
+fun Point.maybeBlockSouthFish() {
+    north().let { if (southUnblocked.remove(it)) southBlocked.add(it) }
+}
 
 var stepCount = 0
 while (true) {
@@ -34,10 +51,10 @@ while (true) {
     val toMoveEast = eastUnblocked.toList()
     eastUnblocked.clear()
     toMoveEast.forEach {
-        it.west().let { if (eastBlocked.remove(it)) eastUnblocked.add(it) }
-        it.north().let { if (southBlocked.remove(it)) southUnblocked.add(it) }
+        it.maybeUnblockEastFish()
+        it.maybeUnblockSouthFish()
         it.east().let { 
-            it.north().let { if (southUnblocked.remove(it)) southBlocked.add(it) } 
+            it.maybeBlockSouthFish()
             if (it.east().hasFish()) eastBlocked.add(it) else eastUnblocked.add(it)
         }
     }
@@ -45,10 +62,10 @@ while (true) {
     val toMoveSouth = southUnblocked.toList()
     southUnblocked.clear()
     toMoveSouth.forEach {
-        it.west().let { if (eastBlocked.remove(it)) eastUnblocked.add(it) }
-        it.north().let { if (southBlocked.remove(it)) southUnblocked.add(it) }
+        it.maybeUnblockEastFish()
+        it.maybeUnblockSouthFish()
         it.south().let { 
-            it.west().let { if (eastUnblocked.remove(it)) eastBlocked.add(it) }
+            it.maybeBlockEastFish()
             if (it.south().hasFish()) southBlocked.add(it) else southUnblocked.add(it)
         }
     }
