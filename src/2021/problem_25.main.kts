@@ -1,6 +1,7 @@
 #!/usr/bin/env kotlin
 
 val lines = java.io.File(args[0]).readLines()
+val start = System.nanoTime()
 
 data class Point(val x: Int, val y: Int)
 val max = Point(lines[0].lastIndex, lines.lastIndex)
@@ -64,3 +65,4 @@ while (true) {
     if (toMoveEast.isEmpty() && toMoveSouth.isEmpty()) break
 }
 println(stepCount)
+println("Runtime: ${(System.nanoTime() - start)/1_000_000}ms")
