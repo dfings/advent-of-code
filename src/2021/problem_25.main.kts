@@ -26,11 +26,14 @@ val eastBlocked = fish.toKeySet { it.value == '>' &&  it.key.east() in fish }
 val southUnblocked = fish.toKeySet { it.value == 'v' &&  it.key.south() !in fish }
 val southBlocked = fish.toKeySet { it.value == 'v' &&  it.key.south() in fish }
 
-fun Point.hasFish() = this in eastUnblocked || this in eastBlocked || this in southUnblocked || this in southBlocked
 fun Point.maybeUnblockEastFish() =  west().let { if (eastBlocked.remove(it)) eastUnblocked.add(it) }
 fun Point.maybeBlockEastFish() = west().let { if (eastUnblocked.remove(it)) eastBlocked.add(it) }
 fun Point.maybeUnblockSouthFish() = north().let { if (southBlocked.remove(it)) southUnblocked.add(it) }
 fun Point.maybeBlockSouthFish() = north().let { if (southUnblocked.remove(it)) southBlocked.add(it) }
+
+fun Point.hasFish() = this in eastUnblocked || this in eastBlocked || this in southUnblocked || this in southBlocked
+fun Point.finishEastMove() = if (east().hasFish()) eastBlocked.add(this) else eastUnblocked.add(this)
+fun Point.finishSouthMove() = if (south().hasFish()) southBlocked.add(this) else southUnblocked.add(this)
 
 var stepCount = 0
 while (true) {
@@ -43,7 +46,7 @@ while (true) {
         it.maybeUnblockSouthFish()
         it.east().let { 
             it.maybeBlockSouthFish()
-            if (it.east().hasFish()) eastBlocked.add(it) else eastUnblocked.add(it)
+            it.finishEastMove()            
         }
     }
 
@@ -54,7 +57,7 @@ while (true) {
         it.maybeUnblockSouthFish()
         it.south().let { 
             it.maybeBlockEastFish()
-            if (it.south().hasFish()) southBlocked.add(it) else southUnblocked.add(it)
+            it.finishSouthMove()
         }
     }
 
