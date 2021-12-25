@@ -25,35 +25,31 @@ val eastUnblocked = fish.toKeySet { it.value == '>' &&  it.key.east() !in fish }
 val eastBlocked = fish.toKeySet { it.value == '>' &&  it.key.east() in fish }
 val southUnblocked = fish.toKeySet { it.value == 'v' &&  it.key.south() !in fish }
 val southBlocked = fish.toKeySet { it.value == 'v' &&  it.key.south() in fish }
-val all = HashSet(fish.keys)
+fun Point.hasFish() = this in eastUnblocked || this in eastBlocked || this in southUnblocked || this in southBlocked
 
 var stepCount = 0
 while (true) {
     stepCount++
 
     val toMoveEast = eastUnblocked.toList()
-    all.removeAll(toMoveEast)
     eastUnblocked.clear()
     toMoveEast.forEach {
         it.west().let { if (eastBlocked.remove(it)) eastUnblocked.add(it) }
         it.north().let { if (southBlocked.remove(it)) southUnblocked.add(it) }
         it.east().let { 
             it.north().let { if (southUnblocked.remove(it)) southBlocked.add(it) } 
-            if (it.east() in all) eastBlocked.add(it) else eastUnblocked.add(it)
-            all.add(it)
+            if (it.east().hasFish()) eastBlocked.add(it) else eastUnblocked.add(it)
         }
     }
 
     val toMoveSouth = southUnblocked.toList()
-    all.removeAll(toMoveSouth)
     southUnblocked.clear()
     toMoveSouth.forEach {
         it.west().let { if (eastBlocked.remove(it)) eastUnblocked.add(it) }
         it.north().let { if (southBlocked.remove(it)) southUnblocked.add(it) }
         it.south().let { 
             it.west().let { if (eastUnblocked.remove(it)) eastBlocked.add(it) }
-            if (it.south() in all) southBlocked.add(it) else southUnblocked.add(it)
-            all.add(it)
+            if (it.south().hasFish()) southBlocked.add(it) else southUnblocked.add(it)
         }
     }
 
