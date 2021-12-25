@@ -27,7 +27,10 @@ val southUnblocked = fish.toKeySet { it.value == 'v' &&  it.key.south() !in fish
 val southBlocked = fish.toKeySet { it.value == 'v' &&  it.key.south() in fish }
 val all = HashSet(fish.keys)
 
-fun step(): Boolean {
+var stepCount = 0
+while (true) {
+    stepCount++
+
     val toMoveEast = eastUnblocked.toList()
     all.removeAll(toMoveEast)
     eastUnblocked.clear()
@@ -54,9 +57,6 @@ fun step(): Boolean {
         }
     }
 
-    return toMoveEast.size > 0 || toMoveSouth.size > 0
+    if (toMoveEast.isEmpty() && toMoveSouth.isEmpty()) break
 }
-
-var stepCount = 0
-while (step()) { stepCount ++ }
-println(stepCount + 1)
+println(stepCount)
