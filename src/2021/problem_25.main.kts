@@ -38,7 +38,7 @@ while (true) {
         it.west().let { if (eastBlocked.remove(it)) eastUnblocked.add(it) }
         it.north().let { if (southBlocked.remove(it)) southUnblocked.add(it) }
         it.east().let { 
-            if (southUnblocked.remove(it.north())) southBlocked.add(it.north()) 
+            it.north().let { if (southUnblocked.remove(it)) southBlocked.add(it) } 
             if (it.east() in all) eastBlocked.add(it) else eastUnblocked.add(it)
             all.add(it)
         }
@@ -51,7 +51,7 @@ while (true) {
         it.west().let { if (eastBlocked.remove(it)) eastUnblocked.add(it) }
         it.north().let { if (southBlocked.remove(it)) southUnblocked.add(it) }
         it.south().let { 
-            if (eastUnblocked.remove(it.west())) eastBlocked.add(it.west()) 
+            it.west().let { if (eastUnblocked.remove(it)) eastBlocked.add(it) }
             if (it.south() in all) southBlocked.add(it) else southUnblocked.add(it)
             all.add(it)
         }
