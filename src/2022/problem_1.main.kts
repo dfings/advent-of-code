@@ -11,4 +11,4 @@ data.forEach { line ->
     }
 }
 println(calorieCount.max())
-println(calorieCount.sortedBy { -it }.take(3).sum())
+println(calorieCount.sortedDescending().take(3).sum())
