@@ -1,9 +1,9 @@
 #!/usr/bin/env kotlin
 
-val data = java.io.File(args[0]).readLines()
+val lines = java.io.File(args[0]).readLines()
 
 val calorieCount = mutableListOf(0)
-data.forEach { line ->
+lines.forEach { line ->
     if (line.isBlank()) {
         calorieCount.add(0)
     } else {
