@@ -13,7 +13,7 @@ val priority1 = lines.sumBy { line ->
     (first intersect second).single().priority()
 }
 
-val priority2 = lines.windowed(3, 3).sumBy { (first, second, third) ->
+val priority2 = lines.chunked(3).sumBy { (first, second, third) ->
     (first intersect second intersect third).single().priority()
 }
 
