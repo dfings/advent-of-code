@@ -8,7 +8,14 @@ fun Char.priority(): Int = when (this) {
     else -> throw UnsupportedOperationException()
 }
 
-fun Iterable<List<Char>>.priority(): Int = reduce { a, b -> (a intersect b).toList() }.single().priority()
+val priority1 = lines.sumBy { line ->
+    val (first, second) = line.chunked(line.size / 2)
+    (first intersect second).single().priority()
+}
 
-println(lines.sumBy { it.chunked(it.size / 2).priority() })
-println(lines.chunked(3).sumBy { it.priority() })
+val priority2 = lines.chunked(3).sumBy { (first, second, third) ->
+    (first intersect second intersect third).single().priority()
+}
+
+println(priority1)
+println(priority2)
