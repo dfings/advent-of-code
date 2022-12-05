@@ -1,8 +1,10 @@
 #!/usr/bin/env kotlin
 
 typealias Stack = ArrayDeque<Char> // Top = last
+fun Stack.push(value: Char) = add(value)
 fun Stack.push(values: List<Char>) = addAll(values)
-fun Stack.pop(count: Int = 1) = takeLast(count).also { repeat(count) { removeLast() } }
+fun Stack.pop() = removeLast()
+fun Stack.pop(count: Int) = takeLast(count).also { repeat(count) { removeLast() } }
 
 typealias Stacks = List<Stack> 
 fun Stacks.topCrates() = map { it.last() }.joinToString("")
@@ -16,9 +18,9 @@ data class Instruction(val count: Int, val from: Int, val to: Int) {
 val lines = java.io.File(args[0]).readLines()
 val buckets = (lines[0].length + 1) / 4
 val initialStacks = (1..buckets).map { Stack() }
-lines.filter { it.contains("[") }.forEach {
+lines.filter { it.contains("[") }.reversed().forEach {
     it.chunked(4).forEachIndexed { i, crate ->
-        if (crate.contains("[")) initialStacks[i].addFirst(crate[1])
+        if (crate.contains("[")) initialStacks[i].push(crate[1])
     }
 }
 
