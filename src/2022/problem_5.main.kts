@@ -1,7 +1,9 @@
 #!/usr/bin/env kotlin
 
 typealias Stack = ArrayDeque<Char> // Top = last
-fun Stack.push(value: Char) = addFirst(value)
+fun Stack.push(value: Char) = add(value)
+fun Stack.push(values: List<Char>) = addAll(values)
+fun Stack.pop() = removeLast()
 fun Stack.pop(count: Int) = takeLast(count).also { repeat(count) { removeLast() } }
 
 typealias Stacks = List<ArrayDeque<Char>> 
@@ -9,8 +11,8 @@ fun Stacks.topCrates() = map { it.last() }.joinToString("")
 fun Stacks.copy() = map { ArrayDeque<Char>(it) }
 
 data class Instruction(val count: Int, val from: Int, val to: Int) {
-    fun execute(stacks: Stacks) = repeat(count) { stacks[to].addAll(stacks[from].pop(1)) }
-    fun executeBulk(stacks: Stacks) = stacks[to].addAll(stacks[from].pop(count))
+    fun execute(stacks: Stacks) = repeat(count) { stacks[to].push(stacks[from].pop()) }
+    fun executeBulk(stacks: Stacks) = stacks[to].push(stacks[from].pop(count))
 }
 
 val lines = java.io.File(args[0]).readLines()
@@ -18,7 +20,7 @@ val buckets = (lines[0].length + 1) / 4
 val initialStacks = (1..buckets).map { Stack() }
 lines.filter { it.contains("[") }.forEach {
     it.chunked(4).forEachIndexed { i, crate ->
-        if (crate.contains("[")) initialStacks[i].push(crate[1])
+        if (crate.contains("[")) initialStacks[i].addFirst(crate[1])
     }
 }
 
