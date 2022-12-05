@@ -6,9 +6,9 @@ fun Stack.push(values: List<Char>) = addAll(values)
 fun Stack.pop() = removeLast()
 fun Stack.pop(count: Int) = takeLast(count).also { repeat(count) { removeLast() } }
 
-typealias Stacks = List<ArrayDeque<Char>> 
+typealias Stacks = List<Stack> 
 fun Stacks.topCrates() = map { it.last() }.joinToString("")
-fun Stacks.copy() = map { ArrayDeque<Char>(it) }
+fun Stacks.copy() = map { Stack(it) }
 
 data class Instruction(val count: Int, val from: Int, val to: Int) {
     fun execute(stacks: Stacks) = repeat(count) { stacks[to].push(stacks[from].pop()) }
