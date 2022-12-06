@@ -2,12 +2,8 @@
 
 val datastream = java.io.File(args[0]).readLines().single()
 
-fun detect(windowSize: Int): Int {
-    datastream.windowed(windowSize).forEachIndexed { i, value ->
-        if (value.toSet().size == windowSize) return@detect i + windowSize
-    }
-    return -1
-}
+fun String.detect(windowSize: Int): Int = 
+    windowed(windowSize).indexOfFirst { it.toSet().size == windowSize } + windowSize
 
-println(detect(4))
-println(detect(14))
+println(datastream.detect(4))
+println(datastream.detect(14))
