@@ -12,15 +12,15 @@ val lines = java.io.File(args[0]).readLines().drop(1)
 var cwd = Dir()
 val allDirs = mutableListOf<Dir>(cwd)
 for (line in lines) {
-  when {
-    line[0].isDigit() -> cwd.fileSize += line.split(" ").first().toInt()
-    line.startsWith("$ cd ..") -> cwd = cwd.parent!!
-    line.startsWith("$ cd ") -> Dir(cwd).apply {
-        cwd.dirs.add(this)
-        allDirs.add(this)
-        cwd = this
+    when {
+        line[0].isDigit() -> cwd.fileSize += line.split(" ").first().toInt()
+        line.startsWith("$ cd ..") -> cwd = cwd.parent!!
+        line.startsWith("$ cd ") -> Dir(cwd).apply {
+            cwd.dirs.add(this)
+            allDirs.add(this)
+            cwd = this
+        }
     }
-  }
 }
 
 println(allDirs.filter { it.size <= 100000 }.sumBy { it.size })
