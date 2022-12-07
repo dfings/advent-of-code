@@ -1,15 +1,12 @@
 #!/usr/bin/env kotlin
 
-class Dir(val name: String, parentDir: Dir? = null) {
-    val parent: Dir = parentDir ?: this
+class Dir(val name: String, val parent: Dir? = null) {
     val dirs: MutableList<Dir> = mutableListOf()
-    val files: MutableList<File> = mutableListOf()
+    var fileSize: Int = 0
     val size: Int by lazy {
-        dirs.sumBy { it.size } + files.sumBy { it.size }
+        dirs.sumBy { it.size } + fileSize
     }
 }
-
-class File(val name: String, val parent: Dir, val size: Int)
 
 val lines = java.io.File(args[0]).readLines().drop(1)
 val root = Dir("/")
@@ -18,15 +15,12 @@ val allDirs = mutableListOf<Dir>(root)
 for (line in lines) {
   when {
     line.startsWith("$ ls") -> {}
-    line.startsWith("dir ") -> {
-        cwd.dirs.add(Dir(line.drop(4), cwd))
-        allDirs.add(cwd.dirs.last())
+    line.startsWith("dir ") -> Dir(line.drop(4), cwd).apply {
+        cwd.dirs.add(this)
+        allDirs.add(this)
     }
-    line[0].isDigit() -> {
-        val (size, name) = line.split(" ")
-        cwd.files.add(File(name, cwd, size.toInt()))
-    }
-    line.startsWith("$ cd ..") -> cwd = cwd.parent
+    line[0].isDigit() -> cwd.fileSize += line.split(" ").first().toInt()
+    line.startsWith("$ cd ..") -> cwd = cwd.parent!!
     line.startsWith("$ cd ") -> cwd = cwd.dirs.find { it.name == line.drop(5) }!!
   }
 }
