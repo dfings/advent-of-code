@@ -13,30 +13,27 @@ class Grid(heights: List<List<Int>>) {
         fun right() = (x + 1..xMax).map { point(it, y) }
         fun up() = (y - 1 downTo 0).map { point(x, it) }
         fun down() = (y + 1..yMax).map { point(x, it) }
-    }
 
-    fun isVisible(p: Point): Boolean {
-        fun isLower(p2: Point) = p2.height < p.height
-        return p.left().all(::isLower) ||
-            p.right().all(::isLower) ||
-            p.down().all(::isLower) ||
-            p.up().all(::isLower)
-    }
-
-    fun score(p: Point): Int {
-        fun List<Point>.visible(): Int {
-            var count = 0
-            for (point in this) {
-                count++
-                if (point.height >= p.height) break
-            }
-            return count
+        fun isVisible(): Boolean {
+            fun List<Point>.visible() = all { it.height < height }
+            return left().visible() || right().visible() || down().visible() || up().visible()
         }
-        return p.left().visible() * p.right().visible() * p.up().visible() * p.down().visible()
+
+        fun score(): Int {
+            fun List<Point>.distance(): Int {
+                var count = 0
+                for (point in this) {
+                    count++
+                    if (point.height >= height) break
+                }
+                return count
+            }
+            return left().distance() * right().distance() * up().distance() * down().distance()
+        }
     }
 }
 
 val lines = java.io.File(args[0]).readLines()
 val grid: Grid = Grid(lines.map { it.map { "$it".toInt() } })
-println(grid.pointsList.count(grid::isVisible))
-println(grid.pointsList.maxOf(grid::score))
+println(grid.pointsList.count { it.isVisible() })
+println(grid.pointsList.maxOf { it.score() })
