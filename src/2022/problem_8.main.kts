@@ -8,7 +8,6 @@ data class Grid(val heights: List<List<Int>>) {
     val yMax = heights.lastIndex
     val points = (0..xMax).flatMap { x -> (0..yMax).map { y -> Point(x, y) } }
     fun height(x: Int, y: Int) = heights[y][x]
-    fun height(p: Point) = height(p.x, p.y)
 }
 
 fun Grid.isVisible(x: Int, y: Int): Boolean {
@@ -22,9 +21,9 @@ fun Grid.isVisible(x: Int, y: Int): Boolean {
 fun Grid.score(x: Int, y: Int): Int {
     fun countVisible(points: List<Point>): Int {
         var count = 0
-        for (point in points) {
+        for (p in points) {
             count++
-            if (height(point) >= height(x, y)) break
+            if (height(p.x, p.y) >= height(x, y)) break
         }
         return count
     }
