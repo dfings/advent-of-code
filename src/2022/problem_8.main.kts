@@ -45,12 +45,11 @@ fun List<List<Int>>.score(x: Int, y: Int): Int {
     return score1 * score2 * score3 * score4
 }
 
-data class Point(val x: Int, val y: Int, val score: Int)
-val points = mutableListOf<Point>()
+val scores = mutableListOf<Int>()
 for (y in 0..grid.lastIndex) {
     for (x in 0..grid[y].lastIndex) {
-        points.add(Point(x, y, grid.score(x, y)))
+        scores.add(grid.score(x, y))
     }
 }
 
-println(points.maxBy { it.score }.score)
+println(scores.max())
