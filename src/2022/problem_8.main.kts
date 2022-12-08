@@ -1,40 +1,42 @@
 #!/usr/bin/env kotlin
 
-val lines = java.io.File(args[0]).readLines()
-
-data class Point(val x: Int, val y: Int)
-data class Grid(val heights: List<List<Int>>) {
+class Grid(heights: List<List<Int>>) {
     val xMax = heights[0].lastIndex
     val yMax = heights.lastIndex
-    val points = (0..xMax).flatMap { x -> (0..yMax).map { y -> Point(x, y) } }
-    fun height(x: Int, y: Int) = heights[y][x]
-}
+    val points = heights.mapIndexed { y, it -> it.mapIndexed { x, it -> Point(x, y, it) } }
+    val pointsList = (0..xMax).flatMap { x -> (0..yMax).map { y -> points[y][x] } }
 
-fun Grid.isVisible(x: Int, y: Int): Boolean {
-    fun isLower(x2: Int, y2: Int) = height(x2, y2) < height(x, y)
-    return (x - 1 downTo 0).all { isLower(it, y) } ||
-        (x + 1..xMax).all { isLower(it, y) } ||
-        (y - 1 downTo 0).all { isLower(x, it) } ||
-        (y + 1..yMax).all { isLower(x, it) }
-}
+    fun point(x: Int, y: Int) = points[y][x]
 
-fun Grid.score(x: Int, y: Int): Int {
-    fun countVisible(points: List<Point>): Int {
-        var count = 0
-        for (p in points) {
-            count++
-            if (height(p.x, p.y) >= height(x, y)) break
-        }
-        return count
+    inner class Point(val x: Int, val y: Int, val height: Int) {
+        fun left() = (x - 1 downTo 0).map { point(it, y) }
+        fun right() = (x + 1..xMax).map { point(it, y) }
+        fun up() = (y - 1 downTo 0).map { point(x, it) }
+        fun down() = (y + 1..yMax).map { point(x, it) }
     }
-    val score1 = countVisible((x - 1 downTo 0).map { Point(it, y) })
-    val score2 = countVisible((x + 1..xMax).map { Point(it, y) })
-    val score3 = countVisible((y - 1 downTo 0).map { Point(x, it) })
-    val score4 = countVisible((y + 1..yMax).map { Point(x, it) })
-    return score1 * score2 * score3 * score4
+
+    fun isVisible(p: Point): Boolean {
+        fun isLower(p2: Point) = p2.height < p.height
+        return p.left().all(::isLower) ||
+            p.right().all(::isLower) ||
+            p.down().all(::isLower) ||
+            p.up().all(::isLower)
+    }
+
+    fun score(p: Point): Int {
+        fun List<Point>.visible(): Int {
+            var count = 0
+            for (point in this) {
+                count++
+                if (point.height >= p.height) break
+            }
+            return count
+        }
+        return p.left().visible() * p.right().visible() * p.up().visible() * p.down().visible()
+    }
 }
 
+val lines = java.io.File(args[0]).readLines()
 val grid: Grid = Grid(lines.map { it.map { "$it".toInt() } })
-
-println(grid.points.count { grid.isVisible(it.x, it.y) })
-println(grid.points.maxOf { grid.score(it.x, it.y) })
+println(grid.pointsList.count(grid::isVisible))
+println(grid.pointsList.maxOf(grid::score))
