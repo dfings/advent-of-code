@@ -13,19 +13,18 @@ data class Grid(val heights: List<List<Int>>) {
 
 fun Grid.isVisible(x: Int, y: Int): Boolean {
     fun isLower(x2: Int, y2: Int) = height(x2, y2) < height(x, y)
-    return (0..x - 1).all { isLower(it, y) } ||
+    return (x - 1 downTo 0).all { isLower(it, y) } ||
         (x + 1..xMax).all { isLower(it, y) } ||
-        (0..y - 1).all { isLower(x, it) } ||
+        (y - 1 downTo 0).all { isLower(x, it) } ||
         (y + 1..yMax).all { isLower(x, it) }
 }
 
 fun Grid.score(x: Int, y: Int): Int {
-    fun isLower(p: Point) = height(p) < height(x, y)
     fun countVisible(points: List<Point>): Int {
         var count = 0
         for (point in points) {
             count++
-            if (!isLower(point)) break
+            if (height(point) >= height(x, y)) break
         }
         return count
     }
