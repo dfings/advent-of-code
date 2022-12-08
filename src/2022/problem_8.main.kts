@@ -17,8 +17,7 @@ class Grid(heights: List<List<Int>>) {
         }
 
         fun score(): Int {
-            fun List<Point>.distance(): Int =
-                if (isEmpty()) 0 else minOf(takeWhile { it.height < height }.size + 1, size)
+            fun List<Point>.distance(): Int = minOf(takeWhile { it.height < height }.size + 1, size)
             return left().distance() * right().distance() * up().distance() * down().distance()
         }
     }
