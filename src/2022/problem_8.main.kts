@@ -24,6 +24,6 @@ class Grid(heights: List<List<Int>>) {
 }
 
 val lines = java.io.File(args[0]).readLines()
-val grid: Grid = Grid(lines.map { it.map { "$it".toInt() } })
+val grid = Grid(lines.map { it.map { "$it".toInt() } })
 println(grid.points.flatten().count { it.isVisible() })
 println(grid.points.flatten().maxOf { it.score() })
