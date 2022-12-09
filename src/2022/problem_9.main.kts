@@ -6,13 +6,11 @@ import kotlin.math.sign
 data class Motion(val direction: String, val count: Int)
 data class Point(val x: Int, val y: Int)
 
+val moveX = mapOf("R" to 1, "L" to -1).withDefault { 0 }
+val moveY = mapOf("U" to 1, "D" to -1).withDefault { 0 }
+
 fun Point.move(dx: Int, dy: Int) = if (dx == 0 && dy == 0) this else Point(x + dx, y + dy)
-fun Point.move(direction: String) = when (direction) {
-    "R" -> move(1, 0)
-    "L" -> move(-1, 0)
-    "U" -> move(0, 1)
-    else -> move(0, -1)
-}
+fun Point.move(direction: String) = move(moveX.getValue(direction), moveY.getValue(direction))
 
 fun Point.nextTo(other: Point) = abs(other.x - x) <= 1 && abs(other.y - y) <= 1
 fun Point.follow(other: Point) = move(
