@@ -15,8 +15,8 @@ fun Point.move(direction: String) = when (direction) {
 
 fun Point.nextTo(other: Point) = abs(other.x - x) <= 1 && abs(other.y - y) <= 1
 fun Point.follow(other: Point) = Point(
-    x = if (nextTo(other) || other.x == x) x else (other.x - x).sign + x,
-    y = if (nextTo(other) || other.y == y) y else (other.y - y).sign + y
+    x = if (other.x == x || nextTo(other)) x else (other.x - x).sign + x,
+    y = if (other.y == y || nextTo(other)) y else (other.y - y).sign + y
 )
 
 typealias Rope = MutableList<Point>
