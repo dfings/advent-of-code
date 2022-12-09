@@ -19,7 +19,7 @@ fun Point.follow(other: Point) = move(
 )
 
 typealias Rope = MutableList<Point>
-fun Rope(tailSize: Int) = (0..tailSize).map { Point(0, 0) }.toMutableList()
+fun Rope(tailSize: Int) = MutableList(tailSize + 1) { Point(0, 0) }
 fun Rope.move(motions: List<Motion>): Int {
     val seen = mutableSetOf<Point>(last())
     for (motion in motions) {
