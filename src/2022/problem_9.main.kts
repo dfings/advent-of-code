@@ -6,17 +6,18 @@ import kotlin.math.sign
 data class Motion(val direction: String, val count: Int)
 data class Point(val x: Int, val y: Int)
 
+fun Point.move(dx: Int, dy: Int) = if (dx == 0 && dy == 0) this else Point(x + dx, y + dy)
 fun Point.move(direction: String) = when (direction) {
-    "R" -> Point(x + 1, y)
-    "L" -> Point(x - 1, y)
-    "U" -> Point(x, y + 1)
-    else -> Point(x, y - 1)
+    "R" -> move(1, 0)
+    "L" -> move(-1, 0)
+    "U" -> move(0, 1)
+    else -> move(0, -1)
 }
 
 fun Point.nextTo(other: Point) = abs(other.x - x) <= 1 && abs(other.y - y) <= 1
-fun Point.follow(other: Point) = Point(
-    x = if (other.x == x || nextTo(other)) x else (other.x - x).sign + x,
-    y = if (other.y == y || nextTo(other)) y else (other.y - y).sign + y
+fun Point.follow(other: Point) = move(
+    dx = if (other.x == x || nextTo(other)) 0 else (other.x - x).sign,
+    dy = if (other.y == y || nextTo(other)) 0 else (other.y - y).sign
 )
 
 typealias Rope = MutableList<Point>
