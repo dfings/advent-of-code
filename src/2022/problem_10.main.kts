@@ -12,7 +12,7 @@ class Device {
     }
 
     fun tick() {
-        screen[cycle] = if (cycle % 40 in x - 1..x + 1) '#' else '.'
+        screen[cycle] = if (cycle % 40 - x in -1..1) '#' else '.'
         if ((++cycle + 20) % 40 == 0) {
             strength += cycle * x
         }
