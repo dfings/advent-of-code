@@ -1,36 +1,32 @@
 #!/usr/bin/env kotlin
 
-class Cpu {
-    var register = 1
-    var clock = 0
-    val strengths = mutableListOf<Int>()
-    val screen = MutableList(240) { "." }
+class Device {
+    var x = 1
+    var cycle = 0
+    var strength = 0
+    val screen = MutableList(240) { '.' }
 
-    fun addX(x: Int) {
+    fun addX(value: Int) {
         repeat(2) { tick() }
-        register += x
+        x += value
     }
 
     fun tick() {
-        val position = clock % 240
-        screen[position] = if (position % 40 in register - 1..register + 1) "#" else "."
-        clock += 1
-        if ((clock + 20) % 40 == 0) {
-            strengths.add(clock * register)
+        screen[cycle] = if (cycle % 40 in x - 1..x + 1) '#' else '.'
+        if ((++cycle + 20) % 40 == 0) {
+            strength += cycle * x
         }
     }
 }
 
 val lines = java.io.File(args[0]).readLines()
-val cpu = Cpu()
+val device = Device()
 for (line in lines) {
     when (line) {
-        "noop" -> cpu.tick()
-        else -> cpu.addX(line.drop(5).toInt())
+        "noop" -> device.tick()
+        else -> device.addX(line.drop(5).toInt())
     }
 }
 
-println(cpu.strengths.sum())
-for (line in cpu.screen.chunked(40)) {
-    println(line.joinToString(""))
-}
+println(device.strength)
+device.screen.chunked(40).forEach { println(it.joinToString("")) }
