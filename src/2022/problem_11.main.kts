@@ -31,8 +31,7 @@ fun parseIncreaseWorry(spec: String): (Long) -> Long {
     return { it * value }
 }
 
-fun runSimulation(iterations: Int, divideWorry: Boolean) {
-    val lines = java.io.File(args[0]).readLines()
+fun runSimulation(lines: List<String>, iterations: Int, divideWorry: Boolean) {
     val monkeys = lines.chunked(7).map { line ->
         Monkey(
             items = ArrayDeque(line[1].drop(18).split(", ").map { it.toLong() }),
@@ -51,5 +50,6 @@ fun runSimulation(iterations: Int, divideWorry: Boolean) {
     println(monkeys.map { it.count }.sorted().takeLast(2).reduce(Long::times))
 }
 
-runSimulation(iterations = 20, divideWorry = true)
-runSimulation(iterations = 10000, divideWorry = false)
+val lines = java.io.File(args[0]).readLines()
+runSimulation(lines, iterations = 20, divideWorry = true)
+runSimulation(lines, iterations = 10000, divideWorry = false)
