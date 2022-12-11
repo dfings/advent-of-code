@@ -20,12 +20,10 @@ class Simulation(val monkeys: List<Monkey>, val reduceWorry: (Long) -> Long) {
     }
 }
 
-fun parseIncreaseWorry(tokens: List<String>): (Long) -> Long {
-    return when {
-        tokens[1] == "old" -> { x: Long -> x * x }
-        tokens[0] == "+" -> tokens[1].toInt().let { { x: Long -> x + it }}
-        else -> tokens[1].toInt().let { { x: Long -> x * it }}
-    }
+fun parseIncreaseWorry(tokens: List<String>): (Long) -> Long = when {
+    tokens[1] == "old" -> { x: Long -> x * x }
+    tokens[0] == "+" -> tokens[1].toInt().let { { x: Long -> x + it } }
+    else -> tokens[1].toInt().let { { x: Long -> x * it } }
 }
 
 fun runSimulation(lines: List<String>, iterations: Int, divideWorry: Boolean) {
