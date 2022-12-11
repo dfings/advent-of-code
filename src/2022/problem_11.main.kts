@@ -21,13 +21,13 @@ class Monkey(val items: MutableSet<Item>, val op: (Long) -> Long, val test: Long
 
 fun parseOp(code: String, rhs: String): (Long) -> Long {
     if (rhs == "old") {
-        return { input: Long -> input * input }
+        return { it * it }
     } 
     val value = rhs.toLong()
     if (code == "+") {
-        return { input: Long -> input + value }
+        return { it + value }
     }
-    return { input: Long -> input * value }
+    return { it * value }
 }
 
 fun runSimulation(iterations: Int, reduceWorry: Boolean) {
