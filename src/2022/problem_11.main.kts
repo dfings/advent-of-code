@@ -33,13 +33,13 @@ fun parseIncreaseWorry(spec: String): (Long) -> Long {
 
 fun runSimulation(iterations: Int, divideWorry: Boolean) {
     val lines = java.io.File(args[0]).readLines()
-    val monkeys = lines.chunked(7).map { spec ->
+    val monkeys = lines.chunked(7).map { line ->
         Monkey(
-            items = ArrayDeque(spec[1].drop(18).split(", ").map { it.toLong() }),
-            increaseWorry = parseIncreaseWorry(spec[2].drop(19)),
-            test = spec[3].drop(21).toLong(),
-            passTrue = spec[4].drop(29).toInt(),
-            passFalse = spec[5].drop(30).toInt()
+            items = ArrayDeque(line[1].drop(18).split(", ").map { it.toLong() }),
+            increaseWorry = parseIncreaseWorry(line[2].drop(19)),
+            test = line[3].drop(21).toLong(),
+            passTrue = line[4].drop(29).toInt(),
+            passFalse = line[5].drop(30).toInt()
         )
     }
 
