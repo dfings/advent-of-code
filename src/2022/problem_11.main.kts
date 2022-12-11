@@ -20,22 +20,19 @@ class Simulation(val monkeys: List<Monkey>, val reduceWorry: (Long) -> Long) {
     }
 }
 
-fun parseIncreaseWorry(spec: String): (Long) -> Long {
-    if (spec == "old * old") {
-        return { it * it }
+fun parseIncreaseWorry(tokens: List<String>): (Long) -> Long {
+    return when {
+        tokens[1] == "old" -> { x: Long -> x * x }
+        tokens[0] == "+" -> tokens[1].toInt().let { { x: Long -> x + it }}
+        else -> tokens[1].toInt().let { { x: Long -> x * it }}
     }
-    val value = spec.drop(6).toInt()
-    if (spec.startsWith("old +")) {
-        return { it + value }
-    }
-    return { it * value }
 }
 
 fun runSimulation(lines: List<String>, iterations: Int, divideWorry: Boolean) {
     val monkeys = lines.chunked(7).map { line ->
         Monkey(
             items = ArrayDeque(line[1].drop(18).split(", ").map { it.toLong() }),
-            increaseWorry = parseIncreaseWorry(line[2].drop(19)),
+            increaseWorry = parseIncreaseWorry(line[2].drop(23).split(" ")),
             test = line[3].drop(21).toLong(),
             passTrue = line[4].drop(29).toInt(),
             passFalse = line[5].drop(30).toInt()
