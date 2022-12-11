@@ -34,7 +34,7 @@ fun runSimulation(iterations: Int, reduceWorry: Boolean) {
     val lines = java.io.File(args[0]).readLines()
     val monkeys = mutableListOf<Monkey>()
     val allItems = mutableListOf<Item>()
-    for (spec in lines.chunked(7)) {
+    lines.chunked(7).forEach { spec ->
         val items = spec[1].drop(18).split(", ").map { Item(it.toLong()) }
         val op: (Long) -> Long = spec[2].drop(23).split(" ").let { (code, rhs) -> parseOp(code, rhs) }
         val test = spec[3].drop(21).toLong()
