@@ -1,23 +1,26 @@
 #!/usr/bin/env kotlin
 
-class Monkey(val items: MutableList<Long>, val worryIncreaser: (Long) -> Long, val test: Long, val passTrue: Int, val passFalse: Int) {
-    var count = 0L
-}
+class Monkey(
+    val items: MutableList<Long>,
+    val worryIncreaser: (Long) -> Long,
+    val test: Long,
+    val passTrue: Int,
+    val passFalse: Int,
+    var count: Long = 0L
+)
 
 class Simulation(val monkeys: List<Monkey>, val worryReducer: (Long) -> Long) {
     fun runRound() {
-        monkeys.forEach { monkey ->
-            while (!monkey.items.isEmpty()) {
-                monkey.inspect(monkey.items.removeLast())
-            }
-        }
+        monkeys.forEach { it.inspectAll() }
     }
 
-    fun Monkey.inspect(worry: Long) {
-        count++
-        val newWorry = worryReducer(worryIncreaser(worry))
-        val passTo = if (newWorry % test == 0L) passTrue else passFalse
-        monkeys[passTo].items.add(newWorry)
+    fun Monkey.inspectAll() {
+        repeat(items.size) {
+            count++
+            val worry = worryReducer(worryIncreaser(items.removeFirst()))
+            val passTo = if (worry % test == 0L) passTrue else passFalse
+            monkeys[passTo].items.add(worry)
+        }
     }
 }
 
