@@ -10,10 +10,7 @@ class Monkey(
 )
 
 class Simulation(val monkeys: List<Monkey>, val worryReducer: (Long) -> Long) {
-    fun runRound() {
-        monkeys.forEach { it.inspectAll() }
-    }
-
+    fun runRound() = monkeys.forEach { it.inspectAll() }
     fun Monkey.inspectAll() = repeat(items.size) { inspectOne() }
     fun Monkey.inspectOne() {
         count++
