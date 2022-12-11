@@ -14,13 +14,12 @@ class Simulation(val monkeys: List<Monkey>, val worryReducer: (Long) -> Long) {
         monkeys.forEach { it.inspectAll() }
     }
 
-    fun Monkey.inspectAll() {
-        repeat(items.size) {
-            count++
-            val worry = worryReducer(worryIncreaser(items.removeFirst()))
-            val passTo = if (worry % test == 0L) passTrue else passFalse
-            monkeys[passTo].items.add(worry)
-        }
+    fun Monkey.inspectAll() = repeat(items.size) { inspectOne() }
+    fun Monkey.inspectOne() {
+        count++
+        val worry = worryReducer(worryIncreaser(items.removeFirst()))
+        val passTo = if (worry % test == 0L) passTrue else passFalse
+        monkeys[passTo].items.add(worry)
     }
 }
 
