@@ -2,25 +2,25 @@
 
 class Monkey(
     val items: MutableList<Long>,
-    val worryIncreaser: (Long) -> Long,
+    val increaseWorry: (Long) -> Long,
     val test: Long,
     val passTrue: Int,
     val passFalse: Int,
     var count: Long = 0L
 )
 
-class Simulation(val monkeys: List<Monkey>, val worryReducer: (Long) -> Long) {
+class Simulation(val monkeys: List<Monkey>, val reduceWorry: (Long) -> Long) {
     fun runRound() = monkeys.forEach { it.inspectAll() }
     fun Monkey.inspectAll() = repeat(items.size) { inspectOne() }
     fun Monkey.inspectOne() {
         count++
-        val worry = worryReducer(worryIncreaser(items.removeFirst()))
+        val worry = reduceWorry(increaseWorry(items.removeFirst()))
         val passTo = if (worry % test == 0L) passTrue else passFalse
         monkeys[passTo].items.add(worry)
     }
 }
 
-fun parseWorryIncreaser(spec: String): (Long) -> Long {
+fun parseIncreaseWorry(spec: String): (Long) -> Long {
     if (spec == "old * old") {
         return { it * it }
     }
@@ -36,7 +36,7 @@ fun runSimulation(iterations: Int, divideWorry: Boolean) {
     val monkeys = lines.chunked(7).map { spec ->
         Monkey(
             items = ArrayDeque(spec[1].drop(18).split(", ").map { it.toLong() }),
-            worryIncreaser = parseWorryIncreaser(spec[2].drop(19)),
+            increaseWorry = parseIncreaseWorry(spec[2].drop(19)),
             test = spec[3].drop(21).toLong(),
             passTrue = spec[4].drop(29).toInt(),
             passFalse = spec[5].drop(30).toInt()
