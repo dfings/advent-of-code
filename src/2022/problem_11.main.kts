@@ -46,10 +46,10 @@ fun runSimulation(iterations: Int, reduceWorry: Boolean) {
         monkeys[i].falseMonkey = monkeys[spec[5].drop(30).toInt()]
     }
 
-    val scale = monkeys.map { it.test }.fold(1L) { acc, it -> acc * it }
+    val scale = monkeys.map { it.test }.reduce(Long::times)
     repeat(iterations) {
         monkeys.forEach { it.inspectAll() }
-        allItems.forEach { it.worry = it.worry % scale }
+        allItems.forEach { it.worry %= scale }
     }
     println(monkeys.map { it.count }.sorted().takeLast(2).reduce(Long::times))
 }
