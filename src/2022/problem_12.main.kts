@@ -17,7 +17,6 @@ class Graph(val vertexes: List<List<Vertex>>) {
         val end = vertexes.flatten().single { it.code == 'E' }
         end.distance = 0
         val frontier = mutableSetOf<Vertex>(end)
-        var count = 0
         while (!frontier.isEmpty()) {
             val vertex = frontier.minByOrNull { it.distance }!!
             frontier.remove(vertex)
