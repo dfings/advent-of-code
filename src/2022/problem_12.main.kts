@@ -13,11 +13,10 @@ class Graph(val vertexes: List<List<Vertex>>) {
     val xMax = vertexes[0].lastIndex
     val yMax = vertexes.lastIndex
 
-    fun computeShortestPath(): Int {
-        val start = vertexes.flatten().single { it.code == 'S' }
+    fun computeShortestPaths() {
         val end = vertexes.flatten().single { it.code == 'E' }
-        start.distance = 0
-        val frontier = mutableSetOf<Vertex>(start)
+        end.distance = 0
+        val frontier = mutableSetOf<Vertex>(end)
         var count = 0
         while (!frontier.isEmpty()) {
             val vertex = frontier.minByOrNull { it.distance }!!
@@ -27,13 +26,12 @@ class Graph(val vertexes: List<List<Vertex>>) {
                 frontier.add(it)
             }
         }
-        return end.distance
     }
 
     fun Vertex.neighbors() = listOfNotNull(
         vertexAt(x - 1, y), vertexAt(x + 1, y), 
         vertexAt(x, y - 1), vertexAt(x, y + 1)
-    ).filter { height + 1 >= it.height }
+    ).filter { it.height + 1 >= height }
     
     fun vertexAt(x: Int, y: Int) =
         if (x < 0 || x > xMax || y < 0 || y > yMax) null else vertexes[y][x]
@@ -42,4 +40,5 @@ class Graph(val vertexes: List<List<Vertex>>) {
 val lines = java.io.File(args[0]).readLines()
 val graph = Graph(lines.mapIndexed { y, line -> line.mapIndexed { x, code -> Vertex(x, y, code) } })
 
-println(graph.computeShortestPath())
+graph.computeShortestPaths()
+println(graph.vertexes.flatten().single { it.code == 'S' }.distance)
