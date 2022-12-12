@@ -16,9 +16,9 @@ class Graph(val vertexes: List<List<Vertex>>) {
     fun computeShortestPaths() {
         val end = vertexes.flatten().single { it.code == 'E' }
         end.distance = 0
-        val frontier = mutableSetOf<Vertex>(end)
+        val frontier = ArrayDeque<Vertex>(listOf(end))
         while (!frontier.isEmpty()) {
-            val vertex = frontier.minByOrNull { it.distance }!!
+            val vertex = frontier.removeFirst()
             frontier.remove(vertex)
             vertex.neighbors().filter { it.distance == Int.MAX_VALUE }.forEach { 
                 it.distance = vertex.distance + 1
