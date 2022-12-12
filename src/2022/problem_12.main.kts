@@ -42,3 +42,4 @@ val graph = Graph(lines.mapIndexed { y, line -> line.mapIndexed { x, code -> Ver
 
 graph.computeShortestPaths()
 println(graph.vertexes.flatten().single { it.code == 'S' }.distance)
+println(graph.vertexes.flatten().filter{ it.height == 0}.minOf { it.distance })
