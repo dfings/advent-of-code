@@ -19,7 +19,6 @@ class Graph(val vertexes: List<List<Vertex>>) {
         val frontier = ArrayDeque<Vertex>(listOf(end))
         while (!frontier.isEmpty()) {
             val vertex = frontier.removeFirst()
-            frontier.remove(vertex)
             vertex.neighbors().filter { it.distance == Int.MAX_VALUE }.forEach { 
                 it.distance = vertex.distance + 1
                 frontier.add(it)
