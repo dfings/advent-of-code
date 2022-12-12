@@ -20,8 +20,8 @@ class Graph(val vertexes: List<List<Vertex>>) {
         frontier.add(end to 0)
         while (!frontier.isEmpty()) {
             val (vertex, distance) = frontier.removeFirst()
-            if (!visited.add(vertex)) continue
             if (vertex.code == target) return distance
+            if (!visited.add(vertex)) continue
             vertex.neighbors().filter { it.height + 1 >= vertex.height }.forEach { 
                 frontier.add(it to distance + 1)
             }
