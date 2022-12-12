@@ -15,15 +15,13 @@ class Graph(val vertexes: List<List<Vertex>>) {
 
     fun findShortedPath(target: Char): Int? {
         val end = vertexes.flatten().single { it.code == 'E' }
-        val frontier = ArrayDeque<Pair<Vertex, Int>>()
-        val visited = mutableSetOf<Vertex>()
-        frontier.add(end to 0)
+        val frontier = ArrayDeque<Pair<Vertex, Int>>(listOf(end to 0))
+        val visited = mutableSetOf<Vertex>(end)
         while (!frontier.isEmpty()) {
             val (vertex, distance) = frontier.removeFirst()
             if (vertex.code == target) return distance
-            if (!visited.add(vertex)) continue
             vertex.neighbors().filter { it.height + 1 >= vertex.height }.forEach { 
-                frontier.add(it to distance + 1)
+                if (visited.add(it)) frontier.add(it to distance + 1)
             }
         }
         return null
