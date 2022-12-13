@@ -43,7 +43,7 @@ fun ArrayDeque<Char>.parsePacketData(): PacketData {
 }
 
 val lines = java.io.File(args[0]).readLines()
-val packets = lines.chunked(3).flatMap { it.take(2).map { it.parsePacketData() } }
+val packets = lines.filter { !it.isBlank() }.map { it.parsePacketData() }
 println(packets.chunked(2).mapIndexed { i, it -> if (it[0] < it[1]) i + 1 else 0 }.sum())
 
 val two = "[[2]]".parsePacketData()
