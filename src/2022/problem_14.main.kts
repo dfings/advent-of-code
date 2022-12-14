@@ -48,14 +48,14 @@ fun String.toPoints() = split(" -> ").map { it.toPoint() }.windowed(2).map { it[
 
 val lines = java.io.File(args[0]).readLines()
 val points = lines.flatMap { it.toPoints() }
-fun List<Point>.toMutableMap() = map { it to Material.ROCK }.toMap().toMutableMap()
+fun List<Point>.toRockMap() = map { it to Material.ROCK }.toMap().toMutableMap()
 
-val abyssCave = Cave(points.toMutableMap())
+val abyssCave = Cave(points.toRockMap())
 println(abyssCave.dropAll())
 
 val yMax = points.maxOf { it.y }
 val floor = Point(source.x - yMax - 3, yMax + 2).to(Point(source.x + yMax + 3, yMax + 2))
-val floorCave = Cave((points + floor).toMutableMap())
+val floorCave = Cave((points + floor).toRockMap())
 println(floorCave.dropAll())
 
 // Debug printing.
