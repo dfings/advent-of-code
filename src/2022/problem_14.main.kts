@@ -28,12 +28,9 @@ data class Cave(val points: MutableMap<Point, Material>, val hasFloor: Boolean) 
     }
 
     val dxs = listOf(0, -1, 1)
-    fun Point.next() : Point {
-        for (dx in dxs) {
-            Point(x + dx, y + 1).let { if (it !in points) return it }
-        }
-        return this
-    }
+    fun Point.next() : Point = dxs.firstNotNullOfOrNull { dx ->
+        Point(x + dx, y + 1).let { if (it !in points) it else null }
+    } ?: this
 }
 
 fun Point.to(other: Point) = if (x == other.x) {
