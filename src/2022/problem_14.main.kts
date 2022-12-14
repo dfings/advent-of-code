@@ -3,17 +3,16 @@
 import kotlin.math.max
 import kotlin.math.min
 
-enum class Material { ROCK, SAND }
 data class Point(val x: Int, val y: Int)
 val source = Point(500, 0)
 
-class Cave(val points: MutableMap<Point, Material>) {
+class Cave(val points: MutableMap<Point, Char>) {
     val yMax = points.keys.maxOf { it.y }
     var path = mutableListOf(source)
 
     fun dropAll(): Int {
         while (dropNext()) {}
-        return points.values.count { it == Material.SAND }
+        return points.values.count { it == 'o' }
     }
 
     fun dropNext(): Boolean {
@@ -25,14 +24,14 @@ class Cave(val points: MutableMap<Point, Material>) {
             if (prev != curr) path.add(prev)
         }
         if (curr.next() == curr) {
-            points[curr] = Material.SAND
+            points[curr] = 'o'
             return !path.isEmpty()
         }
         return false
     }
 
     val dxs = listOf(0, -1, 1)
-    fun Point.next() : Point = dxs.firstNotNullOfOrNull { dx ->
+    fun Point.next(): Point = dxs.firstNotNullOfOrNull { dx ->
         Point(x + dx, y + 1).let { if (it !in points) it else null }
     } ?: this
 }
@@ -48,7 +47,7 @@ fun String.toPoints() = split(" -> ").map { it.toPoint() }.windowed(2).map { it[
 
 val lines = java.io.File(args[0]).readLines()
 val points = lines.flatMap { it.toPoints() }
-fun List<Point>.toRockMap() = map { it to Material.ROCK }.toMap().toMutableMap()
+fun List<Point>.toRockMap() = map { it to '#' }.toMap().toMutableMap()
 
 val abyssCave = Cave(points.toRockMap())
 println(abyssCave.dropAll())
@@ -61,13 +60,9 @@ println(floorCave.dropAll())
 // Debug printing.
 fun Cave.print() {
     for (y in points.keys.minOf { it.y }..points.keys.maxOf { it.y }) {
-        val line = (points.keys.minOf { it.x }..points.keys.maxOf { it.x }).map { x ->
-            when (points[Point(x, y)]) {
-                Material.ROCK -> "X"
-                Material.SAND -> "o"
-                else -> "."
-            }
-        }.joinToString("")
+        val line = (points.keys.minOf { it.x }..points.keys.maxOf { it.x })
+            .map { x -> points.getOrDefault(Point(x, y), '.') }
+            .joinToString("")
         println(line)
     }
 }
