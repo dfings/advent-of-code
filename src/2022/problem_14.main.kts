@@ -26,7 +26,7 @@ class Cave(val points: MutableMap<Point, Material>, val hasFloor: Boolean) {
             }
         }
         if (hasFloor || curr.next() == curr) {
-            points.put(curr, Material.SAND) == null
+            points[curr] = Material.SAND
             return !path.isEmpty()
         }
         return false
