@@ -22,9 +22,7 @@ class Cave(val points: MutableMap<Point, Material>) {
         while (prev != curr && curr.y < yMax - 1) {
             prev = curr
             curr = curr.next()
-            if (prev != curr) {
-                path.add(prev)
-            }
+            if (prev != curr) path.add(prev)
         }
         if (curr.next() == curr) {
             points[curr] = Material.SAND
