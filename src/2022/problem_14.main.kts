@@ -17,17 +17,20 @@ class Cave(val points: MutableMap<Point, Char>) {
 
     fun dropNext(): Boolean {
         var curr = path.removeLast()
-        var prev: Point? = null
-        while (prev != curr && curr.y < yMax - 1) {
-            prev = curr
-            curr = curr.next()
-            if (prev != curr) path.add(prev)
-        }
-        if (curr.next() == curr) {
-            points[curr] = 'o'
-            return !path.isEmpty()
-        }
-        return false
+        while (true) {
+            val next = curr.next()
+            when {
+                next.y >= yMax -> return false
+                next == curr -> {
+                    points[curr] = 'o'
+                    return !path.isEmpty()
+                }
+                else -> {
+                    path.add(curr)
+                    curr = next
+                }
+            }
+        } 
     }
 
     val dxs = listOf(0, -1, 1)
