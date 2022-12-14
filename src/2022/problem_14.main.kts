@@ -5,9 +5,9 @@ import kotlin.math.min
 
 enum class Material { ROCK, SAND }
 data class Point(val x: Int, val y: Int)
-class Cave(val points: MutableMap<Point, Material>, val hasFloor: Boolean) {
+class Cave(val points: MutableMap<Point, Material>) {
     val source = Point(500, 0)
-    val yMax = points.keys.maxOf { it.y } + if (hasFloor) 2 else 0
+    val yMax = points.keys.maxOf { it.y }
     var path = mutableListOf(source)
 
     fun dropAll(): Int {
@@ -25,7 +25,7 @@ class Cave(val points: MutableMap<Point, Material>, val hasFloor: Boolean) {
                 path.add(prev)
             }
         }
-        if (hasFloor || curr.next() == curr) {
+        if (curr.next() == curr) {
             points[curr] = Material.SAND
             return !path.isEmpty()
         }
@@ -48,12 +48,15 @@ fun String.toPoint() = split(",").map { it.toInt() }.let { Point(it[0], it[1]) }
 fun String.toPoints() = split(" -> ").map { it.toPoint() }.windowed(2).map { it[0].to(it[1]) }.flatten()
 
 val lines = java.io.File(args[0]).readLines()
-val points = lines.flatMap { it.toPoints() }.map { it to Material.ROCK }.toMap()
+val points = lines.flatMap { it.toPoints() }
+fun List<Point>.toMutableMap() = map { it to Material.ROCK }.toMap().toMutableMap()
 
-val abyssCave = Cave(points.toMutableMap(), hasFloor = false)
+val abyssCave = Cave(points.toMutableMap())
 println(abyssCave.dropAll())
 
-val floorCave = Cave(points.toMutableMap(), hasFloor = true)
+val yMax = points.maxOf { it.y }
+val floor = Point(500 - yMax - 3, yMax + 2).to(Point(500 + yMax + 3, yMax + 2))
+val floorCave = Cave((points + floor).toMutableMap())
 println(floorCave.dropAll())
 
 // Debug printing.
