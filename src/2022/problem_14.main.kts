@@ -8,6 +8,7 @@ data class Point(val x: Int, val y: Int)
 class Cave(val points: MutableMap<Point, Material>, val hasFloor: Boolean) {
     val source = Point(500, 0)
     val yMax = points.keys.maxOf { it.y } + if (hasFloor) 2 else 0
+    var path = ArrayDeque<Point>(listOf(source))
 
     fun dropAll(): Int {
         while (dropNext()) {}
@@ -15,14 +16,18 @@ class Cave(val points: MutableMap<Point, Material>, val hasFloor: Boolean) {
     }
 
     fun dropNext(): Boolean {
-        var curr = source
+        var curr = path.removeLast()
         var prev: Point? = null
         while (prev != curr && curr.y < yMax - 1) {
             prev = curr
             curr = curr.next()
+            if (prev != curr) {
+                path.add(prev)
+            }
         }
         if (hasFloor || curr.next() == curr) {
-            return points.put(curr, Material.SAND) == null
+            points.put(curr, Material.SAND) == null
+            return !path.isEmpty()
         }
         return false
     }
