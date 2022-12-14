@@ -5,7 +5,7 @@ import kotlin.math.min
 
 enum class Material { ROCK, SAND }
 data class Point(val x: Int, val y: Int)
-data class Cave(val points: MutableMap<Point, Material>, val hasFloor: Boolean) {
+class Cave(val points: MutableMap<Point, Material>, val hasFloor: Boolean) {
     val source = Point(500, 0)
     val yMax = points.keys.maxOf { it.y } + if (hasFloor) 2 else 0
 
