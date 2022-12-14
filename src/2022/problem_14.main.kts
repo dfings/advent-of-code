@@ -5,8 +5,9 @@ import kotlin.math.min
 
 enum class Material { ROCK, SAND }
 data class Point(val x: Int, val y: Int)
+val source = Point(500, 0)
+
 class Cave(val points: MutableMap<Point, Material>) {
-    val source = Point(500, 0)
     val yMax = points.keys.maxOf { it.y }
     var path = mutableListOf(source)
 
@@ -55,7 +56,7 @@ val abyssCave = Cave(points.toMutableMap())
 println(abyssCave.dropAll())
 
 val yMax = points.maxOf { it.y }
-val floor = Point(500 - yMax - 3, yMax + 2).to(Point(500 + yMax + 3, yMax + 2))
+val floor = Point(source.x - yMax - 3, yMax + 2).to(Point(source.x + yMax + 3, yMax + 2))
 val floorCave = Cave((points + floor).toMutableMap())
 println(floorCave.dropAll())
 
