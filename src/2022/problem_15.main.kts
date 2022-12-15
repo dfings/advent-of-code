@@ -20,16 +20,10 @@ val sensors = lines.map { line ->
     Sensor(Point(x1.toInt(), y1.toInt()), Point(x2.toInt(), y2.toInt()))
 }
 
-var count = 0
 val xMin = sensors.minOf { it.loc.x - it.distance }
 val xMax = sensors.maxOf { it.loc.x + it.distance }
 val fixedDepth = 2000000
-for (x in xMin..xMax) {
-    if (sensors.any { it.noBeacon(x, fixedDepth)}) {
-        count++
-    }
-}
-println(count)
+println((xMin..xMax).count { x -> sensors.any { it.noBeacon(x, fixedDepth)} })
 
 val beaconMax = 4000000
 fun findBeacon(): Point? {
