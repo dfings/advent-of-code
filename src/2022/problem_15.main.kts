@@ -13,29 +13,31 @@ data class Sensor(val loc: Point, val beacon: Point) {
     fun noBeacon(x: Int, y: Int) = inRange(x, y) && !isBeacon(x, y)
 }
 
+class SensorGrid(val sensors: List<Sensor>) {
+    val xMin = sensors.minOf { it.loc.x - it.distance }
+    val xMax = sensors.maxOf { it.loc.x + it.distance }
+
+    fun scanDepth(depth: Int) = (xMin..xMax).count { x -> sensors.any { it.noBeacon(x, depth) } }
+    fun scan(maxRange: Int): Point? {
+        for (x in 0..maxRange) {
+            var y = 0
+            while (y <= maxRange) {
+                val sensor = sensors.find { it.inRange(x, y) }
+                if (sensor == null) return Point(x, y)
+                y = sensor.loc.y + sensor.distance - abs(x - sensor.loc.x) + 1
+            }
+        }
+        return null
+    }
+}
+
 val pattern = Regex(".*x=(-?\\d+), y=(-?\\d+).*x=(-?\\d+), y=(-?\\d+)")
 val lines = java.io.File(args[0]).readLines()
 val sensors = lines.map { line ->
     val (x1, y1, x2, y2) = pattern.find(line)!!.destructured
     Sensor(Point(x1.toInt(), y1.toInt()), Point(x2.toInt(), y2.toInt()))
 }
+val sensorGrid = SensorGrid(sensors)
 
-val xMin = sensors.minOf { it.loc.x - it.distance }
-val xMax = sensors.maxOf { it.loc.x + it.distance }
-val fixedDepth = 2000000
-println((xMin..xMax).count { x -> sensors.any { it.noBeacon(x, fixedDepth)} })
-
-val beaconMax = 4000000
-fun findBeacon(): Point? {
-    for (x in 0..beaconMax) {
-        var y = 0
-        while (y <= beaconMax) {
-            val sensor = sensors.find { it.inRange(x, y) }
-            if (sensor == null) return Point(x, y)
-            y = sensor.loc.y + sensor.distance - abs(x - sensor.loc.x) + 1
-        }
-    }
-    return null
-}
-val beacon = findBeacon()!!
-println(beacon.x.toLong() * 4000000L + beacon.y.toLong())
+println(sensorGrid.scanDepth(2000000))
+println(sensorGrid.scan(4000000)?.let { it.x.toLong() * 4000000L + it.y.toLong() })
