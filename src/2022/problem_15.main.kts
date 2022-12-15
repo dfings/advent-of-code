@@ -3,11 +3,10 @@
 import kotlin.math.abs
 
 fun manhattanDistance(x1: Int, y1: Int, x2: Int, y2: Int) = abs(x1 - x2) + abs(y1 - y2)
-fun manhattanDistance(p1: Point, p2: Point) = manhattanDistance(p1.x, p1.y, p2.x, p2.y)
 
 data class Point(val x: Int, val y: Int)
 data class Sensor(val loc: Point, val beacon: Point) {
-    val distance = manhattanDistance(loc, beacon)
+    val distance = manhattanDistance(loc.x, loc.y, beacon.x, beacon.y)
     fun inRange(x: Int, y: Int) = manhattanDistance(loc.x, loc.y, x, y) <= distance
     fun isBeacon(x: Int, y: Int) = beacon.x == x && beacon.y == y
     fun noBeacon(x: Int, y: Int) = inRange(x, y) && !isBeacon(x, y)
