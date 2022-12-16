@@ -3,6 +3,7 @@
 data class Valve(val name: String, val flow: Int, val tunnels: List<String>)
 data class Move(val valve: Valve, val length: Int)
 data class Turn(val move: Move, val score: Int)
+typealias TurnList = ArrayDeque<Turn>
 
 class Graph(valves: List<Valve>) {
     private val valvesByName = valves.associateBy { it.name }
@@ -33,22 +34,20 @@ class Graph(valves: List<Valve>) {
 
 class Part1(graph: Graph) {
     var minute = 0
-    val turns = ArrayDeque<Turn>()
+    val turns = TurnList()
     var currentPosition: Valve = graph.start
     var currentScore = 0
     val opened = HashSet<Valve>()
 
-    var bestTurns: ArrayDeque<Turn>? = null
+    var bestTurns: TurnList? = null
     var bestScore = 0
-    var paths = 0
 
     fun computeMaxFlow() {
         if (minute == 30 || opened.size == graph.valvesByFlow.size) {
             if (currentScore > bestScore) {
                 bestScore = currentScore
-                bestTurns = ArrayDeque<Turn>(turns)
+                bestTurns = TurnList(turns)
             }
-            paths++
             return
         }
 
@@ -83,29 +82,28 @@ class Part1(graph: Graph) {
 class Part2(graph: Graph) {
     var minute = 0
     var eminute = 0
-    val turns = ArrayDeque<Turn>()
-    val eturns = ArrayDeque<Turn>()
+    val turns = TurnList()
+    val eturns = TurnList()
     var currentPosition: Valve = graph.start
     var currentEPosition: Valve = graph.start
     var currentScore = 0
     val opened = HashSet<Valve>()
 
-    var bestTurns: ArrayDeque<Turn>? = null
-    var bestETurns: ArrayDeque<Turn>? = null
+    var bestTurns: TurnList? = null
+    var bestETurns: TurnList? = null
     var bestScore = 0
-    var paths = 0
 
     fun computeMaxFlow() {
-        if (minute == 26) {
-            computeMaxEFlow()
-            return
-        }
         if (opened.size == graph.valvesByFlow.size) {
             if (currentScore > bestScore) {
                 bestScore = currentScore
-                bestTurns = ArrayDeque<Turn>(turns)
+                bestTurns = TurnList(turns)
             }
-            paths++
+            return
+        }
+
+        if (minute == 26) {
+            computeMaxEFlow()
             return
         }
 
@@ -139,10 +137,9 @@ class Part2(graph: Graph) {
         if (eminute == 26 || opened.size == graph.valvesByFlow.size) {
             if (currentScore > bestScore) {
                 bestScore = currentScore
-                bestTurns = ArrayDeque<Turn>(turns)
-                bestETurns = ArrayDeque<Turn>(eturns)
+                bestTurns = TurnList(turns)
+                bestETurns = TurnList(eturns)
             }
-            paths++
             return
         }
 
