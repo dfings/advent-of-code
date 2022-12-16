@@ -1,21 +1,18 @@
 #!/usr/bin/env kotlin
 
 data class Valve(val name: String, val flow: Int, val tunnels: List<String>)
-
-sealed interface Turn { val valve: Valve }
-data class Open(override val valve: Valve) : Turn
-data class Move(override val valve: Valve, val length: Int = 1) : Turn
+data class Move(val valve: Valve, val length: Int)
 
 class Graph(valves: List<Valve>) {
-    val valvesByName = valves.associateBy { it.name }
+    private val valvesByName = valves.associateBy { it.name }
+
+    val start = valvesByName.getValue("AA")
     val valvesByFlow = valves.sortedByDescending { it.flow }.filter { it.flow > 0 }
+
     val moves: Map<Valve, List<Move>> = buildMap {
-        for (valve in valves.filter { it.flow > 0 || it.name == "AA" }) {
-            val moveList = mutableListOf<Move>() for (other in valvesByFlow) {
-                if (other == valve) continue
-                moveList.add(Move(other, 1 + findShortestPath(valve.name, other.name)!!))
-            }
-            put(valve, moveList)
+        for (valve in valves.filter { it.flow > 0 || it == start }) {
+            val others = valvesByFlow.filter { it != valve }
+            put(valve, others.map { Move(it, 1 + findShortestPath(valve.name, it.name)!!) })
         }
     }
 
@@ -35,12 +32,12 @@ class Graph(valves: List<Valve>) {
 
 class Part1(graph: Graph) {
     var minute = 0
-    val turns = ArrayDeque<Pair<Turn, Int>>()
-    var currentPosition: Valve = graph.valvesByName.getValue("AA")
+    val turns = ArrayDeque<Pair<Move, Int>>()
+    var currentPosition: Valve = graph.start
     var currentScore = 0
     val opened = HashSet<Valve>()
 
-    var bestTurns: ArrayDeque<Pair<Turn, Int>>? = null
+    var bestTurns: ArrayDeque<Pair<Move, Int>>? = null
     var bestScore = 0
     var paths = 0
 
@@ -48,7 +45,7 @@ class Part1(graph: Graph) {
         if (minute == 30 || opened.size == graph.valvesByFlow.size) {
             if (currentScore > bestScore) {
                 bestScore = currentScore
-                bestTurns = ArrayDeque<Pair<Turn, Int>>(turns)
+                bestTurns = ArrayDeque<Pair<Move, Int>>(turns)
             }
             paths++
             return
@@ -65,7 +62,7 @@ class Part1(graph: Graph) {
         }
         if (maxScore < bestScore) return
 
-        for (move in graph.moves.getValue(currentPosition) + listOf(Move(graph.valvesByName.getValue("AA"), 30 - minute))) {
+        for (move in graph.moves.getValue(currentPosition) + listOf(Move(graph.start, 30 - minute))) {
             if (minute + move.length > 30) continue
             if (move.valve.name != "AA" && !opened.add(move.valve)) continue
             minute += move.length
@@ -85,15 +82,15 @@ class Part1(graph: Graph) {
 class Part2(graph: Graph) {
     var minute = 0
     var eminute = 0
-    val turns = ArrayDeque<Pair<Turn, Int>>()
-    val eturns = ArrayDeque<Pair<Turn, Int>>()
-    var currentPosition: Valve = graph.valvesByName.getValue("AA")
-    var currentEPosition: Valve = graph.valvesByName.getValue("AA")
+    val turns = ArrayDeque<Pair<Move, Int>>()
+    val eturns = ArrayDeque<Pair<Move, Int>>()
+    var currentPosition: Valve = graph.start
+    var currentEPosition: Valve = graph.start
     var currentScore = 0
     val opened = HashSet<Valve>()
 
-    var bestTurns: ArrayDeque<Pair<Turn, Int>>? = null
-    var bestETurns: ArrayDeque<Pair<Turn, Int>>? = null
+    var bestTurns: ArrayDeque<Pair<Move, Int>>? = null
+    var bestETurns: ArrayDeque<Pair<Move, Int>>? = null
     var bestScore = 0
     var paths = 0
 
@@ -105,7 +102,7 @@ class Part2(graph: Graph) {
         if (opened.size == graph.valvesByFlow.size) {
             if (currentScore > bestScore) {
                 bestScore = currentScore
-                bestTurns = ArrayDeque<Pair<Turn, Int>>(turns)
+                bestTurns = ArrayDeque<Pair<Move, Int>>(turns)
             }
             paths++
             return
@@ -120,7 +117,7 @@ class Part2(graph: Graph) {
         if (maxScore < bestScore) return
 
         val lastPos = currentPosition
-        for (move in graph.moves.getValue(currentPosition) + listOf(Move(graph.valvesByName.getValue("AA"), 26 - minute))) {
+        for (move in graph.moves.getValue(currentPosition) + listOf(Move(graph.start, 26 - minute))) {
             if (minute + move.length > 26) continue
             if (move.valve.name != "AA" && !opened.add(move.valve)) continue
             minute += move.length
@@ -141,8 +138,8 @@ class Part2(graph: Graph) {
         if (eminute == 26 || opened.size == graph.valvesByFlow.size) {
             if (currentScore > bestScore) {
                 bestScore = currentScore
-                bestTurns = ArrayDeque<Pair<Turn, Int>>(turns)
-                bestETurns = ArrayDeque<Pair<Turn, Int>>(eturns)
+                bestTurns = ArrayDeque<Pair<Move, Int>>(turns)
+                bestETurns = ArrayDeque<Pair<Move, Int>>(eturns)
             }
             paths++
             return
@@ -160,7 +157,7 @@ class Part2(graph: Graph) {
         if (maxScore < bestScore) return
 
         val lastPos = currentEPosition
-        for (move in graph.moves.getValue(currentEPosition) + listOf(Move(graph.valvesByName.getValue("AA"), 26 - eminute))) {
+        for (move in graph.moves.getValue(currentEPosition) + listOf(Move(graph.start, 26 - eminute))) {
             if (eminute + move.length > 26) continue
             if (move.valve.name != "AA" && !opened.add(move.valve)) continue
             eminute += move.length
