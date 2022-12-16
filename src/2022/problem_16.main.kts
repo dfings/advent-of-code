@@ -2,6 +2,7 @@
 
 data class Valve(val name: String, val flow: Int, val tunnels: List<String>)
 data class Move(val valve: Valve, val length: Int)
+data class Turn(val move: Move, val score: Int)
 
 class Graph(valves: List<Valve>) {
     private val valvesByName = valves.associateBy { it.name }
@@ -32,12 +33,12 @@ class Graph(valves: List<Valve>) {
 
 class Part1(graph: Graph) {
     var minute = 0
-    val turns = ArrayDeque<Pair<Move, Int>>()
+    val turns = ArrayDeque<Turn>()
     var currentPosition: Valve = graph.start
     var currentScore = 0
     val opened = HashSet<Valve>()
 
-    var bestTurns: ArrayDeque<Pair<Move, Int>>? = null
+    var bestTurns: ArrayDeque<Turn>? = null
     var bestScore = 0
     var paths = 0
 
@@ -45,7 +46,7 @@ class Part1(graph: Graph) {
         if (minute == 30 || opened.size == graph.valvesByFlow.size) {
             if (currentScore > bestScore) {
                 bestScore = currentScore
-                bestTurns = ArrayDeque<Pair<Move, Int>>(turns)
+                bestTurns = ArrayDeque<Turn>(turns)
             }
             paths++
             return
@@ -68,7 +69,7 @@ class Part1(graph: Graph) {
             minute += move.length
             val delta = (30 - minute) * move.valve.flow
             currentScore += delta
-            turns.addLast(move to delta)
+            turns.addLast(Turn(move, delta))
             currentPosition = move.valve
             computeMaxFlow()
             turns.removeLast()
@@ -82,15 +83,15 @@ class Part1(graph: Graph) {
 class Part2(graph: Graph) {
     var minute = 0
     var eminute = 0
-    val turns = ArrayDeque<Pair<Move, Int>>()
-    val eturns = ArrayDeque<Pair<Move, Int>>()
+    val turns = ArrayDeque<Turn>()
+    val eturns = ArrayDeque<Turn>()
     var currentPosition: Valve = graph.start
     var currentEPosition: Valve = graph.start
     var currentScore = 0
     val opened = HashSet<Valve>()
 
-    var bestTurns: ArrayDeque<Pair<Move, Int>>? = null
-    var bestETurns: ArrayDeque<Pair<Move, Int>>? = null
+    var bestTurns: ArrayDeque<Turn>? = null
+    var bestETurns: ArrayDeque<Turn>? = null
     var bestScore = 0
     var paths = 0
 
@@ -102,7 +103,7 @@ class Part2(graph: Graph) {
         if (opened.size == graph.valvesByFlow.size) {
             if (currentScore > bestScore) {
                 bestScore = currentScore
-                bestTurns = ArrayDeque<Pair<Move, Int>>(turns)
+                bestTurns = ArrayDeque<Turn>(turns)
             }
             paths++
             return
@@ -123,7 +124,7 @@ class Part2(graph: Graph) {
             minute += move.length
             val delta = (26 - minute) * move.valve.flow
             currentScore += delta
-            turns.addLast(move to delta)
+            turns.addLast(Turn(move, delta))
             currentPosition = move.valve
             computeMaxFlow()
             currentPosition = lastPos
@@ -138,8 +139,8 @@ class Part2(graph: Graph) {
         if (eminute == 26 || opened.size == graph.valvesByFlow.size) {
             if (currentScore > bestScore) {
                 bestScore = currentScore
-                bestTurns = ArrayDeque<Pair<Move, Int>>(turns)
-                bestETurns = ArrayDeque<Pair<Move, Int>>(eturns)
+                bestTurns = ArrayDeque<Turn>(turns)
+                bestETurns = ArrayDeque<Turn>(eturns)
             }
             paths++
             return
@@ -163,7 +164,7 @@ class Part2(graph: Graph) {
             eminute += move.length
             val delta = (26 - eminute) * move.valve.flow
             currentScore += delta
-            eturns.addLast(move to delta)
+            eturns.addLast(Turn(move, delta))
             currentEPosition = move.valve
             computeMaxEFlow()
             currentEPosition = lastPos
