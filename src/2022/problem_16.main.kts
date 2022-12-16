@@ -10,6 +10,7 @@ class Graph(valves: List<Valve>) {
 
     val start = valvesByName.getValue("AA")
     val valvesByFlow = valves.sortedByDescending { it.flow }.filter { it.flow > 0 }
+    val valveCount = valvesByFlow.size
     val moves: Map<Valve, List<Move>> = buildMap {
         for (valve in valves.filter { it.flow > 0 || it == start }) {
             val others = valvesByFlow.filter { it != valve }
@@ -31,19 +32,22 @@ class Graph(valves: List<Valve>) {
     }
 }
 
-class Part1(graph: Graph) {
-    val timeLimit = 30
+class AgentState(val start: Valve, val timeLimit: Int) {
     var minute = 0
     val remainingTime: Int get() = timeLimit - minute
+    var currentPosition: Valve = start
+}
+
+class Part1(graph: Graph) {
+    val timeLimit = 30
+    val me = AgentState(graph.start, timeLimit)
 
     val opened = HashSet<Valve>()
-    var currentPosition: Valve = graph.start
     var currentScore = 0
-
     var bestScore = 0
 
     fun computeMaxFlow() {
-        if (minute == timeLimit || opened.size == graph.valvesByFlow.size) {
+        if (me.minute == timeLimit || opened.size == graph.valveCount) {
             bestScore = max(bestScore, currentScore)
             return
         }
@@ -53,46 +57,41 @@ class Part1(graph: Graph) {
         var index = 0
         for (i in graph.valvesByFlow.indices) {
             if (graph.valvesByFlow[i] in opened) continue
-            maxScore += graph.valvesByFlow[i].flow * (remainingTime - index)
+            maxScore += graph.valvesByFlow[i].flow * (me.remainingTime - index)
             index++
-            if (minute + index >= timeLimit) break
+            if (me.minute + index >= timeLimit) break
         }
         if (maxScore < bestScore) return
 
-        for (move in graph.moves.getValue(currentPosition)) {
+        for (move in graph.moves.getValue(me.currentPosition)) {
             recursivelyMove(move.valve, move.length)
         }
-        recursivelyMove(graph.start, remainingTime)
+        recursivelyMove(graph.start, me.remainingTime)
     }
 
     private fun recursivelyMove(valve: Valve, length: Int) {
-        if (minute + length > timeLimit) return
+        if (me.minute + length > timeLimit) return
         if (valve != graph.start && !opened.add(valve)) return
-        minute += length
-        val delta = (remainingTime) * valve.flow
+        me.minute += length
+        val delta = (me.remainingTime) * valve.flow
         currentScore += delta
-        val lastPosition = currentPosition
-        currentPosition = valve
+        val lastPosition = me.currentPosition
+        me.currentPosition = valve
         computeMaxFlow()
-        currentPosition = lastPosition
+        me.currentPosition = lastPosition
         currentScore -= delta
-        minute -= length
+        me.minute -= length
         if (valve != graph.start) opened.remove(valve)
     }
 }
 
 class Part2(graph: Graph) {
     val timeLimit = 26
-    var minute = 0
-    val remainingTime: Int get() = timeLimit - minute
-    var elephantMinute = 0
-    val remainingElephantTime: Int get() = timeLimit - elephantMinute
+    val me = AgentState(graph.start, timeLimit)
+    val elephant = AgentState(graph.start, timeLimit)
 
-    var currentPosition: Valve = graph.start
-    var currentElephantPosition: Valve = graph.start
-    var currentScore = 0
     val opened = HashSet<Valve>()
-
+    var currentScore = 0
     var bestScore = 0
 
     fun computeMaxFlow() {
@@ -100,12 +99,12 @@ class Part2(graph: Graph) {
     }
 
     private fun recursivelyTryToMove() {
-        if (opened.size == graph.valvesByFlow.size) {
+        if (opened.size == graph.valveCount) {
             bestScore = max(bestScore, currentScore)
             return
         }
 
-        if (minute == timeLimit) {
+        if (me.minute == timeLimit) {
             recursivelyTryToMoveElephant()
             return
         }
@@ -118,29 +117,29 @@ class Part2(graph: Graph) {
         }
         if (maxScore < bestScore) return
 
-        for (move in graph.moves.getValue(currentPosition)) {
+        for (move in graph.moves.getValue(me.currentPosition)) {
             recursivelyMove(move.valve, move.length)
         }
-        recursivelyMove(graph.start, remainingTime)
+        recursivelyMove(graph.start, me.remainingTime)
     }
 
     private fun recursivelyMove(valve: Valve, length: Int) {
-        if (minute + length > timeLimit) return
+        if (me.minute + length > timeLimit) return
         if (!tryOpen(valve)) return
-        minute += length
-        val delta = remainingTime * valve.flow
+        me.minute += length
+        val delta = me.remainingTime * valve.flow
         currentScore += delta
-        val lastPosition = currentPosition
-        currentPosition = valve
+        val lastPosition = me.currentPosition
+        me.currentPosition = valve
         recursivelyTryToMove()
-        currentPosition = lastPosition
+        me.currentPosition = lastPosition
         currentScore -= delta
-        minute -= length
+        me.minute -= length
         tryClose(valve)
     }
 
     private fun recursivelyTryToMoveElephant() {
-        if (elephantMinute == timeLimit || opened.size == graph.valvesByFlow.size) {
+        if (elephant.minute == timeLimit || opened.size == graph.valveCount) {
             bestScore = max(bestScore, currentScore)
             return
         }
@@ -150,30 +149,30 @@ class Part2(graph: Graph) {
         var index = 0
         for (i in graph.valvesByFlow.indices) {
             if (graph.valvesByFlow[i] in opened) continue
-            maxScore += graph.valvesByFlow[i].flow * (remainingElephantTime - index)
+            maxScore += graph.valvesByFlow[i].flow * (elephant.remainingTime - index)
             index++
-            if (elephantMinute + index >= timeLimit) break
+            if (elephant.minute + index >= timeLimit) break
         }
         if (maxScore < bestScore) return
 
-        for (move in graph.moves.getValue(currentElephantPosition)) {
+        for (move in graph.moves.getValue(elephant.currentPosition)) {
             recursivelyMoveElephant(move.valve, move.length)
         }
-        recursivelyMoveElephant(graph.start, remainingElephantTime)
+        recursivelyMoveElephant(graph.start, elephant.remainingTime)
     }
 
     private fun recursivelyMoveElephant(valve: Valve, length: Int) {
-        if (elephantMinute + length > timeLimit) return
+        if (elephant.minute + length > timeLimit) return
         if (!tryOpen(valve)) return
-        elephantMinute += length
-        val delta = remainingElephantTime * valve.flow
+        elephant.minute += length
+        val delta = elephant.remainingTime * valve.flow
         currentScore += delta
-        val lastElephantPosition = currentElephantPosition
-        currentElephantPosition = valve
+        val lastElephantPosition = elephant.currentPosition
+        elephant.currentPosition = valve
         recursivelyTryToMoveElephant()
-        currentElephantPosition = lastElephantPosition
+        elephant.currentPosition = lastElephantPosition
         currentScore -= delta
-        elephantMinute -= length
+        elephant.minute -= length
         tryClose(valve)
     }
 
