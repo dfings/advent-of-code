@@ -65,18 +65,25 @@ class Part1(graph: Graph) {
         }
         if (maxScore < bestScore) return
 
-        for (move in graph.getMoves(currentPosition, remainingTime)) {
-            if (minute + move.length > timeLimit) continue
-            if (move.valve != graph.start && !opened.add(move.valve)) continue
-            minute += move.length
-            val delta = (remainingTime) * move.valve.flow
-            currentScore += delta
-            currentPosition = move.valve
-            computeMaxFlow()
-            currentScore -= delta
-            minute -= move.length
-            if (move.valve != graph.start) opened.remove(move.valve)
+        for (move in graph.moves.getValue(currentPosition)) {
+            recursivelyMove(move.valve, move.length)
         }
+        recursivelyMove(graph.start, remainingTime)
+    }
+
+    private fun recursivelyMove(valve: Valve, length: Int) {
+        if (minute + length > timeLimit) return
+        if (valve != graph.start && !opened.add(valve)) return
+        minute += length
+        val delta = (remainingTime) * valve.flow
+        currentScore += delta
+        val lastPosition = currentPosition
+        currentPosition = valve
+        computeMaxFlow()
+        currentPosition = lastPosition
+        currentScore -= delta
+        minute -= length
+        if (valve != graph.start) opened.remove(valve)
     }
 }
 
@@ -118,24 +125,24 @@ class Part2(graph: Graph) {
         if (maxScore < bestScore) return
 
         for (move in graph.moves.getValue(currentPosition)) {
-            recursivelyMove(move)
+            recursivelyMove(move.valve, move.length)
         }
-        recursivelyMove(Move(graph.start, remainingTime))
+        recursivelyMove(graph.start, remainingTime)
     }
 
-    private fun recursivelyMove(move: Move) {
-        if (minute + move.length > timeLimit) return
-        if (!tryOpen(move.valve)) return
-        minute += move.length
-        val delta = remainingTime * move.valve.flow
+    private fun recursivelyMove(valve: Valve, length: Int) {
+        if (minute + length > timeLimit) return
+        if (!tryOpen(valve)) return
+        minute += length
+        val delta = remainingTime * valve.flow
         currentScore += delta
         val lastPosition = currentPosition
-        currentPosition = move.valve
+        currentPosition = valve
         recursivelyTryToMove()
         currentPosition = lastPosition
         currentScore -= delta
-        minute -= move.length
-        tryClose(move.valve)
+        minute -= length
+        tryClose(valve)
     }
 
     private fun recursivelyTryToMoveElephant() {
@@ -156,24 +163,24 @@ class Part2(graph: Graph) {
         if (maxScore < bestScore) return
 
         for (move in graph.moves.getValue(currentElephantPosition)) {
-            recursivelyMoveElephant(move)
+            recursivelyMoveElephant(move.valve, move.length)
         }
-        recursivelyMoveElephant(Move(graph.start, remainingElephantTime))
+        recursivelyMoveElephant(graph.start, remainingElephantTime)
     }
 
-    private fun recursivelyMoveElephant(move: Move) {
-        if (elephantMinute + move.length > timeLimit) return
-        if (!tryOpen(move.valve)) return
-        elephantMinute += move.length
-        val delta = remainingElephantTime * move.valve.flow
+    private fun recursivelyMoveElephant(valve: Valve, length: Int) {
+        if (elephantMinute + length > timeLimit) return
+        if (!tryOpen(valve)) return
+        elephantMinute += length
+        val delta = remainingElephantTime * valve.flow
         currentScore += delta
         val lastElephantPosition = currentElephantPosition
-        currentElephantPosition = move.valve
+        currentElephantPosition = valve
         recursivelyTryToMoveElephant()
         currentElephantPosition = lastElephantPosition
         currentScore -= delta
-        elephantMinute -= move.length
-        tryClose(move.valve)
+        elephantMinute -= length
+        tryClose(valve)
     }
 
     private fun tryOpen(valve: Valve) = valve == graph.start || opened.add(valve)
