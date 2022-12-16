@@ -95,17 +95,17 @@ class Part2(graph: Graph) {
     var bestScore = 0
 
     fun computeMaxFlow() {
-        makeNextMove()
+        recursivelyTryToMove()
     }
 
-    private fun makeNextMove() {
+    private fun recursivelyTryToMove() {
         if (opened.size == graph.valvesByFlow.size) {
             bestScore = max(bestScore, currentScore)
             return
         }
 
         if (minute == timeLimit) {
-            makeNextElephantMove()
+            recursivelyTryToMoveElephant()
             return
         }
 
@@ -131,14 +131,14 @@ class Part2(graph: Graph) {
         currentScore += delta
         val lastPosition = currentPosition
         currentPosition = move.valve
-        makeNextMove()
+        recursivelyTryToMove()
         currentPosition = lastPosition
         currentScore -= delta
         minute -= move.length
         tryClose(move.valve)
     }
 
-    private fun makeNextElephantMove() {
+    private fun recursivelyTryToMoveElephant() {
         if (elephantMinute == timeLimit || opened.size == graph.valvesByFlow.size) {
             bestScore = max(bestScore, currentScore)
             return
@@ -169,7 +169,7 @@ class Part2(graph: Graph) {
         currentScore += delta
         val lastElephantPosition = currentElephantPosition
         currentElephantPosition = move.valve
-        makeNextElephantMove()
+        recursivelyTryToMoveElephant()
         currentElephantPosition = lastElephantPosition
         currentScore -= delta
         elephantMinute -= move.length
