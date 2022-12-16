@@ -55,9 +55,9 @@ class Part1(graph: Graph) {
         if (cannotWin()) return
 
         for (move in graph.moves.getValue(me.currentPosition)) {
-            recursivelyMove(move.valve, move.length)
+            recursivelyTryToMoveTo(move.valve, move.length)
         }
-        recursivelyMove(graph.start, me.remainingTime)
+        recursivelyTryToMoveTo(graph.start, me.remainingTime)
     }
 
     private fun cannotWin(): Boolean {
@@ -72,7 +72,7 @@ class Part1(graph: Graph) {
         return maxScore < bestScore
     }
 
-    private fun recursivelyMove(valve: Valve, length: Int) {
+    private fun recursivelyTryToMoveTo(valve: Valve, length: Int) {
         if (me.minute + length > timeLimit) return
         if (valve != graph.start && !opened.add(valve)) return
         me.minute += length
@@ -115,9 +115,9 @@ class Part2(graph: Graph) {
         if (cannotWin()) return
 
         for (move in graph.moves.getValue(me.currentPosition)) {
-            recursivelyMove(move.valve, move.length)
+            recursivelyTryToMoveTo(move.valve, move.length)
         }
-        recursivelyMove(graph.start, me.remainingTime)
+        recursivelyTryToMoveTo(graph.start, me.remainingTime)
     }
 
     private fun cannotWin(): Boolean {
@@ -129,7 +129,7 @@ class Part2(graph: Graph) {
         return maxScore < bestScore
     }
 
-    private fun recursivelyMove(valve: Valve, length: Int) {
+    private fun recursivelyTryToMoveTo(valve: Valve, length: Int) {
         if (me.minute + length > timeLimit) return
         if (!tryOpen(valve)) return
         me.minute += length
@@ -153,9 +153,9 @@ class Part2(graph: Graph) {
         if (elephantCannotWin()) return
 
         for (move in graph.moves.getValue(elephant.currentPosition)) {
-            recursivelyMoveElephant(move.valve, move.length)
+            recursivelyTryToMoveElephantTo(move.valve, move.length)
         }
-        recursivelyMoveElephant(graph.start, elephant.remainingTime)
+        recursivelyTryToMoveElephantTo(graph.start, elephant.remainingTime)
     }
 
     private fun elephantCannotWin(): Boolean {
@@ -170,7 +170,7 @@ class Part2(graph: Graph) {
         return maxScore < bestScore
     }
 
-    private fun recursivelyMoveElephant(valve: Valve, length: Int) {
+    private fun recursivelyTryToMoveElephantTo(valve: Valve, length: Int) {
         if (elephant.minute + length > timeLimit) return
         if (!tryOpen(valve)) return
         elephant.minute += length
