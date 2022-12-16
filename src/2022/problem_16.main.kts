@@ -11,14 +11,18 @@ class Graph(valves: List<Valve>) {
     val start = valvesByName.getValue("AA")
     val valvesByFlow = valves.sortedByDescending { it.flow }.filter { it.flow > 0 }
 
-    val moves: Map<Valve, List<Move>> = buildMap {
+    fun getMoves(valve: Valve, remainingTime: Int): List<Move> {
+        return moves.getValue(valve) + listOf(Move(start, remainingTime))
+    }
+
+    private val moves: Map<Valve, List<Move>> = buildMap {
         for (valve in valves.filter { it.flow > 0 || it == start }) {
             val others = valvesByFlow.filter { it != valve }
             put(valve, others.map { Move(it, 1 + findShortestPath(valve.name, it.name)!!) })
         }
     }
 
-    fun findShortestPath(source: String, target: String): Int? {
+    private fun findShortestPath(source: String, target: String): Int? {
         val frontier = ArrayDeque<Pair<String, Int>>(listOf(source to 0))
         val seen = mutableSetOf<String>(source)
         while (!frontier.isEmpty()) {
@@ -62,7 +66,7 @@ class Part1(graph: Graph) {
         }
         if (maxScore < bestScore) return
 
-        for (move in graph.moves.getValue(currentPosition) + listOf(Move(graph.start, 30 - minute))) {
+        for (move in graph.getMoves(currentPosition, 30 - minute)) {
             if (minute + move.length > 30) continue
             if (move.valve != graph.start && !opened.add(move.valve)) continue
             minute += move.length
@@ -113,7 +117,7 @@ class Part2(graph: Graph) {
         if (maxScore < bestScore) return
 
         val lastPos = currentPosition
-        for (move in graph.moves.getValue(currentPosition) + listOf(Move(graph.start, 26 - minute))) {
+        for (move in graph.getMoves(currentPosition, 26 - minute)) {
             if (minute + move.length > 26) continue
             if (move.valve != graph.start && !opened.add(move.valve)) continue
             minute += move.length
@@ -148,7 +152,7 @@ class Part2(graph: Graph) {
         if (maxScore < bestScore) return
 
         val lastPos = currentElephantPosition
-        for (move in graph.moves.getValue(currentElephantPosition) + listOf(Move(graph.start, 26 - elephantMinute))) {
+        for (move in graph.getMoves(currentElephantPosition, 26 - elephantMinute)) {
             if (elephantMinute + move.length > 26) continue
             if (move.valve != graph.start && !opened.add(move.valve)) continue
             elephantMinute += move.length
