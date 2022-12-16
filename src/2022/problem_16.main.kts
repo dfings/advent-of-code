@@ -64,7 +64,7 @@ class Part1(graph: Graph) {
 
         for (move in graph.moves.getValue(currentPosition) + listOf(Move(graph.start, 30 - minute))) {
             if (minute + move.length > 30) continue
-            if (move.valve.name != "AA" && !opened.add(move.valve)) continue
+            if (move.valve != graph.start && !opened.add(move.valve)) continue
             minute += move.length
             val delta = (30 - minute) * move.valve.flow
             currentScore += delta
@@ -74,7 +74,7 @@ class Part1(graph: Graph) {
             turns.removeLast()
             currentScore -= delta
             minute -= move.length
-            if (move.valve.name != "AA") opened.remove(move.valve)
+            if (move.valve != graph.start) opened.remove(move.valve)
         }
     }
 }
@@ -95,10 +95,7 @@ class Part2(graph: Graph) {
 
     fun computeMaxFlow() {
         if (opened.size == graph.valvesByFlow.size) {
-            if (currentScore > bestScore) {
-                bestScore = currentScore
-                bestTurns = TurnList(turns)
-            }
+            maybeUpdateBestScore()
             return
         }
 
@@ -118,7 +115,7 @@ class Part2(graph: Graph) {
         val lastPos = currentPosition
         for (move in graph.moves.getValue(currentPosition) + listOf(Move(graph.start, 26 - minute))) {
             if (minute + move.length > 26) continue
-            if (move.valve.name != "AA" && !opened.add(move.valve)) continue
+            if (move.valve != graph.start && !opened.add(move.valve)) continue
             minute += move.length
             val delta = (26 - minute) * move.valve.flow
             currentScore += delta
@@ -129,17 +126,13 @@ class Part2(graph: Graph) {
             turns.removeLast()
             currentScore -= delta
             minute -= move.length
-            if (move.valve.name != "AA") opened.remove(move.valve)
+            if (move.valve != graph.start) opened.remove(move.valve)
         }
     }
 
     fun computeMaxEFlow() {
         if (eminute == 26 || opened.size == graph.valvesByFlow.size) {
-            if (currentScore > bestScore) {
-                bestScore = currentScore
-                bestTurns = TurnList(turns)
-                bestETurns = TurnList(eturns)
-            }
+            maybeUpdateBestScore()
             return
         }
 
@@ -157,7 +150,7 @@ class Part2(graph: Graph) {
         val lastPos = currentEPosition
         for (move in graph.moves.getValue(currentEPosition) + listOf(Move(graph.start, 26 - eminute))) {
             if (eminute + move.length > 26) continue
-            if (move.valve.name != "AA" && !opened.add(move.valve)) continue
+            if (move.valve != graph.start && !opened.add(move.valve)) continue
             eminute += move.length
             val delta = (26 - eminute) * move.valve.flow
             currentScore += delta
@@ -168,7 +161,15 @@ class Part2(graph: Graph) {
             eturns.removeLast()
             currentScore -= delta
             eminute -= move.length
-            if (move.valve.name != "AA") opened.remove(move.valve)
+            if (move.valve != graph.start) opened.remove(move.valve)
+        }
+    }
+
+    private fun maybeUpdateBestScore() {
+        if (currentScore > bestScore) {
+            bestScore = currentScore
+            bestTurns = TurnList(turns)
+            bestETurns = TurnList(eturns)
         }
     }
 }
