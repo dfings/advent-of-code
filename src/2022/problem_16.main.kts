@@ -52,7 +52,15 @@ class Part1(graph: Graph) {
             return
         }
 
-        // Detect can't win
+        if (cannotWin()) return
+
+        for (move in graph.moves.getValue(me.currentPosition)) {
+            recursivelyMove(move.valve, move.length)
+        }
+        recursivelyMove(graph.start, me.remainingTime)
+    }
+
+    private fun cannotWin(): Boolean {
         var maxScore = currentScore
         var index = 0
         for (i in graph.valvesByFlow.indices) {
@@ -61,12 +69,7 @@ class Part1(graph: Graph) {
             index++
             if (me.minute + index >= timeLimit) break
         }
-        if (maxScore < bestScore) return
-
-        for (move in graph.moves.getValue(me.currentPosition)) {
-            recursivelyMove(move.valve, move.length)
-        }
-        recursivelyMove(graph.start, me.remainingTime)
+        return maxScore < bestScore
     }
 
     private fun recursivelyMove(valve: Valve, length: Int) {
@@ -109,18 +112,21 @@ class Part2(graph: Graph) {
             return
         }
 
-        // Detect can't win
-        var maxScore = currentScore
-        for (i in graph.valvesByFlow.indices) {
-            if (graph.valvesByFlow[i] in opened) continue
-            maxScore += graph.valvesByFlow[i].flow * timeLimit
-        }
-        if (maxScore < bestScore) return
+        if (cannotWin()) return
 
         for (move in graph.moves.getValue(me.currentPosition)) {
             recursivelyMove(move.valve, move.length)
         }
         recursivelyMove(graph.start, me.remainingTime)
+    }
+
+    private fun cannotWin(): Boolean {
+        var maxScore = currentScore
+        for (i in graph.valvesByFlow.indices) {
+            if (graph.valvesByFlow[i] in opened) continue
+            maxScore += graph.valvesByFlow[i].flow * timeLimit
+        }
+        return maxScore < bestScore
     }
 
     private fun recursivelyMove(valve: Valve, length: Int) {
@@ -144,7 +150,15 @@ class Part2(graph: Graph) {
             return
         }
 
-        // Detect can't win
+        if (elephantCannotWin()) return
+
+        for (move in graph.moves.getValue(elephant.currentPosition)) {
+            recursivelyMoveElephant(move.valve, move.length)
+        }
+        recursivelyMoveElephant(graph.start, elephant.remainingTime)
+    }
+
+    private fun elephantCannotWin(): Boolean {
         var maxScore = currentScore
         var index = 0
         for (i in graph.valvesByFlow.indices) {
@@ -153,12 +167,7 @@ class Part2(graph: Graph) {
             index++
             if (elephant.minute + index >= timeLimit) break
         }
-        if (maxScore < bestScore) return
-
-        for (move in graph.moves.getValue(elephant.currentPosition)) {
-            recursivelyMoveElephant(move.valve, move.length)
-        }
-        recursivelyMoveElephant(graph.start, elephant.remainingTime)
+        return maxScore < bestScore
     }
 
     private fun recursivelyMoveElephant(valve: Valve, length: Int) {
