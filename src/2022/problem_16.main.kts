@@ -81,16 +81,16 @@ class Part1(graph: Graph) {
 
 class Part2(graph: Graph) {
     var minute = 0
-    var eminute = 0
+    var elephantMinute = 0
     val turns = TurnList()
-    val eturns = TurnList()
+    val elephantTurns = TurnList()
     var currentPosition: Valve = graph.start
-    var currentEPosition: Valve = graph.start
+    var currentElephantPosition: Valve = graph.start
     var currentScore = 0
     val opened = HashSet<Valve>()
 
     var bestTurns: TurnList? = null
-    var bestETurns: TurnList? = null
+    var bestElephantTurns: TurnList? = null
     var bestScore = 0
 
     fun computeMaxFlow() {
@@ -100,7 +100,7 @@ class Part2(graph: Graph) {
         }
 
         if (minute == 26) {
-            computeMaxEFlow()
+            computeMaxElephantFlow()
             return
         }
 
@@ -130,8 +130,8 @@ class Part2(graph: Graph) {
         }
     }
 
-    fun computeMaxEFlow() {
-        if (eminute == 26 || opened.size == graph.valvesByFlow.size) {
+    fun computeMaxElephantFlow() {
+        if (elephantMinute == 26 || opened.size == graph.valvesByFlow.size) {
             maybeUpdateBestScore()
             return
         }
@@ -141,26 +141,26 @@ class Part2(graph: Graph) {
         var index = 0
         for (i in graph.valvesByFlow.indices) {
             if (graph.valvesByFlow[i] in opened) continue
-            maxScore += graph.valvesByFlow[i].flow * (26 - eminute - index)
+            maxScore += graph.valvesByFlow[i].flow * (26 - elephantMinute - index)
             index++
-            if (eminute + index >= 26) break
+            if (elephantMinute + index >= 26) break
         }
         if (maxScore < bestScore) return
 
-        val lastPos = currentEPosition
-        for (move in graph.moves.getValue(currentEPosition) + listOf(Move(graph.start, 26 - eminute))) {
-            if (eminute + move.length > 26) continue
+        val lastPos = currentElephantPosition
+        for (move in graph.moves.getValue(currentElephantPosition) + listOf(Move(graph.start, 26 - elephantMinute))) {
+            if (elephantMinute + move.length > 26) continue
             if (move.valve != graph.start && !opened.add(move.valve)) continue
-            eminute += move.length
-            val delta = (26 - eminute) * move.valve.flow
+            elephantMinute += move.length
+            val delta = (26 - elephantMinute) * move.valve.flow
             currentScore += delta
-            eturns.addLast(Turn(move, delta))
-            currentEPosition = move.valve
-            computeMaxEFlow()
-            currentEPosition = lastPos
-            eturns.removeLast()
+            elephantTurns.addLast(Turn(move, delta))
+            currentElephantPosition = move.valve
+            computeMaxElephantFlow()
+            currentElephantPosition = lastPos
+            elephantTurns.removeLast()
             currentScore -= delta
-            eminute -= move.length
+            elephantMinute -= move.length
             if (move.valve != graph.start) opened.remove(move.valve)
         }
     }
@@ -169,7 +169,7 @@ class Part2(graph: Graph) {
         if (currentScore > bestScore) {
             bestScore = currentScore
             bestTurns = TurnList(turns)
-            bestETurns = TurnList(eturns)
+            bestElephantTurns = TurnList(elephantTurns)
         }
     }
 }
@@ -188,5 +188,5 @@ println(part1.bestScore)
 val part2 = Part2(graph)
 part2.computeMaxFlow()
 part2.bestTurns?.forEachIndexed { i, it -> println("${i + 1}: $it") }
-part2.bestETurns?.forEachIndexed { i, it -> println("${i + 1}: $it") }
+part2.bestElephantTurns?.forEachIndexed { i, it -> println("${i + 1}: $it") }
 println(part2.bestScore)
