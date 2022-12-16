@@ -74,16 +74,16 @@ class Part1(graph: Graph) {
 
     private fun recursivelyTryToMoveTo(valve: Valve, length: Int) {
         if (me.minute + length > timeLimit) return
+
         if (valve != graph.start && !opened.add(valve)) return
-        
         me.minute += length
         val delta = (me.remainingTime) * valve.flow
         currentScore += delta
         val lastPosition = me.currentPosition
         me.currentPosition = valve
-        
+
         computeMaxFlow()
-        
+
         me.currentPosition = lastPosition
         currentScore -= delta
         me.minute -= length
@@ -134,16 +134,16 @@ class Part2(graph: Graph) {
 
     private fun recursivelyTryToMoveTo(valve: Valve, length: Int) {
         if (me.minute + length > timeLimit) return
+
         if (!tryOpen(valve)) return
-        
         me.minute += length
         val delta = me.remainingTime * valve.flow
         currentScore += delta
         val lastPosition = me.currentPosition
         me.currentPosition = valve
-        
+
         recursivelyTryToMove()
-        
+
         me.currentPosition = lastPosition
         currentScore -= delta
         me.minute -= length
@@ -178,14 +178,14 @@ class Part2(graph: Graph) {
 
     private fun recursivelyTryToMoveElephantTo(valve: Valve, length: Int) {
         if (elephant.minute + length > timeLimit) return
-        if (!tryOpen(valve)) return
-        
+
+        if (!tryOpen(valve)) return 
         elephant.minute += length
         val delta = elephant.remainingTime * valve.flow
         currentScore += delta
         val lastElephantPosition = elephant.currentPosition
         elephant.currentPosition = valve
-        
+
         recursivelyTryToMoveElephant()
 
         elephant.currentPosition = lastElephantPosition
