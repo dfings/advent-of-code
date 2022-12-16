@@ -4,18 +4,12 @@ import kotlin.math.max
 
 data class Valve(val name: String, val flow: Int, val tunnels: List<String>)
 data class Move(val valve: Valve, val length: Int)
-data class Turn(val move: Move, val score: Int)
 
 class Graph(valves: List<Valve>) {
     private val valvesByName = valves.associateBy { it.name }
 
     val start = valvesByName.getValue("AA")
     val valvesByFlow = valves.sortedByDescending { it.flow }.filter { it.flow > 0 }
-
-    fun getMoves(valve: Valve, remainingTime: Int): List<Move> {
-        return moves.getValue(valve) + listOf(Move(start, remainingTime))
-    }
-
     val moves: Map<Valve, List<Move>> = buildMap {
         for (valve in valves.filter { it.flow > 0 || it == start }) {
             val others = valvesByFlow.filter { it != valve }
