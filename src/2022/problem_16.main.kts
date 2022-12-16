@@ -38,55 +38,61 @@ class AgentState(val start: Valve, val timeLimit: Int) {
     var currentPosition: Valve = start
 }
 
-class Part1(graph: Graph) {
-    val timeLimit = 30
-    val me = AgentState(graph.start, timeLimit)
+class Solver(graph: Graph, val timeLimit: Int, val agentCount: Int) {
+    val agents = List<AgentState>(agentCount) { AgentState(graph.start, timeLimit) }
 
     val opened = HashSet<Valve>()
     var currentScore = 0
     var bestScore = 0
 
     fun computeMaxFlow() {
-        if (me.minute == timeLimit || opened.size == graph.valveCount) {
+        recursivelyTryToMove(0);
+    }
+
+    private fun recursivelyTryToMove(agent: Int) {
+        val state = agents[agent]
+        if (state.minute == timeLimit || opened.size == graph.valveCount) {
             bestScore = max(bestScore, currentScore)
             return
         }
 
-        if (cannotWin()) return
+        if (cannotWin(agent)) return
 
-        for (move in graph.moves.getValue(me.currentPosition)) {
-            recursivelyTryToMoveTo(move.valve, move.length)
+        for (move in graph.moves.getValue(state.currentPosition)) {
+            recursivelyTryToMoveTo(agent, move.valve, move.length)
         }
-        recursivelyTryToMoveTo(graph.start, me.remainingTime)
+        recursivelyTryToMoveTo(agent, graph.start, state.remainingTime)
     }
 
-    private fun cannotWin(): Boolean {
+    private fun cannotWin(agent: Int): Boolean {
+        val state = agents[agent]
         var maxScore = currentScore
         var index = 0
         for (i in graph.valvesByFlow.indices) {
             if (graph.valvesByFlow[i] in opened) continue
-            maxScore += graph.valvesByFlow[i].flow * (me.remainingTime - index)
+            maxScore += graph.valvesByFlow[i].flow * (state.remainingTime - index)
             index++
-            if (me.minute + index >= timeLimit) break
+            if (state.minute + index >= timeLimit) break
         }
         return maxScore < bestScore
     }
 
-    private fun recursivelyTryToMoveTo(valve: Valve, length: Int) {
-        if (me.minute + length > timeLimit) return
+    private fun recursivelyTryToMoveTo(agent: Int, valve: Valve, length: Int) {
+        val state = agents[agent]
+        if (state.minute + length > timeLimit) return
 
         if (valve != graph.start && !opened.add(valve)) return
-        me.minute += length
-        val delta = (me.remainingTime) * valve.flow
+        state.minute += length
+        val delta = (state.remainingTime) * valve.flow
         currentScore += delta
-        val lastPosition = me.currentPosition
-        me.currentPosition = valve
+        val lastPosition = state.currentPosition
+        state.currentPosition = valve
 
         computeMaxFlow()
 
-        me.currentPosition = lastPosition
+        state.currentPosition = lastPosition
         currentScore -= delta
-        me.minute -= length
+        state.minute -= length
         if (valve != graph.start) opened.remove(valve)
     }
 }
@@ -206,7 +212,7 @@ val valves = lines.map { pattern.find(it)!!.destructured }
     .map { (name, flow, tunnels) -> Valve(name, flow.toInt(), tunnels.split(", ")) }
 val graph = Graph(valves)
 
-val part1 = Part1(graph)
+val part1 = Solver(graph, 30, 1)
 part1.computeMaxFlow()
 println(part1.bestScore)
 
