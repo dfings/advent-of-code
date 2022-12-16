@@ -1,7 +1,5 @@
 #!/usr/bin/env kotlin
 
-import kotlin.math.max
-
 data class Valve(val name: String, val flow: Int, val tunnels: List<String>)
 
 sealed interface Turn { val valve: Valve }
@@ -12,9 +10,8 @@ class Graph(valves: List<Valve>) {
     val valvesByName = valves.associateBy { it.name }
     val valvesByFlow = valves.sortedByDescending { it.flow }.filter { it.flow > 0 }
     val moves: Map<Valve, List<Move>> = buildMap {
-        for (valve in valves.filter { it.flow > 0 || it.name == "AA"}) {   
-            val moveList = mutableListOf<Move>()     
-            for (other in valvesByFlow) {
+        for (valve in valves.filter { it.flow > 0 || it.name == "AA" }) {
+            val moveList = mutableListOf<Move>() for (other in valvesByFlow) {
                 if (other == valve) continue
                 moveList.add(Move(other, 1 + findShortestPath(valve.name, other.name)!!))
             }
@@ -85,20 +82,6 @@ class Part1(graph: Graph) {
     }
 }
 
-val pattern = Regex("Valve (..) has flow rate=(\\d+); .*valves? ([A-Z][A-Z].*)")
-val lines = java.io.File(args[0]).readLines()
-val valves = lines.map { pattern.find(it)!!.destructured }
-                  .map { (name, flow, tunnels) -> Valve(name, flow.toInt(), tunnels.split(", "))}
-
-println("Started")
-val graph = Graph(valves)
-
-val part1 = Part1(graph)
-part1.computeMaxFlow()
-part1.bestTurns?.forEachIndexed { i, it -> println("${i + 1}: $it") }
-println(part1.bestScore)
-
-
 class Part2(graph: Graph) {
     var minute = 0
     var eminute = 0
@@ -113,7 +96,7 @@ class Part2(graph: Graph) {
     var bestETurns: ArrayDeque<Pair<Turn, Int>>? = null
     var bestScore = 0
     var paths = 0
-        
+
     fun computeMaxFlow() {
         if (minute == 26) {
             computeMaxEFlow()
@@ -153,7 +136,6 @@ class Part2(graph: Graph) {
             if (move.valve.name != "AA") opened.remove(move.valve)
         }
     }
-
 
     fun computeMaxEFlow() {
         if (eminute == 26 || opened.size == graph.valvesByFlow.size) {
@@ -195,6 +177,17 @@ class Part2(graph: Graph) {
         }
     }
 }
+
+val pattern = Regex("Valve (..) has flow rate=(\\d+); .*valves? ([A-Z][A-Z].*)")
+val lines = java.io.File(args[0]).readLines()
+val valves = lines.map { pattern.find(it)!!.destructured }
+    .map { (name, flow, tunnels) -> Valve(name, flow.toInt(), tunnels.split(", ")) }
+val graph = Graph(valves)
+
+val part1 = Part1(graph)
+part1.computeMaxFlow()
+part1.bestTurns?.forEachIndexed { i, it -> println("${i + 1}: $it") }
+println(part1.bestScore)
 
 val part2 = Part2(graph)
 part2.computeMaxFlow()
