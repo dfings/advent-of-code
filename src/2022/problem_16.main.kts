@@ -16,7 +16,7 @@ class Graph(valves: List<Valve>) {
         return moves.getValue(valve) + listOf(Move(start, remainingTime))
     }
 
-    private val moves: Map<Valve, List<Move>> = buildMap {
+    val moves: Map<Valve, List<Move>> = buildMap {
         for (valve in valves.filter { it.flow > 0 || it == start }) {
             val others = valvesByFlow.filter { it != valve }
             put(valve, others.map { Move(it, 1 + findShortestPath(valve.name, it.name)!!) })
@@ -41,7 +41,7 @@ class Part1(graph: Graph) {
     val timeLimit = 30
     var minute = 0
     val remainingTime: Int get() = timeLimit - minute
-    
+
     val opened = HashSet<Valve>()
     var currentPosition: Valve = graph.start
     var currentScore = 0
@@ -95,13 +95,17 @@ class Part2(graph: Graph) {
     var bestScore = 0
 
     fun computeMaxFlow() {
+        makeNextMove()
+    }
+
+    private fun makeNextMove() {
         if (opened.size == graph.valvesByFlow.size) {
             bestScore = max(bestScore, currentScore)
             return
         }
 
         if (minute == timeLimit) {
-            computeMaxElephantFlow()
+            makeNextElephantMove()
             return
         }
 
@@ -113,23 +117,28 @@ class Part2(graph: Graph) {
         }
         if (maxScore < bestScore) return
 
-        val lastPos = currentPosition
-        for (move in graph.getMoves(currentPosition, remainingTime)) {
-            if (minute + move.length > timeLimit) continue
-            if (!tryOpen(move.valve)) continue
-            minute += move.length
-            val delta = remainingTime * move.valve.flow
-            currentScore += delta
-            currentPosition = move.valve
-            computeMaxFlow()
-            currentPosition = lastPos
-            currentScore -= delta
-            minute -= move.length
-            tryClose(move.valve)
+        for (move in graph.moves.getValue(currentPosition)) {
+            recursivelyMove(move)
         }
+        recursivelyMove(Move(graph.start, remainingTime))
     }
 
-    fun computeMaxElephantFlow() {
+    private fun recursivelyMove(move: Move) {
+        if (minute + move.length > timeLimit) return
+        if (!tryOpen(move.valve)) return
+        minute += move.length
+        val delta = remainingTime * move.valve.flow
+        currentScore += delta
+        val lastPosition = currentPosition
+        currentPosition = move.valve
+        makeNextMove()
+        currentPosition = lastPosition
+        currentScore -= delta
+        minute -= move.length
+        tryClose(move.valve)
+    }
+
+    private fun makeNextElephantMove() {
         if (elephantMinute == timeLimit || opened.size == graph.valvesByFlow.size) {
             bestScore = max(bestScore, currentScore)
             return
@@ -146,20 +155,25 @@ class Part2(graph: Graph) {
         }
         if (maxScore < bestScore) return
 
-        val lastPos = currentElephantPosition
-        for (move in graph.getMoves(currentElephantPosition, remainingElephantTime)) {
-            if (elephantMinute + move.length > timeLimit) continue
-            if (!tryOpen(move.valve)) continue
-            elephantMinute += move.length
-            val delta = remainingElephantTime * move.valve.flow
-            currentScore += delta
-            currentElephantPosition = move.valve
-            computeMaxElephantFlow()
-            currentElephantPosition = lastPos
-            currentScore -= delta
-            elephantMinute -= move.length
-            tryClose(move.valve)
+        for (move in graph.moves.getValue(currentElephantPosition)) {
+            recursivelyMoveElephant(move)
         }
+        recursivelyMoveElephant(Move(graph.start, remainingElephantTime))
+    }
+
+    private fun recursivelyMoveElephant(move: Move) {
+        if (elephantMinute + move.length > timeLimit) return
+        if (!tryOpen(move.valve)) return
+        elephantMinute += move.length
+        val delta = remainingElephantTime * move.valve.flow
+        currentScore += delta
+        val lastElephantPosition = currentElephantPosition
+        currentElephantPosition = move.valve
+        makeNextElephantMove()
+        currentElephantPosition = lastElephantPosition
+        currentScore -= delta
+        elephantMinute -= move.length
+        tryClose(move.valve)
     }
 
     private fun tryOpen(valve: Valve) = valve == graph.start || opened.add(valve)
