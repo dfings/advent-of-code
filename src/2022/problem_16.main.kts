@@ -47,22 +47,22 @@ class Solver(graph: Graph, val timeLimit: Int, val agentCount: Int) {
 
     private val opened = HashSet<Valve>()
     private var currentScore = 0
-    private var bestScore = 0
+    private var highScore = 0
 
     fun getMaxFlow(): Int {
         recursivelyTryToMove()
-        return bestScore
+        return highScore
     }
 
     private fun recursivelyTryToMove() {
         if (opened.size == graph.valveCount) {
-            bestScore = max(bestScore, currentScore)
+            highScore = max(highScore, currentScore)
             return
         }
 
         if (agent.minute == timeLimit) {
             if (agentIndex == agents.lastIndex) {
-                bestScore = max(bestScore, currentScore)
+                highScore = max(highScore, currentScore)
             } else {
                 agentIndex++
                 recursivelyTryToMove()
@@ -71,7 +71,7 @@ class Solver(graph: Graph, val timeLimit: Int, val agentCount: Int) {
             return
         }
 
-        if (cannotWin()) return
+        if (cannotBeatHighScore()) return
 
         for (move in graph.moves.getValue(agent.currentPosition)) {
             recursivelyTryToMoveTo(move.valve, move.length)
@@ -79,7 +79,7 @@ class Solver(graph: Graph, val timeLimit: Int, val agentCount: Int) {
         recursivelyTryToMoveTo(stopMoving, agent.remainingTime)
     }
 
-    private fun cannotWin(): Boolean {
+    private fun cannotBeatHighScore(): Boolean {
         var maxScore = currentScore
         if (agentIndex < agents.lastIndex) {
             for (i in graph.valvesByFlow.indices) {
@@ -95,7 +95,7 @@ class Solver(graph: Graph, val timeLimit: Int, val agentCount: Int) {
                 if (agent.minute + index >= timeLimit) break
             }
         }
-        return maxScore < bestScore
+        return maxScore < highScore
     }
 
     private fun recursivelyTryToMoveTo(valve: Valve, length: Int) {
@@ -103,15 +103,15 @@ class Solver(graph: Graph, val timeLimit: Int, val agentCount: Int) {
 
         if (valve != stopMoving && !opened.add(valve)) return
         agent.minute += length
-        val delta = agent.remainingTime * valve.flow
-        currentScore += delta
+        val lastScore = currentScore
+        currentScore += agent.remainingTime * valve.flow
         val lastPosition = agent.currentPosition
         agent.currentPosition = valve
 
         recursivelyTryToMove()
 
         agent.currentPosition = lastPosition
-        currentScore -= delta
+        currentScore = lastScore
         agent.minute -= length
         if (valve != stopMoving) opened.remove(valve)
     }
