@@ -39,18 +39,19 @@ class Agent(val start: Valve, val timeLimit: Int) {
 }
 
 class Solver(graph: Graph, val timeLimit: Int, val agentCount: Int) {
-    val stopMoving = Valve("END", 0, listOf()) // Dummy value that signals no more moves
+    private val stopMoving = Valve("END", 0, listOf()) // Dummy value that signals no more moves
 
-    val agents = List<Agent>(agentCount) { Agent(graph.start, timeLimit) }
-    var agentIndex = 0
-    val agent: Agent get() = agents[agentIndex]
+    private val agents = List<Agent>(agentCount) { Agent(graph.start, timeLimit) }
+    private var agentIndex = 0
+    private val agent: Agent get() = agents[agentIndex]
 
-    val opened = HashSet<Valve>()
-    var currentScore = 0
-    var bestScore = 0
+    private val opened = HashSet<Valve>()
+    private var currentScore = 0
+    private var bestScore = 0
 
-    fun computeMaxFlow() {
+    fun getMaxFlow(): Int {
         recursivelyTryToMove()
+        return bestScore
     }
 
     private fun recursivelyTryToMove() {
@@ -123,9 +124,7 @@ val valves = lines.map { pattern.find(it)!!.destructured }
 val graph = Graph(valves)
 
 val part1 = Solver(graph, 30, 1)
-part1.computeMaxFlow()
-println(part1.bestScore)
+println(part1.getMaxFlow())
 
 val part2 = Solver(graph, 26, 2)
-part2.computeMaxFlow()
-println(part2.bestScore)
+println(part2.getMaxFlow())
