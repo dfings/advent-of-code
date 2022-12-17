@@ -81,18 +81,14 @@ class Solver(graph: Graph, val timeLimit: Int, val agentCount: Int) {
 
     private fun cannotBeatHighScore(): Boolean {
         var maxScore = currentScore
-        if (agentIndex < agents.lastIndex) {
-            for (i in graph.valvesByFlow.indices) {
-                if (graph.valvesByFlow[i] in opened) continue
-                maxScore += graph.valvesByFlow[i].flow * timeLimit
-            }
-        } else {
-            var index = 0
-            for (i in graph.valvesByFlow.indices) {
-                if (graph.valvesByFlow[i] in opened) continue
+        var index = 0
+        for (i in graph.valvesByFlow.indices) {
+            if (graph.valvesByFlow[i] in opened) continue
+            if (agentIndex < agents.lastIndex) {
+                maxScore += graph.valvesByFlow[i].flow * (timeLimit - (index / agentCount))
+            } else {
                 maxScore += graph.valvesByFlow[i].flow * (agent.remainingTime - index)
-                index++
-                if (agent.minute + index >= timeLimit) break
+                if (agent.minute + index++ >= timeLimit) break
             }
         }
         return maxScore < highScore
