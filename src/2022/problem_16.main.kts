@@ -39,6 +39,8 @@ class Agent(val start: Valve, val timeLimit: Int) {
 }
 
 class Solver(graph: Graph, val timeLimit: Int, val agentCount: Int) {
+    val stopMoving = Valve("END", 0, listOf()) // Dummy value that signals no more moves
+
     val agents = List<Agent>(agentCount) { Agent(graph.start, timeLimit) }
     var agentIndex = 0
     val agent: Agent get() = agents[agentIndex]
@@ -73,7 +75,7 @@ class Solver(graph: Graph, val timeLimit: Int, val agentCount: Int) {
         for (move in graph.moves.getValue(agent.currentPosition)) {
             recursivelyTryToMoveTo(move.valve, move.length)
         }
-        recursivelyTryToMoveTo(graph.start, agent.remainingTime)
+        recursivelyTryToMoveTo(stopMoving, agent.remainingTime)
     }
 
     private fun cannotWin(): Boolean {
@@ -95,12 +97,12 @@ class Solver(graph: Graph, val timeLimit: Int, val agentCount: Int) {
         return maxScore < bestScore
     }
 
-    private fun recursivelyTryToMoveTo( valve: Valve, length: Int) {
+    private fun recursivelyTryToMoveTo(valve: Valve, length: Int) {
         if (agent.minute + length > timeLimit) return
 
-        if (valve != graph.start && !opened.add(valve)) return
+        if (valve != stopMoving && !opened.add(valve)) return
         agent.minute += length
-        val delta = (agent.remainingTime) * valve.flow
+        val delta = agent.remainingTime * valve.flow
         currentScore += delta
         val lastPosition = agent.currentPosition
         agent.currentPosition = valve
@@ -110,7 +112,7 @@ class Solver(graph: Graph, val timeLimit: Int, val agentCount: Int) {
         agent.currentPosition = lastPosition
         currentScore -= delta
         agent.minute -= length
-        if (valve != graph.start) opened.remove(valve)
+        if (valve != stopMoving) opened.remove(valve)
     }
 }
 
