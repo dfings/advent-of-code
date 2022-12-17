@@ -51,16 +51,14 @@ class Chamber(val gas: String) {
 
     fun Rock.tryMove() {
         val direction = if (gas[gasIndex] == '<') -1 else 1
-        if ((direction == -1 && points.all { it.x > 0 }) || (direction == 1 && points.all { it.x < 6 })) {
-            tryUpdate(points.map { Point(it.x + direction, it.y) })
-        }
+        tryUpdate(points.map { Point(it.x + direction, it.y) })
         gasIndex = (gasIndex + 1) % gas.length
     }
 
     fun Rock.tryFall() = tryUpdate(points.map { Point(it.x, it.y - 1) })
 
     fun Rock.tryUpdate(newPoints: List<Point>): Boolean {
-        if (newPoints.none { it in allPoints }) {
+        if (newPoints.none { it in allPoints || it.x < 0 || it.x > 6 }) {
             points = newPoints
             return true
         }
