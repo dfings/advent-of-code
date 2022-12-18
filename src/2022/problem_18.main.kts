@@ -4,17 +4,13 @@ data class Point(val x: Int, val y: Int, val z: Int)
 
 class Pond(val lava: Set<Point>) {
     val airCache = mutableMapOf<Point, Boolean>()
-    val xMin = lava.minOf { it.x }
-    val xMax = lava.maxOf { it.x }
-    val yMin = lava.minOf { it.y }
-    val yMax = lava.maxOf { it.y }
-    val zMin = lava.minOf { it.z }
-    val zMax = lava.maxOf { it.z }
+    val pMin = Point(lava.minOf { it.x }, lava.minOf { it.y }, lava.minOf { it.z })
+    val pMax = Point(lava.maxOf { it.x }, lava.maxOf { it.y }, lava.maxOf { it.z })
 
     fun totalSurfaceArea() = lava.sumOf { it.surfaceArea() }
     fun totalExteriorSurfaceAreal() = lava.sumOf { it.exteriorSurfaceArea() }
 
-    fun Point.adjacentNonLava() = listOf(
+    fun Point.adjacentNonLava() = sequenceOf(
         copy(x = x - 1),
         copy(x = x + 1),
         copy(y = y - 1),
@@ -34,21 +30,22 @@ class Pond(val lava: Set<Point>) {
             val current = frontier.removeFirst()
             if (!visited.add(current)) continue
             if (current in airCache) {
-                val result = airCache.getValue(current)
-                visited.forEach { airCache[it] = result }
-                return result
+                return addToCache(visited, airCache.getValue(current))
             }
             if (current.outsideRange()) {
-                visited.forEach { airCache[it] = false }
-                return false
+                return addToCache(visited, false)
             }
             frontier.addAll(current.adjacentNonLava())
         }
-        visited.forEach { airCache[it] = true }
-        return true
+        return addToCache(visited, true)
     }
 
-    fun Point.outsideRange() = x < xMin || x > xMax || y < yMin || y > yMax || z < zMin || z > zMax
+    fun addToCache(points: Iterable<Point>, isAir: Boolean): Boolean {
+        points.forEach { airCache[it] = isAir }
+        return isAir
+    }
+
+    fun Point.outsideRange() = x < pMin.x || x > pMax.x || y < pMin.y || y > pMax.y || z < pMin.z || z > pMax.z
 }
 
 val lines = java.io.File(args[0]).readLines()
