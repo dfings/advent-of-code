@@ -4,21 +4,27 @@ import kotlin.math.max
 
 data class Point(val x: Int, val y: Int)
 data class Rock(var points: List<Point>)
-data class CacheKey(val points: Set<Point>, val rockIndex: Long, val gasIndex: Int)
-data class CacheValue(val rockIndex: Long, val yTotal: Long)
+data class CacheKey(val points: Set<Point>, val rockIndex: Int, val gasIndex: Int)
+data class CacheValue(val rockCount: Long, val yTotal: Long)
 
 fun List<Pair<Int, Int>>.toRock() = Rock(map { Point(it.first, it.second) })
 
 class Chamber(val gas: String) {
     val allPoints = (0..6).map { x -> Point(x, 0) }.toMutableSet()
+    
     var yMax = 0 // Normalized value
     var yTotal = 0L // Total value
-    var rockIndex = 0L // Total rocks dropped
-    var gasIndex = 0 // Index into gas (modded already)
+    
+    var rockCount = 0L // Total rocks dropped
+    val rockIndex: Int get() = (rockCount % 5).toInt()
+    
+    var gasCount = 0L // Total gas used
+    val gasIndex: Int get() = (gasCount % gas.length).toInt()
+
     val cache = HashMap<CacheKey, CacheValue>()
 
-    fun simulate(rockCount: Long): Long {
-        while (rockIndex != rockCount) {
+    fun simulate(rockLimit: Long): Long {
+        while (rockCount != rockLimit) {
             val rock = newRock()
             do {
                 rock.tryMove()
@@ -27,31 +33,31 @@ class Chamber(val gas: String) {
             allPoints.addAll(rock.points)
             yMax = max(yMax, rock.points.maxOf { it.y })
             normalizeChamber()
-            val cacheKey = CacheKey(allPoints.toSet(), rockIndex % 5, gasIndex)
-            val cacheValue = cache.put(cacheKey, CacheValue(rockIndex, yTotal))
+            val cacheKey = CacheKey(allPoints.toSet(), rockIndex, gasIndex)
+            val cacheValue = cache.put(cacheKey, CacheValue(rockCount, yTotal))
             if (cacheValue != null) {
-                val periodicity = (rockIndex - cacheValue.rockIndex)
-                val advanceBy = (rockCount - rockIndex) / periodicity
+                val periodicity = (rockCount - cacheValue.rockCount)
+                val advanceBy = (rockLimit - rockCount) / periodicity
                 yTotal += (yTotal - cacheValue.yTotal) * advanceBy
-                rockIndex += (advanceBy * periodicity)
+                rockCount += (advanceBy * periodicity)
             }
-            rockIndex++
+            rockCount++
         }
         return yTotal
     }
 
-    fun newRock(): Rock = when (rockIndex % 5) {
-        0L -> listOf(2 to yMax + 4, 3 to yMax + 4, 4 to yMax + 4, 5 to yMax + 4)
-        1L -> listOf(2 to yMax + 5, 3 to yMax + 4, 3 to yMax + 5, 3 to yMax + 6, 4 to yMax + 5)
-        2L -> listOf(2 to yMax + 4, 3 to yMax + 4, 4 to yMax + 4, 4 to yMax + 5, 4 to yMax + 6)
-        3L -> listOf(2 to yMax + 4, 2 to yMax + 5, 2 to yMax + 6, 2 to yMax + 7)
+    fun newRock(): Rock = when (rockIndex) {
+        0 -> listOf(2 to yMax + 4, 3 to yMax + 4, 4 to yMax + 4, 5 to yMax + 4)
+        1 -> listOf(2 to yMax + 5, 3 to yMax + 4, 3 to yMax + 5, 3 to yMax + 6, 4 to yMax + 5)
+        2 -> listOf(2 to yMax + 4, 3 to yMax + 4, 4 to yMax + 4, 4 to yMax + 5, 4 to yMax + 6)
+        3 -> listOf(2 to yMax + 4, 2 to yMax + 5, 2 to yMax + 6, 2 to yMax + 7)
         else -> listOf(2 to yMax + 4, 2 to yMax + 5, 3 to yMax + 4, 3 to yMax + 5)
     }.toRock()
 
     fun Rock.tryMove() {
         val direction = if (gas[gasIndex] == '<') -1 else 1
         tryUpdate(points.map { Point(it.x + direction, it.y) })
-        gasIndex = (gasIndex + 1) % gas.length
+        gasCount++
     }
 
     fun Rock.tryFall() = tryUpdate(points.map { Point(it.x, it.y - 1) })
