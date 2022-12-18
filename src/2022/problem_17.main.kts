@@ -11,17 +11,17 @@ fun List<Pair<Int, Int>>.toRock() = Rock(map { Point(it.first, it.second) })
 
 class Chamber(val gas: String) {
     var allPoints = (0..6).map { x -> Point(x, 0) }.toMutableSet()
-    
+
     var yMax = 0 // Normalized value
     var yTotal = 0L // Total value
-    
+
     var rockCount = 0L // Total rocks dropped
     val rockIndex: Int get() = (rockCount % 5).toInt()
-    
+
     var gasCount = 0L // Total gas used
     val gasIndex: Int get() = (gasCount % gas.length).toInt()
 
-    val cache = HashMap<CacheKey, CacheValue>()
+    var cache: MutableMap<CacheKey, CacheValue>? = HashMap<CacheKey, CacheValue>()
 
     fun simulate(rockLimit: Long): Long {
         while (rockCount != rockLimit) {
@@ -33,15 +33,7 @@ class Chamber(val gas: String) {
             allPoints.addAll(rock.points)
             yMax = max(yMax, rock.points.maxOf { it.y })
             normalizeChamber()
-            val cacheKey = CacheKey(allPoints.toSet(), rockIndex, gasIndex)
-            val cacheValue = cache.put(cacheKey, CacheValue(rockCount, yTotal))
-            if (cacheValue != null) {
-                val rocksPerGasCycle = rockCount - cacheValue.rockCount
-                val advanceByGasCycles = (rockLimit - rockCount) / rocksPerGasCycle
-                yTotal += (yTotal - cacheValue.yTotal) * advanceByGasCycles
-                rockCount += rocksPerGasCycle * advanceByGasCycles
-                gasCount += gas.length * advanceByGasCycles
-            }
+            maybeAdvanceUsingCache(rockLimit)
             rockCount++
         }
         return yTotal
@@ -78,6 +70,21 @@ class Chamber(val gas: String) {
         if (yTotal == 0L) yTotal = yMax.toLong() else yTotal += newFloor.toLong()
         yMax = maxHeight
         allPoints = allPoints.filter { it.y >= newFloor }.map { Point(it.x, it.y - newFloor) }.toMutableSet()
+    }
+
+    fun maybeAdvanceUsingCache(rockLimit: Long) {
+        if (cache == null) return
+
+        val cacheKey = CacheKey(allPoints.toSet(), rockIndex, gasIndex)
+        val cacheValue = cache?.put(cacheKey, CacheValue(rockCount, yTotal))
+        if (cacheValue == null) return
+
+        val rocksPerGasCycle = rockCount - cacheValue.rockCount
+        val advanceByGasCycles = (rockLimit - rockCount) / rocksPerGasCycle
+        yTotal += (yTotal - cacheValue.yTotal) * advanceByGasCycles
+        rockCount += rocksPerGasCycle * advanceByGasCycles
+        gasCount += gas.length * advanceByGasCycles
+        cache = null // No need for cache anymore.
     }
 }
 
