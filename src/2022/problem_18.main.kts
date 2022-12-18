@@ -25,14 +25,12 @@ class Pond(val lava: Set<Point>) {
         val visited = mutableSetOf<Point>()
         while (!frontier.isEmpty()) {
             val current = frontier.removeFirst()
-            if (!visited.add(current)) continue
-            if (current in airCache) {
-                return addToCache(visited, airCache.getValue(current))
+            when {
+                !visited.add(current) -> continue
+                current in airCache -> return addToCache(visited, airCache.getValue(current))
+                current.outsideRange() -> return addToCache(visited, false)
+                else -> frontier.addAll(current.adjacentNonLava())
             }
-            if (current.outsideRange()) {
-                return addToCache(visited, false)
-            }
-            frontier.addAll(current.adjacentNonLava())
         }
         return addToCache(visited, true)
     }
