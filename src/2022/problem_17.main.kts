@@ -5,8 +5,6 @@ data class Rock(var points: List<Point>)
 data class CacheKey(val points: Set<Point>, val rockIndex: Int, val gasIndex: Int)
 data class CacheValue(val rockCount: Long, val yTotal: Long)
 
-fun List<Pair<Int, Int>>.toRock() = Rock(map { Point(it.first, it.second) })
-
 class Chamber(val gas: String) {
     var allPoints = (0..6).map { x -> Point(x, 0) }.toMutableSet()
 
@@ -41,7 +39,7 @@ class Chamber(val gas: String) {
         2 -> listOf(2 to yMax + 4, 3 to yMax + 4, 4 to yMax + 4, 4 to yMax + 5, 4 to yMax + 6)
         3 -> listOf(2 to yMax + 4, 2 to yMax + 5, 2 to yMax + 6, 2 to yMax + 7)
         else -> listOf(2 to yMax + 4, 2 to yMax + 5, 3 to yMax + 4, 3 to yMax + 5)
-    }.toRock()
+    }.let { Rock(it.map { Point(it.first, it.second) }) }
 
     fun Rock.tryMove() {
         val direction = if (gas[gasIndex] == '<') -1 else 1
