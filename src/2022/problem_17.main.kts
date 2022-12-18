@@ -55,12 +55,10 @@ class Chamber(val gas: String) {
     fun Rock.tryFall() = tryUpdate(points.map { Point(it.x, it.y - 1) })
 
     fun Rock.tryUpdate(newPoints: List<Point>): Boolean {
-        if (newPoints.none { it in allPoints || it.x < 0 || it.x > 6 }) {
-            check(newPoints.all { it.y >= 0 })
-            points = newPoints
-            return true
-        }
-        return false
+        if (newPoints.any { it in allPoints || it.x < 0 || it.x > 6 }) return false
+        check(newPoints.all { it.y >= 0 })
+        points = newPoints
+        return true
     }
 
     val maxHeight = 64
