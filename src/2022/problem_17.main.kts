@@ -10,7 +10,7 @@ data class CacheValue(val rockCount: Long, val yTotal: Long)
 fun List<Pair<Int, Int>>.toRock() = Rock(map { Point(it.first, it.second) })
 
 class Chamber(val gas: String) {
-    val allPoints = (0..6).map { x -> Point(x, 0) }.toMutableSet()
+    var allPoints = (0..6).map { x -> Point(x, 0) }.toMutableSet()
     
     var yMax = 0 // Normalized value
     var yTotal = 0L // Total value
@@ -76,9 +76,7 @@ class Chamber(val gas: String) {
         val newFloor = yMax - maxHeight
         if (yTotal == 0L) yTotal = yMax.toLong() else yTotal += newFloor.toLong()
         yMax = maxHeight
-        val remaining = allPoints.filter { it.y >= newFloor }
-        allPoints.clear()
-        allPoints.addAll(remaining.map { Point(it.x, it.y - newFloor) })
+        allPoints = allPoints.filter { it.y >= newFloor }.map { Point(it.x, it.y - newFloor) }.toMutableSet()
     }
 }
 
