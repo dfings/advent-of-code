@@ -25,7 +25,7 @@ class Chamber(val gas: String) {
             do {
                 rock.tryMove()
             } while (rock.tryFall())
-            allPoints.addAll(rock.points)
+            allPoints += rock.points
             normalizeChamber()
             maybeAdvanceUsingCache(rockLimit)
             rockCount++
