@@ -1,7 +1,5 @@
 #!/usr/bin/env kotlin
 
-import kotlin.math.max
-
 data class Point(val x: Int, val y: Int)
 data class Rock(var points: List<Point>)
 data class CacheKey(val points: Set<Point>, val rockIndex: Int, val gasIndex: Int)
@@ -12,7 +10,7 @@ fun List<Pair<Int, Int>>.toRock() = Rock(map { Point(it.first, it.second) })
 class Chamber(val gas: String) {
     var allPoints = (0..6).map { x -> Point(x, 0) }.toMutableSet()
 
-    var yMax = 0 // Normalized value
+    val yMax: Int get() = allPoints.maxOf { it.y } // Normalized value
     var yTotal = 0L // Total value
 
     var rockCount = 0L // Total rocks dropped
@@ -30,7 +28,6 @@ class Chamber(val gas: String) {
                 rock.tryMove()
             } while (rock.tryFall())
             allPoints.addAll(rock.points)
-            yMax = max(yMax, rock.points.maxOf { it.y })
             normalizeChamber()
             maybeAdvanceUsingCache(rockLimit)
             rockCount++
@@ -66,7 +63,6 @@ class Chamber(val gas: String) {
         if (yMax <= maxHeight) return
         val newFloor = yMax - maxHeight
         if (yTotal == 0L) yTotal = yMax.toLong() else yTotal += newFloor.toLong()
-        yMax = maxHeight
         allPoints = allPoints.filter { it.y >= newFloor }.map { Point(it.x, it.y - newFloor) }.toMutableSet()
     }
 
@@ -87,7 +83,7 @@ class Chamber(val gas: String) {
 }
 
 fun Chamber.print() {
-    for (y in yMax downTo max(0, yMax - 100)) {
+    for (y in yMax downTo 0) {
         println((0..6).map { x -> if (Point(x, y) in allPoints) "#" else "." }.joinToString(""))
     }
 }
