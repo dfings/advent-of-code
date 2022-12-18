@@ -28,7 +28,6 @@ class Chamber(val gas: String) {
             val rock = newRock()
             do {
                 rock.tryMove()
-                check(rock.points.all { it.y >= 0 })
             } while (rock.tryFall())
             allPoints.addAll(rock.points)
             yMax = max(yMax, rock.points.maxOf { it.y })
@@ -57,6 +56,7 @@ class Chamber(val gas: String) {
 
     fun Rock.tryUpdate(newPoints: List<Point>): Boolean {
         if (newPoints.none { it in allPoints || it.x < 0 || it.x > 6 }) {
+            check(newPoints.all { it.y >= 0 })
             points = newPoints
             return true
         }
