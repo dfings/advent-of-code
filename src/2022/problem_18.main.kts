@@ -8,7 +8,7 @@ class Pond(val lava: Set<Point>) {
     val pMax = Point(lava.maxOf { it.x }, lava.maxOf { it.y }, lava.maxOf { it.z })
 
     fun totalSurfaceArea() = lava.sumOf { it.adjacentNonLava().count() }
-    fun totalExteriorSurfaceAreal() = lava.sumOf { it.adjacentNonLava().count { !it.isAir() } }
+    fun totalExteriorSurfaceArea() = lava.sumOf { it.adjacentNonLava().count { !it.isAir() } }
 
     fun Point.adjacentNonLava() = sequenceOf(
         copy(x = x - 1),
@@ -48,4 +48,4 @@ val points = lines.map { it.split(",").map { it.toInt() } }.map { (x, y, z) -> P
 val pond = Pond(points.toSet())
 
 println(pond.totalSurfaceArea())
-println(pond.totalExteriorSurfaceAreal())
+println(pond.totalExteriorSurfaceArea())
