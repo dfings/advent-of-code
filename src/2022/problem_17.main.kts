@@ -36,11 +36,11 @@ class Chamber(val gas: String) {
             val cacheKey = CacheKey(allPoints.toSet(), rockIndex, gasIndex)
             val cacheValue = cache.put(cacheKey, CacheValue(rockCount, yTotal))
             if (cacheValue != null) {
-                val rockPeriodicity = rockCount - cacheValue.rockCount
-                val advanceByPeriods = (rockLimit - rockCount) / rockPeriodicity
-                yTotal += (yTotal - cacheValue.yTotal) * advanceByPeriods
-                rockCount += advanceByPeriods * rockPeriodicity
-                gasCount += advanceByPeriods * gas.length
+                val rocksPerGasCycle = rockCount - cacheValue.rockCount
+                val advanceByGasCycles = (rockLimit - rockCount) / rocksPerGasCycle
+                yTotal += (yTotal - cacheValue.yTotal) * advanceByGasCycles
+                rockCount += rocksPerGasCycle * advanceByGasCycles
+                gasCount += gas.length * advanceByGasCycles
             }
             rockCount++
         }
