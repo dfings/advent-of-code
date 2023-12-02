@@ -17,8 +17,8 @@ val maxRevealed =
     }
 
 val matchingLines =
-    maxRevealed.mapIndexed { index, it ->
-        if (it.red > 12 || it.green > 13 || it.blue > 14) 0 else index + 1
+    maxRevealed.mapIndexedNotNull { index, it ->
+        if (it.red > 12 || it.green > 13 || it.blue > 14) null else index + 1
     }
 
 println(matchingLines.sum())
