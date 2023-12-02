@@ -4,11 +4,9 @@ val lines = java.io.File(args[0]).readLines()
 
 data class Reveal(val red: Int, val green: Int, val blue: Int)
 
-fun List<List<String>>.colorCount(color: String) = find { it[1] == color }?.get(0)?.toInt() ?: 0
-
 fun String.toReveal(): Reveal {
-    val parsed = trim().split(", ").map { it.split(' ') }
-    return Reveal(parsed.colorCount("red"), parsed.colorCount("green"), parsed.colorCount("blue"))
+    val map = trim().split(", ").map { it.split(' ') }.associate { it[1] to it[0].toInt() }
+    return Reveal(map["red"] ?: 0, map["green"] ?: 0, map["blue"] ?: 0)
 }
 
 val games = lines.map { it.split(':', ';').drop(1).map { it.toReveal() } }
