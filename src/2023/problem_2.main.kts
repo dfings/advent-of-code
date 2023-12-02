@@ -7,8 +7,8 @@ data class Reveal(val red: Int, val green: Int, val blue: Int)
 fun List<List<String>>.colorCount(color: String) = find { it[1] == color }?.get(0)?.toInt() ?: 0
 
 fun String.toReveal(): Reveal {
-    val pulls = trim().split(", ").map { it.split(' ') }
-    return Reveal(pulls.colorCount("red"), pulls.colorCount("green"), pulls.colorCount("blue"))
+    val parsed = trim().split(", ").map { it.split(' ') }
+    return Reveal(parsed.colorCount("red"), parsed.colorCount("green"), parsed.colorCount("blue"))
 }
 
 val games = lines.map { it.split(':', ';').drop(1).map { it.toReveal() } }
