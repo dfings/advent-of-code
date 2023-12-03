@@ -5,9 +5,7 @@ val lines = java.io.File(args[0]).readLines()
 data class Point(val x: Int, val y: Int)
 
 sealed interface Content
-sealed interface Symbol : Content
-object Gear : Symbol
-object OtherSymbol : Symbol
+class Symbol(val value: Char) : Content
 class Number(val value: Int) : Content
 
 val grid =
@@ -23,7 +21,7 @@ val grid =
                     x += numberString.length
                 } else {
                     if (char != '.') {
-                        put(Point(x, y), if (char == '*') Gear else OtherSymbol)
+                        put(Point(x, y), Symbol(char))
                     }
                     x += 1
                 }
@@ -46,7 +44,7 @@ println(schematicNumbers.map { it.value }.sum())
 
 val schematicGearsNumbers = 
     grid.entries
-        .filter { it.value is Gear }
+        .filter { it.value is Symbol && (it.value as Symbol).value == '*' }
         .map { getAdjacentContent(it.key).filterIsInstance<Number>().toSet() }
         .filter { it.size == 2 }
         .map { it.toList() }
