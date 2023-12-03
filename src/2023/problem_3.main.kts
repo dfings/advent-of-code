@@ -9,29 +9,26 @@ class Number(val value: Int)
 
 val grid =
     buildMap {
-        for (y in 0..lines.lastIndex) {
-            var x = 0
-            while (x < lines[y].lastIndex) {
-                val char = lines[y][x]
-                if (char.isDigit()) {
-                    val numberString = lines[y].substring(x).takeWhile { it.isDigit() }
-                    val number = Number(numberString.toInt())
-                    (0..numberString.lastIndex).forEach { i -> put(Point(x + i, y), number) }
-                    x += numberString.length
-                } else {
-                    if (char != '.') {
-                        put(Point(x, y), if (char == '*') Gear else Symbol)
+        lines.forEachIndexed { y, line ->
+            line.forEachIndexed { x, char ->
+                when {
+                    contains(Point(x, y)) -> null as Any?
+                    char.isDigit() -> {
+                        val numberString = line.substring(x).takeWhile { it.isDigit() }
+                        val number = Number(numberString.toInt())
+                        (0..numberString.lastIndex).forEach { i -> put(Point(x + i, y), number) }
                     }
-                    x += 1
+                    char != '.' -> put(Point(x, y), if (char == '*') Gear else Symbol)
                 }
             }
         }
     }
 
 fun getAdjacent(p: Point) =
-   (-1..1).flatMap { i -> (-1..1).mapNotNull { j -> grid.get(Point(p.x + i, p.y + j))} }
+    (-1..1).flatMap { i -> (-1..1).mapNotNull { j -> grid.get(Point(p.x + i, p.y + j)) } }
 
-fun isAdjacentToSymbol(p: Point): Boolean = getAdjacent(p).any { it is Gear || it is Symbol}
+fun isAdjacentToSymbol(p: Point): Boolean =
+    getAdjacent(p).any { it is Gear || it is Symbol }
 
 val schematicNumbers =
     grid.entries
@@ -40,7 +37,7 @@ val schematicNumbers =
 
 println(schematicNumbers.map { it.value }.sum())
 
-val schematicGearsNumbers = 
+val schematicGearsNumbers =
     grid.entries
         .filter { it.value is Gear }
         .map { getAdjacent(it.key).filterIsInstance<Number>().toSet().map { it.value } }
