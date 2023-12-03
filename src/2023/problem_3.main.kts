@@ -11,7 +11,7 @@ val grid = buildMap {
             when {
                 contains(Point(x, y)) -> null as Any?
                 char.isDigit() -> {
-                    val numberString = line.substring(x).takeWhile { it.isDigit() }
+                    val numberString = line.drop(x).takeWhile { it.isDigit() }
                     val number = Number(numberString.toInt())
                     (0..numberString.lastIndex).forEach { i -> put(Point(x + i, y), number) }
                 }
