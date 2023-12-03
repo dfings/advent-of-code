@@ -35,8 +35,7 @@ fun isAdjacentToSymbol(p: Point): Boolean = getAdjacent(p).any { it is Gear || i
 
 val schematicNumbers =
     grid.entries
-        .filter { it.value is Number && isAdjacentToSymbol(it.key) }
-        .map { it.value as Number }
+        .mapNotNull { (k, v) -> if (v is Number && isAdjacentToSymbol(k)) v else null }
         .toSet()
 
 println(schematicNumbers.map { it.value }.sum())
@@ -44,8 +43,7 @@ println(schematicNumbers.map { it.value }.sum())
 val schematicGearsNumbers = 
     grid.entries
         .filter { it.value is Gear }
-        .map { getAdjacent(it.key).filterIsInstance<Number>().toSet() }
+        .map { getAdjacent(it.key).filterIsInstance<Number>().toSet().map { it.value } }
         .filter { it.size == 2 }
-        .map { it.toList() }
 
-println(schematicGearsNumbers.map { it[0].value * it[1].value }.sum())
+println(schematicGearsNumbers.map { it.reduce(Int::times) }.sum())
