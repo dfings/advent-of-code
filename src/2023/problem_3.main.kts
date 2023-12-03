@@ -24,7 +24,7 @@ val grid = buildMap {
 fun getAdjacent(p: Point) =
     (-1..1).flatMap { i -> (-1..1).mapNotNull { j -> grid.get(Point(p.x + i, p.y + j)) } }
 
-fun isAdjacentToSymbol(p: Point): Boolean = getAdjacent(p).any { it is Char }
+fun isAdjacentToSymbol(p: Point) = getAdjacent(p).any { it is Char }
 
 val schematicNumbers = grid.entries
     .mapNotNull { (k, v) -> if (v is Number && isAdjacentToSymbol(k)) v else null }
