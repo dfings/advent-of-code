@@ -27,8 +27,7 @@ val grid =
 fun getAdjacent(p: Point) =
     (-1..1).flatMap { i -> (-1..1).mapNotNull { j -> grid.get(Point(p.x + i, p.y + j)) } }
 
-fun isAdjacentToSymbol(p: Point): Boolean =
-    getAdjacent(p).any { it is Gear || it is Symbol }
+fun isAdjacentToSymbol(p: Point): Boolean = getAdjacent(p).any { it is Gear || it is Symbol }
 
 val schematicNumbers =
     grid.entries
