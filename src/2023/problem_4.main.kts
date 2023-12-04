@@ -8,7 +8,7 @@ fun String.numWinners(): Int {
     val (winners, picks) =
         split(':', '|')
             .drop(1)
-            .map { it.trim().split(Regex("\\s+")).map { it.toInt() } }
+            .map { it.trim().split(Regex(" +")).map { it.toInt() } }
     return (picks intersect winners).size
 }
 
