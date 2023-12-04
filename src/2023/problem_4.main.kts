@@ -1,7 +1,6 @@
 #!/usr/bin/env kotlin
 
-import kotlin.math.min
-import kotlin.math.pow
+import kotlin.math.*
 
 val lines = java.io.File(args[0]).readLines()
 
