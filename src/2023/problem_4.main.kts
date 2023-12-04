@@ -1,13 +1,29 @@
 #!/usr/bin/env kotlin
 
+import kotlin.math.min
 import kotlin.math.pow
 
 val lines = java.io.File(args[0]).readLines()
 
-val spaces = Regex("\\s+")
-val total = lines.map { 
-    val (picks, winners) = it.split(':', '|').drop(1).map { it.trim().split(spaces).map { it.toInt()} }
-    2.0.pow((picks intersect winners).size - 1.0).toInt()
-}.sum()
+fun Int.pow(exp: Int) = toDouble().pow(exp.toDouble()).toInt()
+
+fun String.numWinners(): Int {
+    val (picks, winners) =
+        split(':', '|')
+            .drop(1)
+            .map { it.trim().split(Regex("\\s+")).map { it.toInt() } }
+    return (picks intersect winners).size
+}
+
+val total = lines.map { 2.pow(it.numWinners() - 1) }.sum()
 
 println(total)
+
+val numCards = (0..lines.lastIndex).map { 1 }.toMutableList()
+lines.forEachIndexed { index, line ->
+    val count = line.numWinners()
+    for (i in index + 1..min(index + count, lines.lastIndex)) {
+        numCards[i] += numCards[index]
+    }
+}
+println(numCards.sum())
