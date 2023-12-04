@@ -13,10 +13,10 @@ val winnerCounts =
 
 println(winnerCounts.map { 1 shl (it - 1) }.sum())
 
-val numCards = MutableList(lines.size) { 1 }
+val cardCounts = MutableList(lines.size) { 1 }
 winnerCounts.forEachIndexed { index, count ->
     for (i in index + 1..index + count) {
-        numCards[i] += numCards[index]
+        cardCounts[i] += cardCounts[index]
     }
 }
-println(numCards.sum())
+println(cardCounts.sum())
