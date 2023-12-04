@@ -4,19 +4,19 @@ import kotlin.math.min
 
 val lines = java.io.File(args[0]).readLines()
 
-fun String.numWinners(): Int {
-    val (winners, picks) =
-        split(':', '|')
-            .drop(1)
-            .map { it.trim().split(Regex(" +")).map { it.toInt() } }
-    return (picks intersect winners).size
-}
+val winnerCounts =
+    lines.map {
+        val (winners, picks) =
+            it.split(':', '|')
+                .drop(1)
+                .map { it.trim().split(Regex(" +")).map { it.toInt() } }
+        (picks intersect winners).size
+    }
 
-println(lines.map { 1 shl (it.numWinners() - 1) }.sum())
+println(winnerCounts.map { 1 shl (it - 1) }.sum())
 
 val numCards = MutableList(lines.size) { 1 }
-lines.forEachIndexed { index, line ->
-    val count = line.numWinners()
+winnerCounts.forEachIndexed { index, count ->
     for (i in index + 1..min(index + count, lines.lastIndex)) {
         numCards[i] += numCards[index]
     }
