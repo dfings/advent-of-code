@@ -1,10 +1,8 @@
 #!/usr/bin/env kotlin
 
-import kotlin.math.*
+import kotlin.math.min
 
 val lines = java.io.File(args[0]).readLines()
-
-fun Int.pow(exp: Int) = toDouble().pow(exp.toDouble()).toInt()
 
 fun String.numWinners(): Int {
     val (winners, picks) =
@@ -14,7 +12,7 @@ fun String.numWinners(): Int {
     return (picks intersect winners).size
 }
 
-println(lines.map { 2.pow(it.numWinners() - 1) }.sum())
+println(lines.map { 1 shl (it.numWinners() - 1) }.sum())
 
 val numCards = (0..lines.lastIndex).map { 1 }.toMutableList()
 lines.forEachIndexed { index, line ->
