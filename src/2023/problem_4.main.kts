@@ -14,7 +14,7 @@ fun String.numWinners(): Int {
 
 println(lines.map { 1 shl (it.numWinners() - 1) }.sum())
 
-val numCards = (0..lines.lastIndex).map { 1 }.toMutableList()
+val numCards = MutableList(lines.size) { 1 }
 lines.forEachIndexed { index, line ->
     val count = line.numWinners()
     for (i in index + 1..min(index + count, lines.lastIndex)) {
