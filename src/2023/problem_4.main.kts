@@ -1,7 +1,5 @@
 #!/usr/bin/env kotlin
 
-import kotlin.math.min
-
 val lines = java.io.File(args[0]).readLines()
 
 val winnerCounts =
@@ -17,7 +15,7 @@ println(winnerCounts.map { 1 shl (it - 1) }.sum())
 
 val numCards = MutableList(lines.size) { 1 }
 winnerCounts.forEachIndexed { index, count ->
-    for (i in index + 1..min(index + count, lines.lastIndex)) {
+    for (i in index + 1..index + count) {
         numCards[i] += numCards[index]
     }
 }
