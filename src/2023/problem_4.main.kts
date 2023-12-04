@@ -7,7 +7,7 @@ val lines = java.io.File(args[0]).readLines()
 fun Int.pow(exp: Int) = toDouble().pow(exp.toDouble()).toInt()
 
 fun String.numWinners(): Int {
-    val (picks, winners) =
+    val (winners, picks) =
         split(':', '|')
             .drop(1)
             .map { it.trim().split(Regex("\\s+")).map { it.toInt() } }
