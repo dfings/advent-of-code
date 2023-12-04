@@ -15,9 +15,7 @@ fun String.numWinners(): Int {
     return (picks intersect winners).size
 }
 
-val total = lines.map { 2.pow(it.numWinners() - 1) }.sum()
-
-println(total)
+println(lines.map { 2.pow(it.numWinners() - 1) }.sum())
 
 val numCards = (0..lines.lastIndex).map { 1 }.toMutableList()
 lines.forEachIndexed { index, line ->
