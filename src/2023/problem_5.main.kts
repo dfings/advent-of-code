@@ -24,11 +24,12 @@ val pages = List(7) { mutableListOf<AlmanacEntry>() }
 
 var i = 0
 for (line in lines.drop(3)) {
-    if (line.isBlank()) i++
-    if (line[0].isDigit()) {
-        line.split(" ").map { it.toLong() }.let {
-            pages[i].add(AlmanacEntry(it[0], it[1], it[2]))
-        }
+    when {
+        line.isBlank() -> i++
+        line[0].isDigit() ->
+            line.split(" ").map { it.toLong() }.let {
+                pages[i].add(AlmanacEntry(it[0], it[1], it[2]))
+            }
     }
 }
 
