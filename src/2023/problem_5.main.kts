@@ -6,8 +6,7 @@ data class AlmanacEntry(val destination: Long, val source: Long, val offset: Lon
     operator fun contains(n: Long) = n >= source && n < source + offset
 }
 
-fun Iterable<AlmanacEntry>.getDestination(n: Long): Long =
-    find { n in it }?.run { n + destination - source } ?: n
+fun Iterable<AlmanacEntry>.getDestination(n: Long): Long = find { n in it }?.run { n + destination - source } ?: n
 
 fun Iterable<AlmanacEntry>.getSplits(r: LongRange): Iterable<Long> =
     (
@@ -33,11 +32,9 @@ for (line in lines.drop(3)) {
     }
 }
 
-println(seeds.minOf { seed -> pages.fold(seed) { acc, page -> page.getDestination(acc) } })
+val locations = seeds.map { seed -> pages.fold(seed) { acc, page -> page.getDestination(acc) } }
+println(locations.min())
 
 val seedRanges = seeds.chunked(2).map { it[0] until it[0] + it[1] }
-println(
-    pages.fold(seedRanges) { acc, page ->
-        acc.flatMap { page.getDestinations(it) }
-    }.minOf { it.start },
-)
+val locationRanges = pages.fold(seedRanges) { acc, page -> acc.flatMap { page.getDestinations(it) } }
+println(locationRanges.minOf { it.start })
