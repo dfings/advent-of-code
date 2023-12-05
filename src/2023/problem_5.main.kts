@@ -9,15 +9,11 @@ data class AlmanacEntry(val destination: Long, val source: Long, val offset: Lon
 fun Iterable<AlmanacEntry>.getDestination(n: Long): Long = find { n in it }?.run { n + destination - source } ?: n
 
 fun Iterable<AlmanacEntry>.getSplits(r: LongRange): Iterable<Long> =
-    buildList {
-        add(r.start)
-        add(r.endInclusive + 1)
-        this@getSplits.filter { r.start < it.source + it.offset && r.endInclusive >= it.source }
-            .forEach { entry ->
-                if (entry.source in r) add(entry.source)
-                if (entry.source + entry.offset in r) add(entry.source + entry.offset)
-            }
-    }.toSortedSet()
+    (
+        listOf(r.start, r.endInclusive + 1) +
+            filter { it.source in r }.map { it.source } +
+            filter { it.source + it.offset in r }.map { it.source + it.offset }
+    ).toSortedSet()
 
 fun Iterable<AlmanacEntry>.getDestinations(r: LongRange): List<LongRange> {
     return getSplits(r).windowed(2).map { getDestination(it[0])..getDestination(it[1] - 1) }
@@ -42,6 +38,6 @@ println(seeds.minOf { seed -> pages.fold(seed) { acc, page -> page.getDestinatio
 val seedRanges = seeds.chunked(2).map { it[0] until it[0] + it[1] }
 println(
     pages.fold(seedRanges) { acc, page ->
-        acc.flatMap { page.getDestinations(it) }.sortedBy { it.start }
+        acc.flatMap { page.getDestinations(it) }
     }.minOf { it.start },
 )
