@@ -12,8 +12,8 @@ fun Iterable<AlmanacEntry>.getDestination(n: Long): Long =
 fun Iterable<AlmanacEntry>.getSplits(r: LongRange): Iterable<Long> =
     (
         listOf(r.start, r.endInclusive + 1) +
-            filter { it.source in r }.map { it.source } +
-            filter { it.source + it.offset in r }.map { it.source + it.offset }
+            map { it.source }.filter { it in r } +
+            map { it.source + it.offset }.filter { it in r }
     ).toSortedSet()
 
 fun Iterable<AlmanacEntry>.getDestinations(r: LongRange): List<LongRange> =
