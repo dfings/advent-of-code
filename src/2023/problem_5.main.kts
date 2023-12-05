@@ -19,10 +19,9 @@ fun Iterable<AlmanacEntry>.getSplits(r: LongRange): Iterable<Long> =
 fun Iterable<AlmanacEntry>.getDestinations(r: LongRange): List<LongRange> =
     getSplits(r).windowed(2).map { getDestination(it[0])..getDestination(it[1] - 1) }
 
-val seeds = lines[0].substringAfter(": ").split(" ").map { it.toLong() }
-val pages = List(7) { mutableListOf<AlmanacEntry>() }
 
 var i = 0
+val pages = List(7) { mutableListOf<AlmanacEntry>() }
 for (line in lines.drop(3)) {
     when {
         line.isBlank() -> i++
@@ -33,6 +32,7 @@ for (line in lines.drop(3)) {
     }
 }
 
+val seeds = lines[0].substringAfter(": ").split(" ").map { it.toLong() }
 val locations = seeds.map { seed -> pages.fold(seed) { acc, page -> page.getDestination(acc) } }
 println(locations.min())
 
