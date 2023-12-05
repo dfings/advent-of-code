@@ -6,7 +6,8 @@ data class AlmanacEntry(val destination: Long, val source: Long, val offset: Lon
     operator fun contains(n: Long) = n >= source && n < source + offset
 }
 
-fun Iterable<AlmanacEntry>.getDestination(n: Long): Long = find { n in it }?.run { n + destination - source } ?: n
+fun Iterable<AlmanacEntry>.getDestination(n: Long): Long = 
+    find { n in it }?.run { n + destination - source } ?: n
 
 fun Iterable<AlmanacEntry>.getSplits(r: LongRange): Iterable<Long> =
     (
@@ -15,9 +16,8 @@ fun Iterable<AlmanacEntry>.getSplits(r: LongRange): Iterable<Long> =
             filter { it.source + it.offset in r }.map { it.source + it.offset }
     ).toSortedSet()
 
-fun Iterable<AlmanacEntry>.getDestinations(r: LongRange): List<LongRange> {
-    return getSplits(r).windowed(2).map { getDestination(it[0])..getDestination(it[1] - 1) }
-}
+fun Iterable<AlmanacEntry>.getDestinations(r: LongRange): List<LongRange> =
+    getSplits(r).windowed(2).map { getDestination(it[0])..getDestination(it[1] - 1) }
 
 val seeds = lines[0].substringAfter(": ").split(" ").map { it.toLong() }
 val pages = List(7) { mutableListOf<AlmanacEntry>() }
