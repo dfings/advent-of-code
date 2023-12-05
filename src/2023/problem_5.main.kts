@@ -41,3 +41,4 @@ println(locations.min())
 
 val seedRanges = seeds.chunked(2).map { it[0] until it[0] + it[1] }
 val locationRanges = pages.fold(seedRanges) { acc, page -> acc.flatMap { page.getDestinations(it) } }
+println(locationRanges.minOf { it.start })
