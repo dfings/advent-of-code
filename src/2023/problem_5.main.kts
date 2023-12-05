@@ -6,7 +6,8 @@ data class AlmanacEntry(val destination: Long, val source: Long, val offset: Lon
     operator fun contains(n: Long) = n >= source && n < source + offset
 }
 
-fun Iterable<AlmanacEntry>.getDestination(n: Long): Long = find { n in it }?.run { n + destination - source } ?: n
+fun Iterable<AlmanacEntry>.getDestination(n: Long): Long =
+    find { n in it }?.run { n + destination - source } ?: n
 
 fun Iterable<AlmanacEntry>.getSplits(r: LongRange): Iterable<Long> =
     (
