@@ -6,7 +6,7 @@ data class AlmanacEntry(val destination: Long, val source: Long, val offset: Lon
     operator fun contains(n: Long) = n >= source && n < source + offset
 }
 
-fun Iterable<AlmanacEntry>.getDestination(n: Long): Long = 
+fun Iterable<AlmanacEntry>.getDestination(n: Long): Long =
     find { n in it }?.run { n + destination - source } ?: n
 
 fun Iterable<AlmanacEntry>.getSplits(r: LongRange): Iterable<Long> =
@@ -24,12 +24,11 @@ val pages = List(7) { mutableListOf<AlmanacEntry>() }
 
 var i = 0
 for (line in lines.drop(3)) {
-    when {
-        line.isBlank() -> i++
-        line[0].isDigit() ->
-            line.split(" ").map { it.toLong() }.let {
-                pages[i].add(AlmanacEntry(it[0], it[1], it[2]))
-            }
+    if (line.isBlank()) i++
+    if (line[0].isDigit()) {
+        line.split(" ").map { it.toLong() }.let {
+            pages[i].add(AlmanacEntry(it[0], it[1], it[2]))
+        }
     }
 }
 
