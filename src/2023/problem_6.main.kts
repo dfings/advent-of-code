@@ -10,6 +10,6 @@ val times = lines[0].parse()
 val distances = lines[1].parse()
 println(times.mapIndexed { i, time -> countWinners(time, distances[i]) }.reduce(Long::times))
 
-val bigTime = times.map { it.toString() }.joinToString("").toLong()
-val bigDistance = distances.map { it.toString() }.joinToString("").toLong()
+val bigTime = times.joinToString("").toLong()
+val bigDistance = distances.joinToString("").toLong()
 println(countWinners(bigTime, bigDistance))
