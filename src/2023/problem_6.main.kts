@@ -3,7 +3,7 @@
 val lines = java.io.File(args[0]).readLines()
 
 fun countWinners(time: Long, distance: Long) =
-    (1..time).count { velocity -> distance < velocity * (time - velocity) }.toLong()
+    (1..<time).count { velocity -> distance < velocity * (time - velocity) }.toLong()
 
 fun String.parse() = substringAfter(":").trim().split(Regex(" +")).map { it.toLong() }
 val (times, distances) = lines.map { it.parse() }
