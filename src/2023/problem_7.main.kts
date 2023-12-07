@@ -36,6 +36,5 @@ fun Hand.withJokers(): Hand {
 fun List<Hand>.score() = foldIndexed(0L) { index, acc, it -> acc + (index + 1) * it.bid }
 
 val hands = lines.map { it.split(" ").let { Hand(it[0].toCards(), it[0].toCards().toType(), it[1].toInt()) } }
-
 println(hands.sortedWith(handComparator).score())
 println(hands.map { it.withJokers() }.sortedWith(handComparator).score())
