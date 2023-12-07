@@ -15,16 +15,15 @@ fun String.toCards(): List<Int> = map { cardMap[it] ?: it - '0' }
 
 fun List<Int>.toType(): Int {
     val noJokers = filter { it != -1 }
-    return noJokers.groupingBy { it }.eachCount().let {
-        when {
-            it.size <= 1 -> 7 // 5 of a kind
-            it.values.any { it == noJokers.size - 1 } -> 6 // 4 of a kind
-            it.size == 2 -> 5 // Full house
-            it.values.any { it == noJokers.size - 2 } -> 4 // 3 of a kind
-            it.size == 3 -> 3 // 2 pair
-            it.size == 4 -> 2 // Pair
-            else -> 1 // High card
-        }
+    val histogram = noJokers.groupingBy { it }.eachCount()
+    return when {
+        histogram.size <= 1 -> 7 // 5 of a kind
+        histogram.values.any { it == noJokers.size - 1 } -> 6 // 4 of a kind
+        histogram.size == 2 -> 5 // Full house
+        histogram.values.any { it == noJokers.size - 2 } -> 4 // 3 of a kind
+        histogram.size == 3 -> 3 // 2 pair
+        histogram.size == 4 -> 2 // Pair
+        else -> 1 // High card
     }
 }
 
