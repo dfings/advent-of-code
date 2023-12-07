@@ -5,7 +5,7 @@ val lines = java.io.File(args[0]).readLines()
 data class Hand(val cards: List<Int>, val type: Int, val bid: Int)
 
 val handComparator =
-    Comparator<Hand> { a, b -> a.type - b.type }
+    compareBy<Hand> { it.type }
         .thenBy { it.cards[0] }.thenBy { it.cards[1] }.thenBy { it.cards[2] }
         .thenBy { it.cards[3] }.thenBy { it.cards[4] }
 
