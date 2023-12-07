@@ -20,7 +20,7 @@ fun List<Int>.toType(): Int {
             it.size <= 1 -> 7
             it.values.any { it == withoutJokers.size - 1 } -> 6
             it.size == 2 -> 5
-            it.values.any { it == 3 - (5 - withoutJokers.size) } -> 4
+            it.values.any { it == withoutJokers.size - 2 } -> 4
             it.size == 3 -> 3
             it.size == 4 -> 2
             else -> 1
