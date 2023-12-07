@@ -17,13 +17,13 @@ fun List<Int>.toType(): Int {
     val withoutJokers = filter { it != -1 }
     return withoutJokers.groupingBy { it }.eachCount().let {
         when {
-            it.size <= 1 -> 7
-            it.values.any { it == withoutJokers.size - 1 } -> 6
-            it.size == 2 -> 5
-            it.values.any { it == withoutJokers.size - 2 } -> 4
-            it.size == 3 -> 3
-            it.size == 4 -> 2
-            else -> 1
+            it.size <= 1 -> 7 // 5 of a kind
+            it.values.any { it == withoutJokers.size - 1 } -> 6 // 4 of a kind
+            it.size == 2 -> 5 // Full house
+            it.values.any { it == withoutJokers.size - 2 } -> 4 // 3 of a kind
+            it.size == 3 -> 3 // 2 pair
+            it.size == 4 -> 2 // Pair
+            else -> 1 // High card
         }
     }
 }
