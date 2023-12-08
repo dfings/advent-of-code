@@ -27,4 +27,4 @@ tailrec fun gcd(x: Long, y: Long): Long = if (y == 0L) x else gcd(y, x % y)
 fun lcm(x: Long, y: Long): Long = (x * y) / gcd(x, y)
 
 val lengths = map.keys.filter { it.endsWith('A') }.map { pathLength(it) { it.endsWith('Z') } } 
-println(lengths.fold(1L, this::lcm))
+println(lengths.fold(1L, ::lcm))
