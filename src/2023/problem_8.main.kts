@@ -11,7 +11,7 @@ fun String.parse(): Pair<String, List<String>> {
 val directions = lines[0]
 val map = lines.drop(2).map { it.parse() }.toMap()
 
-fun pathLength(start: String, done: (String) -> Boolean): Int {
+fun pathLength(start: String, done: (String) -> Boolean): Long {
     var node = start
     var step = 0
     while (!done(node)) {
@@ -19,7 +19,7 @@ fun pathLength(start: String, done: (String) -> Boolean): Int {
         node = map.getValue(node).get(if (d == 'L') 0 else 1)
         step++
     }
-    return step
+    return step.toLong()
 }
 println(pathLength("AAA") { it == "ZZZ" })
 
@@ -27,4 +27,4 @@ tailrec fun gcd(x: Long, y: Long): Long = if (y == 0L) x else gcd(y, x % y)
 fun lcm(x: Long, y: Long): Long = (x * y) / gcd(x, y)
 
 val lengths = map.keys.filter { it.endsWith('A') }.map { pathLength(it) { it.endsWith('Z') } } 
-println(lengths.fold(1L) { acc, it -> lcm(acc, it.toLong()) })
+println(lengths.fold(1L, this::lcm))
