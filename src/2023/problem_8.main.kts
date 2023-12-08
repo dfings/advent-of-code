@@ -2,9 +2,8 @@
 
 val lines = java.io.File(args[0]).readLines()
 
-val regex = Regex("""(...) = \((...), (...)\)""")
-
 fun String.parse(): Pair<String, List<String>> {
+    val regex = Regex("""(...) = \((...), (...)\)""")
     val (node, left, right) = regex.find(this)!!.destructured
     return node to listOf(left, right)
 }
