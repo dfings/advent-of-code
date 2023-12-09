@@ -2,11 +2,13 @@
 
 val lines = java.io.File(args[0]).readLines()
 
-fun nextValue(start: List<Long>): Long {
-    val seq = generateSequence(start) { it.windowed(2) { (a, b) -> b - a }}
-    val lists = seq.takeWhile { it.any { it != 0L } }.toList()
-    return lists.foldRight(0L) { it: List<Long>, acc: Long -> acc + it.last() }
-}
+fun List<Long>.getSequences() =
+    generateSequence(this) { it.windowed(2) { (a, b) -> b - a }}
+        .takeWhile { it.any { it != 0L } }.toList()
 
-val input = lines.map { it.split(" ").map { it.toLong() } }
-println(input.map { nextValue(it) }.sum())
+fun List<List<Long>>.nextValue() = foldRight(0L) { it, acc -> it.last() + acc}
+fun List<List<Long>>.previousValue() = foldRight(0L) { it, acc -> it.first() - acc }
+
+val input = lines.map { it.split(" ").map { it.toLong() }.getSequences() }
+println(input.map { it.nextValue() }.sum())
+println(input.map { it.previousValue() }.sum())
