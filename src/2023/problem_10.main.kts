@@ -18,12 +18,12 @@ val xMax = lines[0].lastIndex
 fun Point.symbol() = lines[y][x]
 fun Point.move(d: Dir) = Point(x + d.dx, y + d.dy)
 fun Point.isValid() = x >= 0 && x <= xMax && y >= 0 && y <= yMax
-fun Point.isValid(d: Dir) = move(d).let { it.isValid() && it.symbol() in nextDir.getValue(d).keys }
 
-val (y, line) = lines.withIndex().find { it.value.any { it == 'S' } }!!
-val animal = Point(line.indexOf('S'), y)
-
-var lastMove = Dir.values().first { animal.isValid(it) }
+val animal = lines.withIndex().find { it.value.any { it == 'S' } }!!
+    .let { (y, line) -> Point(line.indexOf('S'), y) }
+var lastMove = Dir.values().first { d -> 
+    animal.move(d).let { it.isValid() && it.symbol() in nextDir.getValue(d).keys } 
+}
 var current = animal.move(lastMove)
 val path = mutableListOf(current)
 while (current != animal) {
