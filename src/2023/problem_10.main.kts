@@ -43,14 +43,14 @@ val projectedPath = path.flatMap {
     }
 }.toSet()
 
-fun Point.isValidProjected() = x >= -1 && y >= -1 && x <= 2 * (xMax + 1) &&  y <= 2 * (yMax + 1)
+fun Point.isValidProjected() = x >= -1 && y >= -1 && x <= 2 * (xMax + 1) && y <= 2 * (yMax + 1)
 fun Point.neighbors() = Dir.values().map { move(it) }.filter { it.isValidProjected() }
 
 val seen = mutableSetOf(Point(-1, -1))
 val frontier = ArrayDeque<Point>(Point(-1, -1).neighbors().filter { it !in projectedPath })
 while (!frontier.isEmpty()) {
     val point = frontier.removeFirst()
-    for (next in point.neighbors().filter{ it !in projectedPath }) {
+    for (next in point.neighbors().filter { it !in projectedPath }) {
         if (seen.add(next)) frontier.add(next)
     }
 }
