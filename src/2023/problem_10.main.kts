@@ -14,7 +14,7 @@ val nextDir = mapOf(
 
 val yMax = lines.lastIndex
 val xMax = lines[0].lastIndex
- 
+
 fun Point.symbol() = lines[y][x]
 fun Point.move(d: Dir) = Point(x + d.dx, y + d.dy)
 fun Point.isValid() = x >= 0 && x <= xMax && y >= 0 && y <= yMax
