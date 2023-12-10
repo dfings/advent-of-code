@@ -12,12 +12,9 @@ val nextDir = mapOf(
     Dir.WEST to mapOf('-' to Dir.WEST, 'L' to Dir.NORTH, 'F' to Dir.SOUTH),
 )
 
-val yMax = lines.lastIndex
-val xMax = lines[0].lastIndex
-
 fun Point.symbol() = lines[y][x]
 fun Point.move(d: Dir) = Point(x + d.dx, y + d.dy)
-fun Point.isValid() = x >= 0 && x <= xMax && y >= 0 && y <= yMax
+fun Point.isValid() = x >= 0 && x < lines[0].length && y >= 0 && y < lines.size
 
 val animal = lines.withIndex().find { it.value.any { it == 'S' } }!!
     .let { (y, line) -> Point(line.indexOf('S'), y) }
@@ -43,7 +40,7 @@ val projectedPath = path.flatMap {
     }
 }.toSet()
 
-fun Point.isValidProjected() = x >= -1 && y >= -1 && x <= 2 * (xMax + 1) && y <= 2 * (yMax + 1)
+fun Point.isValidProjected() = x >= -1 && y >= -1 && x <= 2 * lines[0].length && y <= 2 * lines.size
 fun Point.neighbors() = Dir.values().map { move(it) }.filter { it.isValidProjected() }
 
 val seen = mutableSetOf(Point(-1, -1))
@@ -56,5 +53,7 @@ while (!frontier.isEmpty()) {
 }
 
 fun Point.isInterior() = Point(2 * x, 2 * y).let { it !in seen && it !in projectedPath }
-var count = (0..xMax).sumOf { x -> (0..yMax).map { y -> if (Point(x, y).isInterior()) 1 else 0 }.sum() }
+var count = lines[0].indices.sumOf { x -> 
+    lines.indices.sumOf { y -> (if (Point(x, y).isInterior()) 1 else 0) as Int }
+}
 println(count)
