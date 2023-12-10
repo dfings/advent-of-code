@@ -10,23 +10,50 @@ val nextDir = mapOf(
     Dir.WEST to mapOf('-' to Dir.WEST, 'L' to Dir.NORTH, 'F' to Dir.SOUTH),
 )
 
-data class Point(val x: Int, val y: Int) {
-    fun move(d: Dir) = Point(x + d.dx, y + d.dy)
-    fun isValid() = x >= 0 && x < lines[0].length && y >= 0 && y < lines.size
-    fun isValid(d: Dir) = move(d).let { it.isValid() &&it.symbol() in nextDir.getValue(d).keys }
-    fun symbol() = lines[y][x]
-}
+data class Point(val x: Int, val y: Int)
+
+val yMax = lines.lastIndex
+val xMax = lines[0].lastIndex
+ 
+fun Point.symbol() = lines[y][x]
+fun Point.move(d: Dir) = Point(x + d.dx, y + d.dy)
+fun Point.isValid() = x >= 0 && x <= xMax && y >= 0 && y <= yMax
+fun Point.isValid(d: Dir) = move(d).let { it.isValid() && it.symbol() in nextDir.getValue(d).keys }
 
 val (y, line) = lines.withIndex().find { it.value.any { it == 'S' } }!!
 val animal = Point(line.indexOf('S'), y)
 
 var lastMove = Dir.values().first { animal.isValid(it) }
 var current = animal.move(lastMove)
-var step = 1
+val path = mutableListOf(current)
 while (current != animal) {
     lastMove = nextDir.getValue(lastMove).getValue(current.symbol())
     current = current.move(lastMove)
-    step++
+    path.add(current)
+}
+println(path.size / 2)
+
+val projectedPath = path.flatMap {
+    val p = Point(2 * it.x, 2 * it.y)
+    when (it.symbol()) {
+        '|', '7' -> listOf(p.move(Dir.SOUTH))
+        '-', 'L' -> listOf(p.move(Dir.EAST))
+        'F', 'S' -> listOf(p.move(Dir.SOUTH), p.move(Dir.EAST))
+        else -> emptyList()
+    } + p
+}.toSet()
+
+fun Point.isValidProjected() = x >= -1 && y >= -1 && x <= 2 * (xMax + 1) &&  y <= 2 * (yMax + 1)
+fun Point.neighbors() = Dir.values().map { move(it) }.filter { it.isValidProjected() }
+val seen = mutableSetOf(Point(-1, -1))
+val frontier = ArrayDeque<Point>(Point(-1, -1).neighbors().filter { it !in projectedPath })
+while (!frontier.isEmpty()) {
+    val point = frontier.removeFirst()
+    for (next in point.neighbors().filter{ it !in projectedPath }) {
+        if (seen.add(next)) frontier.add(next)
+    }
 }
 
-println(step / 2)
+fun Point.isInterior() = Point(2 * x, 2 * y).let { it !in seen && it !in projectedPath }
+var count = (0..xMax).sumOf { x -> (0..yMax).map { y -> if (Point(x, y).isInterior()) 1 else 0 }.sum() }
+println(count)
