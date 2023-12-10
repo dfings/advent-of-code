@@ -36,11 +36,11 @@ println(path.size / 2)
 val projectedPath = path.flatMap {
     val p = Point(2 * it.x, 2 * it.y)
     when (it.symbol()) {
-        '|', '7' -> listOf(p.move(Dir.SOUTH))
-        '-', 'L' -> listOf(p.move(Dir.EAST))
-        'F', 'S' -> listOf(p.move(Dir.SOUTH), p.move(Dir.EAST))
-        else -> emptyList()
-    } + p
+        '|', '7' -> listOf(p, p.move(Dir.SOUTH))
+        '-', 'L' -> listOf(p, p.move(Dir.EAST))
+        'F', 'S' -> listOf(p, p.move(Dir.SOUTH), p.move(Dir.EAST))
+        else -> listOf(p)
+    }
 }.toSet()
 
 fun Point.isValidProjected() = x >= -1 && y >= -1 && x <= 2 * (xMax + 1) &&  y <= 2 * (yMax + 1)
