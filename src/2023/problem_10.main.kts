@@ -2,15 +2,15 @@
 
 val lines = java.io.File(args[0]).readLines()
 
+data class Point(val x: Int, val y: Int)
 enum class Dir(val dx: Int, val dy: Int) { NORTH(0, -1), SOUTH(0, 1), EAST(1, 0), WEST(-1, 0) }
+
 val nextDir = mapOf(
     Dir.NORTH to mapOf('|' to Dir.NORTH, '7' to Dir.WEST, 'F' to Dir.EAST),
     Dir.SOUTH to mapOf('|' to Dir.SOUTH, 'J' to Dir.WEST, 'L' to Dir.EAST),
     Dir.EAST to mapOf('-' to Dir.EAST, 'J' to Dir.NORTH, '7' to Dir.SOUTH),
     Dir.WEST to mapOf('-' to Dir.WEST, 'L' to Dir.NORTH, 'F' to Dir.SOUTH),
 )
-
-data class Point(val x: Int, val y: Int)
 
 val yMax = lines.lastIndex
 val xMax = lines[0].lastIndex
