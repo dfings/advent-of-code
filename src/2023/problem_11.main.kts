@@ -19,7 +19,7 @@ fun galaxies(e: Long) = lines.flatMapIndexed { y, line ->
 }
 
 fun allPairs(points: Iterable<Point>): Iterable<Pair<Point, Point>> =
-  points.flatMap { a -> points.mapNotNull { b -> a to b } }
+  points.flatMap { a -> points.map { b -> a to b } }
 
 fun distance(a: Point, b: Point) = abs(b.x - a.x) + abs(b.y - a.y)
 fun distances(points: Iterable<Point>) = allPairs(points).sumOf { (a, b) -> distance(a, b) } / 2
