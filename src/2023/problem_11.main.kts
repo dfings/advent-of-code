@@ -10,7 +10,7 @@ val rowsToExpand = lines.indices.filter { y -> '#' !in lines[y] }
 val colsToExpand = lines[0].indices.filter { x -> lines.none { it[x] == '#' } }
 
 fun makePoint(x: Int, y: Int, e: Int) = Point(
-    x.toLong() + colsToExpand.count { x > it } * (e -1), 
+    x.toLong() + colsToExpand.count { x > it } * (e - 1), 
     y.toLong() + rowsToExpand.count { y > it } * (e - 1)
 )
 
