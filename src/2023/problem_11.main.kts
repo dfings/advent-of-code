@@ -18,11 +18,11 @@ fun galaxies(e: Long) = lines.flatMapIndexed { y, line ->
   line.mapIndexedNotNull { x, char -> if (char == '#') makePoint(x, y, e) else null }
 }
 
-fun allPairs(points: Iterable<Point>): Iterable<Pair<Point, Point>> =
-  points.flatMap { a -> points.map { b -> a to b } }
+fun allPairs(points: List<Point>): List<Pair<Point, Point>> =
+  points.flatMapIndexed { i, a -> points.subList(i + 1, points.size).map { b -> a to b } }
 
 fun distance(a: Point, b: Point) = abs(b.x - a.x) + abs(b.y - a.y)
-fun distances(points: Iterable<Point>) = allPairs(points).sumOf { (a, b) -> distance(a, b) } / 2
+fun distances(points: List<Point>) = allPairs(points).sumOf { (a, b) -> distance(a, b) }
 
 println(distances(galaxies(2)))
 println(distances(galaxies(1000000)))
