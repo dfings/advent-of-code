@@ -12,6 +12,6 @@ val distances = firstList.zip(secondList).map { (x, y) -> abs(x - y) }
 println(distances.sum())
 
 // Part 2
-val frequencies = secondList.groupBy { it }.mapValues { it.value.size }
+val frequencies = secondList.groupingBy { it }.eachCount()
 val similarities = firstList.map { it * (frequencies[it] ?: 0) }
 println(similarities.sum())
