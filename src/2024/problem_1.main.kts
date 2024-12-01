@@ -3,7 +3,7 @@
 import kotlin.math.abs
 
 val lines = java.io.File(args[0]).readLines()
-val parsed = lines.map { it.split("   ").map { it.toInt() }}
+val parsed = lines.map { it.split("   ").map { it.toInt() } }
 val firstList = parsed.map { it[0] }.sorted()
 val secondList = parsed.map { it[1] }.sorted()
 
