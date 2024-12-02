@@ -1,7 +1,5 @@
 #!/usr/bin/env kotlin
 
-import kotlin.math.abs
-
 val lines = java.io.File(args[0]).readLines()
 val reports = lines.map { it.split(" ").map { it.toInt() } }
 
