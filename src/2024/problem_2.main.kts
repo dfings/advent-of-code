@@ -9,10 +9,9 @@ fun List<Int>.isSafe() = zipWithNext().all { it.isSafe() }
 println(reports.count { it.isSafe() || it.reversed().isSafe() })
 
 // Part 2
+fun List<Int>.omit(index: Int) = filterIndexed { i, _ -> i != index }
 fun List<Int>.isSafe2() : Boolean {
     val badIndex = zipWithNext().indexOfFirst { !it.isSafe() }
-    return badIndex == -1 ||
-        filterIndexed { i, _ -> i != badIndex }.isSafe() ||
-        filterIndexed { i, _ -> i != badIndex + 1 }.isSafe()
+    return badIndex == -1 || omit(badIndex).isSafe() || omit(badIndex + 1).isSafe()
 }
 println(reports.count { it.isSafe2() || it.reversed().isSafe2() })
