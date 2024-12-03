@@ -11,12 +11,11 @@ println(lines.flatMap { pattern.findAll(it) }.sumOf { it.mul() })
 // Part 2
 val pattern2 = Regex("""mul\((\d+),(\d+)\)|do\(\)|don't\(\)""")
 var enabled = true
-var total = 0
-for (match in lines.flatMap { pattern2.findAll(it) }) {
-    when (match.value) {
+val total = lines.flatMap { pattern2.findAll(it) }.sumOf {
+    when (it.value) {
         "do()" -> enabled = true
         "don't()" -> enabled = false
-        else -> if (enabled) total += match.mul()
     }
+    if (enabled && it.value[0] == 'm') it.mul() else 0
 }
 println(total)
