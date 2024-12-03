@@ -6,7 +6,7 @@ fun MatchResult.mul() = groupValues[1].toInt() * groupValues[2].toInt()
 
 // Part 1
 val pattern = Regex("""mul\((\d+),(\d+)\)""")
-println(lines.flatMap { pattern.findAll(it) }.map { it.mul() }.sum())
+println(lines.flatMap { pattern.findAll(it) }.sumOf { it.mul() })
 
 // Part 2
 val pattern2 = Regex("""mul\((\d+),(\d+)\)|do\(\)|don't\(\)""")
