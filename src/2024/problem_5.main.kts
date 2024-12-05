@@ -17,7 +17,7 @@ fun findInvalidIndex(update: List<String>): Int {
     return -1
 }
 
-fun sortInvalid(update: List<String>): List<String> {
+fun sortUpdate(update: List<String>): List<String> {
     val newUpdate = update.toMutableList()
     var i = findInvalidIndex(newUpdate)
     while (i != -1) {
@@ -34,4 +34,4 @@ fun List<String>.midpoint() = this[lastIndex / 2].toInt()
 
 val (validUpdates, invalidUpdates) = updates.partition { isValid(it) }
 println(validUpdates.sumOf { it.midpoint() })
-println(invalidUpdates.map { sortInvalid(it) }.sumOf { it.midpoint() })
+println(invalidUpdates.map { sortUpdate(it) }.sumOf { it.midpoint() })
