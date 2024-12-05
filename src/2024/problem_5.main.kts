@@ -34,4 +34,4 @@ fun List<String>.midpoint() = this[lastIndex / 2].toInt()
 
 val (validUpdates, invalidUpdates) = updates.partition { isValid(it) }
 println(validUpdates.sumOf { it.midpoint() })
-println(invalidUpdates.map { sortUpdate(it) }.sumOf { it.midpoint() })
+println(invalidUpdates.sumOf { sortUpdate(it).midpoint() })
