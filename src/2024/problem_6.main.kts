@@ -11,14 +11,14 @@ data class Guard(val p: Point, val d: Dir) {
     fun turn() = Guard(p, turnMap.getValue(d))
 }
 
-fun walk(map: Map<Point, Char>, guard: Guard): Set<Guard>? {
-    var current = guard
+fun walk(map: Map<Point, Char>, start: Guard): Set<Guard>? {
+    var guard = start
     val seen = mutableSetOf<Guard>()
     while (true) {
-        if (current in seen) return null
-        if (current.p !in map) return seen
-        seen += current
-        current = current.move().let { if (map[it.p] == '#') current.turn() else it }
+        if (guard in seen) return null
+        if (guard.p !in map) return seen
+        seen += guard
+        guard = guard.move().let { if (map[it.p] == '#') guard.turn() else it }
     }
 }
 
