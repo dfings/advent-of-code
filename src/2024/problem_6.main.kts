@@ -4,20 +4,15 @@ enum class Dir(val x: Int, val y: Int) {
     N(0, -1), E(1, 0), S(0, 1), W(-1, 0)  // y increases S
 }
 
-data class Point(val x: Int, val y: Int) {
-    fun move(d: Dir) = Point(x + d.x, y + d.y)
-}
-
 val turnMap = mapOf(Dir.N to Dir.E, Dir.E to Dir.S, Dir.S to Dir.W, Dir.W to Dir.N)
+data class Point(val x: Int, val y: Int)
 data class Guard(val p: Point, val d: Dir) {
-    fun move() = Guard(p.move(d), d)
+    fun move() = Guard(Point(p.x + d.x, p.y + d.y), d)
     fun turn() = Guard(p, turnMap.getValue(d))
 }
 
 class Grid(val points: Map<Point, Char>) {
     fun get(p: Point) = points[p] ?: '.'
-    fun isObstacle(p: Point) = get(p) == '#'
-    fun withObstacle(p: Point) = Grid(points.toMutableMap().apply { put(p, '#') })
 }
 
 fun walk(grid: Grid, guard: Guard): Set<Guard>? {
@@ -28,7 +23,7 @@ fun walk(grid: Grid, guard: Guard): Set<Guard>? {
         if (current.p !in grid.points) return seen
         seen += current
         val next = current.move()
-        current = if (grid.isObstacle(next.p)) current.turn() else next
+        current = if (grid.get(next.p) == '#') current.turn() else next
     }
 }
 
@@ -40,5 +35,6 @@ val guard = Guard(grid.points.keys.first { grid.get(it) == '^' }, Dir.N)
 val points = walk(grid, guard)?.map { it.p }?.toSet()
 println(points?.size)
 
+fun Grid.withObstacle(p: Point) = Grid(points.toMutableMap().apply { put(p, '#') })
 val loopCount = points?.count { walk(grid.withObstacle(it), guard) == null }
 println(loopCount)
