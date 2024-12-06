@@ -24,10 +24,10 @@ fun walk(map: Map<Point, Char>, start: Guard): Set<Guard>? {
 
 val lines = java.io.File(args[0]).readLines()
 val map = lines.flatMapIndexed { y, line -> line.mapIndexed { x, char -> Point(x, y) to char }}.toMap()
-val guard = Guard(map.keys.first { map[it] == '^' }, Dir.N)
-val seen = walk(map, guard)?.map { it.p }?.toSet()
+val start = Guard(map.keys.first { map[it] == '^' }, Dir.N)
+val seen = walk(map, start)?.map { it.p }?.toSet()
 println(seen?.size)
 
 fun Map<Point, Char>.withObstacle(p: Point) = toMutableMap().apply { put(p, '#') }
-val loopCount = seen?.count { walk(map.withObstacle(it), guard) == null }
+val loopCount = seen?.count { walk(map.withObstacle(it), start) == null }
 println(loopCount)
