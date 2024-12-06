@@ -11,24 +11,24 @@ data class Guard(val p: Point, val d: Dir) {
     fun turn() = Guard(p, turnMap.getValue(d))
 }
 
-fun walk(points: Map<Point, Char>, guard: Guard): Set<Guard>? {
+fun walk(map: Map<Point, Char>, guard: Guard): Set<Guard>? {
     var current = guard
     val seen = mutableSetOf<Guard>()
     while (true) {
         if (current in seen) return null
-        if (current.p !in points) return seen
+        if (current.p !in map) return seen
         seen += current
         val next = current.move()
-        current = if (points[next.p] == '#') current.turn() else next
+        current = if (map[next.p] == '#') current.turn() else next
     }
 }
 
 val lines = java.io.File(args[0]).readLines()
-val points = lines.flatMapIndexed { y, line -> line.mapIndexed { x, char -> Point(x, y) to char }}.toMap()
-val guard = Guard(points.keys.first { points[it] == '^' }, Dir.N)
-val seen = walk(points, guard)?.map { it.p }?.toSet()
+val map = lines.flatMapIndexed { y, line -> line.mapIndexed { x, char -> Point(x, y) to char }}.toMap()
+val guard = Guard(map.keys.first { map[it] == '^' }, Dir.N)
+val seen = walk(map, guard)?.map { it.p }?.toSet()
 println(seen?.size)
 
 fun Map<Point, Char>.withObstacle(p: Point) = toMutableMap().apply { put(p, '#') }
-val loopCount = seen?.count { walk(points.withObstacle(it), guard) == null }
+val loopCount = seen?.count { walk(map.withObstacle(it), guard) == null }
 println(loopCount)
