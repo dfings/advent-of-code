@@ -18,8 +18,7 @@ fun walk(map: Map<Point, Char>, guard: Guard): Set<Guard>? {
         if (current in seen) return null
         if (current.p !in map) return seen
         seen += current
-        val next = current.move()
-        current = if (map[next.p] == '#') current.turn() else next
+        current = current.move().let { if (map[it.p] == '#') current.turn() else it }
     }
 }
 
