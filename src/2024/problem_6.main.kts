@@ -17,21 +17,18 @@ data class Guard(val p: Point, val d: Dir) {
 class Grid(val points: Map<Point, Char>) {
     fun get(p: Point) = points[p] ?: '.'
     fun isObstacle(p: Point) = get(p) == '#'
-    fun addObstacle(p: Point) = Grid(points.toMutableMap().apply { put(p, '#') })
-    fun findGuard() = points.keys.first { get(it) == '^' }
+    fun withObstacle(p: Point) = Grid(points.toMutableMap().apply { put(p, '#') })
 }
 
-class State(val grid: Grid) {
-    var guard = Guard(grid.findGuard(), Dir.N)
+fun walk(grid: Grid, guard: Guard): Set<Guard>? {
+    var current = guard
     val seen = mutableSetOf<Guard>()
-    var loop = false
-    fun run() {
-        while (guard !in seen && guard.p in grid.points) {
-            seen += guard
-            val next = guard.move()
-            guard = if (grid.isObstacle(next.p)) guard.turn() else next
-        }
-        loop = guard.p in grid.points
+    while (true) {
+        if (current in seen) return null
+        if (current.p !in grid.points) return seen
+        seen += current
+        val next = current.move()
+        current = if (grid.isObstacle(next.p)) current.turn() else next
     }
 }
 
@@ -39,15 +36,9 @@ val lines = java.io.File(args[0]).readLines()
 val grid = Grid(
     lines.flatMapIndexed { y, line -> line.mapIndexed { x, char -> Point(x, y) to char }}.toMap()
 )
-val state = State(grid)
-state.run()
-val points = state.seen.map { it.p }.toSet()
-println(points.size)
+val guard = Guard(grid.points.keys.first { grid.get(it) == '^' }, Dir.N)
+val points = walk(grid, guard)?.map { it.p }?.toSet()
+println(points?.size)
 
-var loopCount = 0
-for (point in points - grid.findGuard()) {
-    val newState = State(grid.addObstacle(point))
-    newState.run()
-    if (newState.loop) loopCount++
-}
+val loopCount = points?.count { walk(grid.withObstacle(it), guard) == null }
 println(loopCount)
