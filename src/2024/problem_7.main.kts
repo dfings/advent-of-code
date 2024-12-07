@@ -6,9 +6,9 @@ fun String.toEquation() = Equation(
     substringAfter(": ").split(" ").map { it.toLong() }
 )
 
-enum class Operator { ADD, TIMES, CONCAT }
+enum class Operator { PLUS, TIMES, CONCAT }
 operator fun Operator.invoke(a: Long, b: Long) = when (this) {
-    Operator.ADD -> a + b
+    Operator.PLUS -> a + b
     Operator.TIMES -> a * b
     Operator.CONCAT -> "$a$b".toLong()
 }
