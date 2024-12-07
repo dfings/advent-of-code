@@ -7,14 +7,14 @@ fun String.toEquation() = Equation(
 )
 
 enum class Operator { ADD, TIMES, CONCAT }
-fun Operator.apply(a: Long, b: Long) = when (this) {
+operator fun Operator.invoke(a: Long, b: Long) = when (this) {
     Operator.ADD -> a + b
     Operator.TIMES -> a * b
     Operator.CONCAT -> "$a$b".toLong()
 }
 
 fun Equation.checkRecusive(subtotal: Long, index: Int, op: Operator, validOps: List<Operator>): Boolean {
-    val newSubtotal = op.apply(subtotal, values[index])
+    val newSubtotal = op(subtotal, values[index])
     if (newSubtotal > total) return false
     if (index == values.lastIndex) return newSubtotal == total
     return validOps.any { newOp -> checkRecusive(newSubtotal, index + 1, newOp, validOps) }
