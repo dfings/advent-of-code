@@ -16,9 +16,9 @@ operator fun Operator.invoke(a: Long, b: Long) = when (this) {
 fun Equation.checkRecusive(subtotal: Long, index: Int, op: Operator, validOps: List<Operator>): Boolean {
     val newSubtotal = op(subtotal, values[index])
     return when {
-       newSubtotal > total -> false
-       index == values.lastIndex -> newSubtotal == total
-       else -> validOps.any { newOp -> checkRecusive(newSubtotal, index + 1, newOp, validOps) }
+        newSubtotal > total -> false
+        index == values.lastIndex -> newSubtotal == total
+        else -> validOps.any { newOp -> checkRecusive(newSubtotal, index + 1, newOp, validOps) }
     }
 }
 
