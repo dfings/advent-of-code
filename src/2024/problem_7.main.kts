@@ -27,20 +27,3 @@ val lines = java.io.File(args[0]).readLines()
 val equations = lines.map { it.toEquation() }
 println(equations.filter { it.check(Operator.entries.take(2)) }.sumOf { it.total })
 println(equations.filter { it.check(Operator.entries) }.sumOf { it.total })
-
-// This is the first way I solved the problem.
-fun Equation.checkOriginal(): Boolean {
-    val combos = (2 shl values.size) - 1
-    for (i in 0..combos) {
-        var result = values[0]
-        for (j in 1..values.lastIndex) {
-            when ((i shr j) and 1) {
-                0 -> result += values[j]
-                1 -> result *= values[j]
-            }
-            if (result > total) break
-        }
-        if (total == result) return true
-    }
-    return false
-}
