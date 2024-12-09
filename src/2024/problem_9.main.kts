@@ -17,9 +17,7 @@ fun defrag(fIn: List<Int>): List<Int> {
     for (i in fOut.indices) {
         if (fOut[i] != -1) continue    
         if (i < j) java.util.Collections.swap(fOut, i, j)
-        do {
-            j--
-        } while (fOut[j] == -1)
+        while (fOut[--j] == -1) {}
     }
     return fOut
 }
@@ -29,8 +27,7 @@ fun List<Int>.findFreeSpace(needed: Int): Int {
     var count = 0
     for (i in indices) {
         if (get(i) == -1) {
-            if (count == 0) start = i
-            count++
+            if (count++ == 0) start = i
             if (count >= needed) return start
         } else {
             count = 0
