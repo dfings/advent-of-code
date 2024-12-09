@@ -5,10 +5,7 @@ fun parse(diskMap: List<Int>): List<Int> {
     var index = 0
     for (i in diskMap.indices) {
         for (j in 0..<diskMap[i]) {
-            if (i % 2 == 0) {
-                filesystem[index] = i / 2
-            }
-            index++
+            filesystem[index++] = if (i % 2 == 0) i / 2 else -1
         }
     }
     return filesystem
