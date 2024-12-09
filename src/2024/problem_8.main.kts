@@ -21,7 +21,7 @@ class Antenna(val grid: List<String>) {
         return generateSequence(b) { Point(it.x + v.dx, it.y + v.dy) }.takeWhile(this::isInRange)
     }
 
-    fun pairwiseAntinodes(points: Collection<Point>, select: (Sequence<Point>) -> Sequence<Point>) = 
+    fun pairwiseAntinodes(points: Iterable<Point>, select: (Sequence<Point>) -> Sequence<Point>) = 
         points.allPairs().flatMap { (a, b) -> select(generateAntinodes(a, b)) }
 
     fun countAntinodes(select: (Sequence<Point>) -> Sequence<Point>) = 
