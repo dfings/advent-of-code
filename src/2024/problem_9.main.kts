@@ -40,17 +40,17 @@ fun List<Int>.findFreeSpace(needed: Int): Int {
 
 fun defrag2(fIn: List<Int>): List<Int> {
     val fOut = fIn.toMutableList()
-    var j = fOut.indexOfLast { it != -1 }
-    while (j > 0) {
-        val jStart = fOut.subList(0, j).indexOfLast { it != fOut[j] } + 1
-        val size = j - jStart + 1
-        val freeSpaceIndex = fOut.findFreeSpace(size)
-        if (freeSpaceIndex != -1 && j > freeSpaceIndex) {
-            for (k in 0..<size) {
-                java.util.Collections.swap(fOut, j - k, freeSpaceIndex + k)
+    var fileEnd = fOut.indexOfLast { it != -1 }
+    while (fileEnd > 0) {
+        val fileStart = fOut.subList(0, fileEnd).indexOfLast { it != fOut[fileEnd] } + 1
+        val fileSize = fileEnd - fileStart + 1
+        val freeSpaceIndex = fOut.findFreeSpace(fileSize)
+        if (freeSpaceIndex != -1 && fileEnd > freeSpaceIndex) {
+            for (k in 0 until fileSize) {
+                java.util.Collections.swap(fOut, fileStart + k, freeSpaceIndex + k)
             }
         }
-        j = fOut.subList(0, jStart).indexOfLast { it != -1 }
+        fileEnd = fOut.subList(0, fileStart).indexOfLast { it != -1 }
     }
     return fOut
 }
