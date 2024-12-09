@@ -15,6 +15,7 @@ fun defrag(fIn: List<Int>): List<Int> {
     val fOut = fIn.toMutableList()
     var j = fOut.indexOfLast { it != -1 }
     for (i in fOut.indices) {
+        if (i > j) break
         if (fOut[i] != -1) continue    
         if (i < j) java.util.Collections.swap(fOut, i, j)
         while (fOut[--j] == -1) {}
