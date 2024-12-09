@@ -4,7 +4,7 @@ fun <T> Iterable<T>.allPairs() =
     flatMap { i -> mapNotNull { j -> if(i == j) null else i to j }}
 
 data class Point(val x: Int, val y: Int)
-class Antenna(val grid: List<String>) {
+class Antenna(grid: List<String>) {
     val xRange = 0..grid[0].lastIndex
     val yRange = 0..grid.lastIndex
     val frequencyPoints = xRange.flatMap { x -> yRange.map { y -> grid[y][x] to Point(x, y) } }
