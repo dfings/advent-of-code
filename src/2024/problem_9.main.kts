@@ -2,10 +2,10 @@
 
 fun parse(diskMap: List<Int>): List<Int> {
     val filesystem = MutableList(diskMap.sum()) { -1 }
-    var index = 0
+    var block = 0
     for (i in diskMap.indices) {
-        for (j in 0 until diskMap[i]) {
-            filesystem[index++] = if (i % 2 == 0) i / 2 else -1
+        repeat (diskMap[i]) {
+            filesystem[block++] = if (i % 2 == 0) i / 2 else -1
         }
     }
     return filesystem
