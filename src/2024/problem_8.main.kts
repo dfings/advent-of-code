@@ -14,11 +14,11 @@ class Antenna(val grid: List<String>) {
         .filter { it.first != '.' }
         .groupBy( { it.first }, { it.second })
 
-    fun isInRange(p: Point) = p.x in xRange && p.y in yRange
+    operator fun contains(p: Point) = p.x in xRange && p.y in yRange
 
     fun generateAntinodes(a: Point, b: Point): Sequence<Point> {
         val v = Vector(a, b)
-        return generateSequence(b) { Point(it.x + v.dx, it.y + v.dy) }.takeWhile(this::isInRange)
+        return generateSequence(b) { Point(it.x + v.dx, it.y + v.dy) }.takeWhile { it in this }
     }
 
     fun pairwiseAntinodes(points: Iterable<Point>, select: (Sequence<Point>) -> Sequence<Point>) = 
