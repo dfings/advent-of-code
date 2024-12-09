@@ -7,7 +7,7 @@ data class Point(val x: Int, val y: Int)
 class Antenna(val grid: List<String>) {
     val xRange = 0..grid[0].lastIndex
     val yRange = 0..grid.lastIndex
-    val frequencyMap = xRange.flatMap { x -> yRange.map { y -> grid[y][x] to Point(x, y) } }
+    val frequencyPoints = xRange.flatMap { x -> yRange.map { y -> grid[y][x] to Point(x, y) } }
         .filter { it.first != '.' }
         .groupBy( { it.first }, { it.second })
 
@@ -23,7 +23,7 @@ class Antenna(val grid: List<String>) {
         points.allPairs().flatMap { (a, b) -> select(generateAntinodes(a, b)) }
 
     fun countAntinodes(select: (Sequence<Point>) -> Sequence<Point>) = 
-        frequencyMap.values.flatMap { pairwiseAntinodes(it, select) }.toSet().size
+        frequencyPoints.values.flatMap { pairwiseAntinodes(it, select) }.toSet().size
 }
 
 val lines = java.io.File(args[0]).readLines()
