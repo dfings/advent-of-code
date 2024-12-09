@@ -15,12 +15,11 @@ fun defrag(fIn: List<Int>): List<Int> {
     val fOut = fIn.toMutableList()
     var j = fOut.indexOfLast { it != -1 }
     for (i in fOut.indices) {
-        when {
-            i >= j -> break
-            fOut[i] != -1 -> continue    
-            else -> java.util.Collections.swap(fOut, i, j)
+        if (i >= j) break
+        if (fOut[i] == -1) {
+            java.util.Collections.swap(fOut, i, j)
+            while (fOut[--j] == -1) {}
         }
-        while (fOut[--j] == -1) {}
     }
     return fOut
 }
