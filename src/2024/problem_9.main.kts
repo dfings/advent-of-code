@@ -16,7 +16,7 @@ fun parse(diskMap: List<Int>): List<Int> {
 
 fun defrag(fIn: List<Int>): List<Int> {
     val fOut = fIn.toMutableList()
-    var j = fOut.indexOfLast { it != -1 }!!
+    var j = fOut.indexOfLast { it != -1 }
     for (i in fOut.indices) {
         if (fOut[i] != -1) continue    
         if (i < j) java.util.Collections.swap(fOut, i, j)
@@ -44,7 +44,7 @@ fun List<Int>.findFreeSpace(needed: Int): Int {
 
 fun defrag2(fIn: List<Int>): List<Int> {
     val fOut = fIn.toMutableList()
-    var j = fOut.indexOfLast { it != -1 }!!
+    var j = fOut.indexOfLast { it != -1 }
     while (j > 0) {
         val jStart = fOut.subList(0, j).indexOfLast { it != fOut[j] } + 1
         val size = j - jStart + 1
