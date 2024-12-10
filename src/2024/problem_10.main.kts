@@ -13,15 +13,11 @@ class Grid(lines: List<String>) {
                p.copy(y = p.y + 1), p.copy(y = p.y - 1))
            .filter { height(it) == height(p) + 1  }
 
-    private val reachableCache = mutableMapOf<Point, Set<Point>>()
-    fun reachable(p: Point): Set<Point> = reachableCache.getOrPut(p) {
+    fun reachable(p: Point): Set<Point> =
         if (height(p) == 9) setOf(p) else successors(p).flatMap { reachable(it) }.toSet()
-    }
 
-    private val ratingCache = mutableMapOf<Point, Int>()
-    fun rating(p: Point): Int = ratingCache.getOrPut(p) {
+    fun rating(p: Point): Int =
         if (height(p) == 9) 1 else successors(p).sumOf { rating(it) }
-    }
 }
 
 val lines = java.io.File(args[0]).readLines()
