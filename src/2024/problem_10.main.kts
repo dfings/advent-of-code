@@ -18,7 +18,7 @@ class Grid(lines: List<String>) {
         if (height(p) == 9) setOf(p) else successors(p).flatMap { reachable(it) }.toSet()
     }
 
-    val ratingCache = mutableMapOf<Point, Int>()
+    private val ratingCache = mutableMapOf<Point, Int>()
     fun rating(p: Point): Int = ratingCache.getOrPut(p) {
         if (height(p) == 9) 1 else successors(p).sumOf { rating(it) }
     }
