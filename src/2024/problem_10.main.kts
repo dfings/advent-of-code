@@ -29,4 +29,3 @@ val grid = Grid(lines)
 val trailheads = grid.topographicMap.filter { it.value == 0 }.keys
 println(trailheads.sumOf { grid.reachable(it).size })
 println(trailheads.sumOf { grid.rating(it) })
-
