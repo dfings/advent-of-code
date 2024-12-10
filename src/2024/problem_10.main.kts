@@ -2,11 +2,9 @@
 
 data class Point(val x: Int, val y: Int)
 
-class Grid(data: List<String>) {
-    val xRange = 0..data[0].lastIndex
-    val yRange = 0..data.lastIndex
-    val topographicMap =  xRange.flatMap { x ->
-        yRange.map { y -> Point(x, y) to "${lines[y][x]}".toInt() }
+class Grid(lines: List<String>) {
+    val topographicMap =  lines.flatMapIndexed { y, line ->
+        line.mapIndexed { x, c -> Point(x, y) to "$c".toInt() }
     }.toMap()
     
     fun height(p: Point) = topographicMap[p] ?: 0
