@@ -11,13 +11,12 @@ fun blink(stone: Long) = when {
     else -> listOf(stone * 2024)
 }
 
-data class CacheKey(val stone: Long, val i: Int, val limit: Int)
-val cache = mutableMapOf<CacheKey, Long>()
-fun countStones(stone: Long, i: Int, limit: Int): Long = cache.getOrPut(CacheKey(stone, i, limit)) {
-    if (i == limit) 1 else blink(stone).sumOf { countStones(it, i + 1, limit) }
+val cache = mutableMapOf<Pair<Long, Int>, Long>()
+fun countStones(stone: Long, i: Int): Long = cache.getOrPut(stone to i) {
+    if (i == 0) 1 else blink(stone).sumOf { countStones(it, i - 1) }
 }
 
 val line = java.io.File(args[0]).readLines().single()
 val stones = line.split(" ").map { it.toLong()}
-println(stones.sumOf { countStones(it, 0, 25) })
-println(stones.sumOf { countStones(it, 0, 75) })
+println(stones.sumOf { countStones(it, 25) })
+println(stones.sumOf { countStones(it, 75) })
