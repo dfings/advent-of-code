@@ -17,6 +17,6 @@ fun countStones(stone: Long, blinksLeft: Int): Long = cache.getOrPut(stone to bl
 }
 
 val line = java.io.File(args[0]).readLines().single()
-val stones = line.split(" ").map { it.toLong()}
+val stones = line.split(" ").map { it.toLong() }
 println(stones.sumOf { countStones(it, 25) })
 println(stones.sumOf { countStones(it, 75) })
