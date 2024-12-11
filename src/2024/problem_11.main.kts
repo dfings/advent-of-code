@@ -1,10 +1,6 @@
 #!/usr/bin/env kotlin
 
-fun String.splitInTwo() = listOf(
-    substring(0, length / 2).toLong(), 
-    substring(length / 2, length).toLong()
-)
-
+fun String.splitInTwo() = listOf(take(length / 2).toLong(),  drop(length / 2).toLong())
 fun blink(stone: Long) = when {
     stone == 0L -> listOf(1L)
     "$stone".length % 2 == 0 -> "$stone".splitInTwo()
