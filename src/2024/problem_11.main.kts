@@ -12,7 +12,6 @@ fun blink(stone: Long) = when {
 }
 
 data class CacheKey(val stone: Long, val i: Int, val limit: Int)
-
 val cache = mutableMapOf<CacheKey, Long>()
 fun countStones(stone: Long, i: Int, limit: Int): Long = cache.getOrPut(CacheKey(stone, i, limit)) {
     if (i == limit) 1 else blink(stone).sumOf { countStones(it, i + 1, limit)}
