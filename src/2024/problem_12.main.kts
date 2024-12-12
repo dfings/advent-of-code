@@ -64,4 +64,4 @@ val grid = Grid(lines)
 val regions = grid.regions()
 
 println(regions.sumOf { it.size * grid.sides1(it) })
-println(regions.sumOf {  it.size * grid.sides2(it)  })
+println(regions.sumOf { it.size * grid.sides2(it)  })
