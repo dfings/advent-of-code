@@ -49,7 +49,7 @@ class Grid(lines: List<String>) {
         return count
     }
     
-    fun corners(region: Set<Point>) = region.sumOf { sides(it) }
+    fun corners(region: Set<Point>) = region.sumOf { corners(it) }
 }
 
 val lines = java.io.File(args[0]).readLines()
