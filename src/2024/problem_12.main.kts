@@ -12,7 +12,7 @@ data class Point(val x: Int, val y: Int) {
 }
 
 class Grid(lines: List<String>) {
-    val farm =  lines.flatMapIndexed { y, line ->
+    val farm = lines.flatMapIndexed { y, line ->
         line.mapIndexed { x, c -> Point(x, y) to c }
     }.toMap()
 
