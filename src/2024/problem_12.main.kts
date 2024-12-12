@@ -36,7 +36,7 @@ class Grid(lines: List<String>) {
 
     fun perimeter(region: Set<Point>) = region.sumOf { 4 - neighbors(it).size }
 
-    fun sides(p: Point): Int {
+    fun corners(p: Point): Int {
         var count = 0
         val value = farm[p] 
         for ((d1, d2) in (Dir.entries + listOf(Dir.N)).zipWithNext()) {
@@ -49,7 +49,7 @@ class Grid(lines: List<String>) {
         return count
     }
     
-    fun sides(region: Set<Point>) = region.sumOf { sides(it) }
+    fun corners(region: Set<Point>) = region.sumOf { sides(it) }
 }
 
 val lines = java.io.File(args[0]).readLines()
@@ -57,4 +57,4 @@ val grid = Grid(lines)
 val regions = grid.regions()
 
 println(regions.sumOf { it.size * grid.perimeter(it) })
-println(regions.sumOf { it.size * grid.sides(it)  })
+println(regions.sumOf { it.size * grid.corners(it)  })
