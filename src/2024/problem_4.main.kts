@@ -4,9 +4,8 @@ enum class Dir(val x: Int, val y: Int) {
     N(0, 1), NE(1, 1), E(1, 0), SE(1, -1), S(0, -1), SW(-1, -1), W(-1, 0), NW(-1, 1)
 }
 
-class Point(val x: Int, val y: Int) {
-    fun move(d: Dir) = Point(x + d.x, y + d.y)
-}
+class Point(val x: Int, val y: Int)
+operator fun plus(d: Dir) = Point(x + d.x, y + d.y)
 
 class Grid(val data: List<String>) {
     val xRange = 0..data[0].lastIndex
@@ -20,11 +19,11 @@ val grid = Grid(lines)
 
 // Part 1
 fun Grid.isXmas(p: Point, d: Dir) = 
-    generateSequence(p) { it.move(d) }.map { get(it) }.take(4).joinToString("") == "XMAS"
+    generateSequence(p) { it + d }.map { get(it) }.take(4).joinToString("") == "XMAS"
 println(grid.points.sumOf { p -> Dir.values().count { grid.isXmas(p, it) } })
 
 // Part 2
 val ms = setOf('M', 'S')
-fun Grid.isMs(p: Point, d1: Dir, d2: Dir) = setOf(get(p.move(d1)), get(p.move(d2))) == ms
+fun Grid.isMs(p: Point, d1: Dir, d2: Dir) = setOf(get(p + d1), get(p + d2)) == ms
 fun Grid.isXmas2(p: Point) = get(p) == 'A' && isMs(p, Dir.NW, Dir.SE) && isMs(p, Dir.NE, Dir.SW)
 println(grid.points.count { grid.isXmas2(it) })
