@@ -3,20 +3,16 @@
 enum class Dir(val x: Int, val y: Int) {
     N(0, -1), E(1, 0), S(0, 1), W(-1, 0)  // y increases S
 }
-val ew = setOf(Dir.E, Dir.W)
-val ns = setOf(Dir.N, Dir.S)
-val perpendicular = mapOf(Dir.N to ew, Dir.S to ew, Dir.E to ns, Dir.W to ns)
 
-data class Point(val x: Int, val y: Int) {
-    fun move(d: Dir) = Point(x + d.x, y + d.y)
-}
+data class Point(val x: Int, val y: Int) 
+operator fun Point.plus(d: Dir) = Point(x + d.x, y + d.y)
 
 class Grid(lines: List<String>) {
     val farm = lines.flatMapIndexed { y, line ->
         line.mapIndexed { x, c -> Point(x, y) to c }
     }.toMap()
 
-    fun neighbors(p: Point) = Dir.entries.map { p.move(it) }.filter { farm[p] == farm[it]  }
+    fun neighbors(p: Point) = Dir.entries.map { p + it }.filter { farm[p] == farm[it]  }
 
     fun region(p: Point): Set<Point> {
         val frontier = ArrayDeque<Point>(listOf(p))
@@ -40,23 +36,20 @@ class Grid(lines: List<String>) {
 
     fun perimeter(region: Set<Point>) = region.sumOf { 4 - neighbors(it).size }
 
-    fun sides(region: Set<Point>): Int {
-        val perimeter = region.filter { neighbors(it).size < 4 }
-        val fences = Dir.entries.map { it to mutableSetOf<MutableSet<Point>>() }.toMap()
-        for (p in perimeter) {
-            for (d in fences.keys.filter { p.move(it) !in region }) {
-                val fence = mutableSetOf<Point>(p)
-                for (perpD in perpendicular.getValue(d)) {
-                    fence.addAll(generateSequence(p) { 
-                        val next = it.move(perpD)
-                        if (next in perimeter && it.move(d) !in region) next else null 
-                    })
-                }
-                fences.getValue(d).add(fence)
-            }
+    fun sides(p: Point): Int {
+        var count = 0
+        val value = farm[p] 
+        for ((d1, d2) in (Dir.entries + listOf(Dir.N)).zipWithNext()) {
+            val adjacent1 = farm[p + d1]
+            val adjacent2 = farm[p + d2]
+            val diagonal = farm[p + d1 + d2]
+            if (value != adjacent1 && value != adjacent2) count++
+            if (value == adjacent1 && value == adjacent2 && value != diagonal) count++
         }
-        return fences.values.sumOf { it.size }
+        return count
     }
+    
+    fun sides(region: Set<Point>) = region.sumOf { sides(it) }
 }
 
 val lines = java.io.File(args[0]).readLines()
