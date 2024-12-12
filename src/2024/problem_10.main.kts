@@ -1,11 +1,11 @@
 #!/usr/bin/env kotlin
 
-enum class Dir(val x: Int, val y: Int) {
-    N(0, -1), E(1, 0), S(0, 1), W(-1, 0)  // y increases S
+enum class Direction(val x: Int, val y: Int) {
+    NORTH(0, -1), EAST(1, 0), SOUTH(0, 1), WEST(-1, 0)
 }
 
 data class Point(val x: Int, val y: Int)
-operator fun Point.plus(d: Dir) = Point(x + d.x, y + d.y)
+operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
 
 class Grid(lines: List<String>) {
     val topographicMap = lines.flatMapIndexed { y, line ->
@@ -13,7 +13,8 @@ class Grid(lines: List<String>) {
     }.toMap()
     
     fun height(p: Point) = topographicMap[p] ?: 0
-    fun successors(p: Point) = Dir.entries.map { p + it }.filter { height(it) == height(p) + 1  }
+    fun successors(p: Point) = 
+        Direction.entries.map { p + it }.filter { height(it) == height(p) + 1  }
 
     fun reachable(p: Point): Set<Point> =
         if (height(p) == 9) setOf(p) else successors(p).flatMap { reachable(it) }.toSet()

@@ -1,29 +1,32 @@
 #!/usr/bin/env kotlin
 
-enum class Dir(val x: Int, val y: Int) {
-    N(0, 1), NE(1, 1), E(1, 0), SE(1, -1), S(0, -1), SW(-1, -1), W(-1, 0), NW(-1, 1)
+enum class Direction(val x: Int, val y: Int) {
+    NORTH(0, -1), NORTH_EAST(1, -1), EAST(1, 0), SOUTH_EAST(1, 1), 
+    SOUTH(0, 1), SOUTH_WEST(-1,  1), WEST(-1, 0), NORTH_WEST(-1, -1)
 }
 
 class Point(val x: Int, val y: Int)
-operator fun plus(d: Dir) = Point(x + d.x, y + d.y)
+operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
 
 class Grid(val data: List<String>) {
     val xRange = 0..data[0].lastIndex
     val yRange = 0..data.lastIndex
     val points = xRange.flatMap { x -> yRange.map { y -> Point(x, y) } }
-    fun get(p: Point) = if (p.x in xRange && p.y in yRange) data[p.y][p.x] else '.'
+    fun at(p: Point) = if (p.x in xRange && p.y in yRange) data[p.y][p.x] else '.'
 }
 
 val lines = java.io.File(args[0]).readLines()
 val grid = Grid(lines)
 
 // Part 1
-fun Grid.isXmas(p: Point, d: Dir) = 
-    generateSequence(p) { it + d }.map { get(it) }.take(4).joinToString("") == "XMAS"
-println(grid.points.sumOf { p -> Dir.values().count { grid.isXmas(p, it) } })
+fun Grid.isXmas(p: Point, d: Direction) = 
+    generateSequence(p) { it + d }.map { at(it) }.take(4).joinToString("") == "XMAS"
+println(grid.points.sumOf { p -> Direction.entries.count { grid.isXmas(p, it) } })
 
 // Part 2
 val ms = setOf('M', 'S')
-fun Grid.isMs(p: Point, d1: Dir, d2: Dir) = setOf(get(p + d1), get(p + d2)) == ms
-fun Grid.isXmas2(p: Point) = get(p) == 'A' && isMs(p, Dir.NW, Dir.SE) && isMs(p, Dir.NE, Dir.SW)
+fun Grid.isMs(p: Point, d1: Direction, d2: Direction) = setOf(at(p + d1), at(p + d2)) == ms
+fun Grid.isXmas2(p: Point) = at(p) == 'A' &&
+    isMs(p, Direction.NORTH_WEST, Direction.SOUTH_EAST) &&
+    isMs(p, Direction.NORTH_EAST, Direction.SOUTH_WEST)
 println(grid.points.count { grid.isXmas2(it) })

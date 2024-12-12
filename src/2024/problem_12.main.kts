@@ -1,18 +1,18 @@
 #!/usr/bin/env kotlin
 
-enum class Dir(val x: Int, val y: Int) {
-    N(0, -1), E(1, 0), S(0, 1), W(-1, 0)  // y increases S
+enum class Direction(val x: Int, val y: Int) {
+    NORTH(0, -1), EAST(1, 0), SOUTH(0, 1), WEST(-1, 0)
 }
 
 data class Point(val x: Int, val y: Int) 
-operator fun Point.plus(d: Dir) = Point(x + d.x, y + d.y)
+operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
 
 class Grid(lines: List<String>) {
     val farm = lines.flatMapIndexed { y, line ->
         line.mapIndexed { x, c -> Point(x, y) to c }
     }.toMap()
 
-    fun neighbors(p: Point) = Dir.entries.map { p + it }.filter { farm[p] == farm[it]  }
+    fun neighbors(p: Point) = Direction.entries.map { p + it }.filter { farm[p] == farm[it]  }
 
     fun region(p: Point): Set<Point> {
         val frontier = ArrayDeque<Point>(listOf(p))
@@ -39,7 +39,7 @@ class Grid(lines: List<String>) {
     fun corners(p: Point): Int {
         var count = 0
         val value = farm[p] 
-        for ((d1, d2) in (Dir.entries + listOf(Dir.N)).zipWithNext()) {
+        for ((d1, d2) in (Direction.entries + listOf(Direction.NORTH)).zipWithNext()) {
             val adjacent1 = farm[p + d1]
             val adjacent2 = farm[p + d2]
             val diagonal = farm[p + d1 + d2]

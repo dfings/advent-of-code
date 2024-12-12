@@ -1,12 +1,12 @@
 #!/usr/bin/env kotlin
 
-enum class Dir(val x: Int, val y: Int) {
-    N(0, -1), E(1, 0), S(0, 1), W(-1, 0)  // y increases S
+enum class Direction(val x: Int, val y: Int) {
+    NORTH(0, -1), EAST(1, 0), SOUTH(0, 1), WEST(-1, 0) 
 }
 
-val turnMap = mapOf(Dir.N to Dir.E, Dir.E to Dir.S, Dir.S to Dir.W, Dir.W to Dir.N)
+val turnMap = (Direction.entries + listOf(Direction.NORTH)).zipWithNext().toMap()
 data class Point(val x: Int, val y: Int)
-data class Guard(val p: Point, val d: Dir) {
+data class Guard(val p: Point, val d: Direction) {
     fun move() = Guard(Point(p.x + d.x, p.y + d.y), d)
     fun turn() = Guard(p, turnMap.getValue(d))
 }
@@ -24,7 +24,7 @@ fun walk(map: Map<Point, Char>, start: Guard): Set<Guard>? {
 
 val lines = java.io.File(args[0]).readLines()
 val map = lines.flatMapIndexed { y, line -> line.mapIndexed { x, char -> Point(x, y) to char }}.toMap()
-val start = Guard(map.keys.first { map[it] == '^' }, Dir.N)
+val start = Guard(map.keys.first { map[it] == '^' }, Direction.NORTH)
 val seen = walk(map, start)?.map { it.p }?.toSet()
 println(seen?.size)
 
