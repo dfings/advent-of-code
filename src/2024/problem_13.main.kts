@@ -1,7 +1,5 @@
 #!/usr/bin/env kotlin
 
-import kotlin.math.min
-
 data class Point(val x: Long, val y: Long) 
 fun Point(x: String, y: String) = Point(x.toLong(), y.toLong())
 operator fun Point.plus(p: Point) = Point(x + p.x, y + p.y)
