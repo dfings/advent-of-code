@@ -8,7 +8,7 @@ operator fun Point.times(i: Long) = Point(x * i, y * i)
 data class Machine(val a: Point, val b: Point, val prize: Point)
 
 fun parseMachine(lines: List<String>): Machine {
-    val pattern = Regex("""(\d+).*?(\d+).*?(\d+).*?(\d+).*?(\d+).*?(\d+)""")
+    val pattern = Regex(List(6) { "(\\d+)" }.joinToString(".*?"))
     val (ax, ay, bx, by, px, py) = pattern.find(lines.joinToString())!!.destructured
     return Machine(Point(ax, ay), Point(bx, by), Point(px, py))
 }
