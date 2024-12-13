@@ -23,8 +23,8 @@ fun Machine.bestPrice(): Long {
 
 val lines = java.io.File(args[0]).readLines()
 val machines = lines.chunked(4).map { parseMachine(it) }
-println(machines.sumOf { it.bestPrice() })
-
 val extra = Point(10000000000000L, 10000000000000L)
 val machines2 = machines.map { it.copy(prize = it.prize + extra )}
+
+println(machines.sumOf { it.bestPrice() })
 println(machines2.sumOf { it.bestPrice() })
