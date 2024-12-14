@@ -11,8 +11,8 @@ fun parseRobot(line: String): Robot {
 }
 
 fun List<Robot>.move(room: Point, n: Int) = map { 
-    it.copy(p = Point((it.p.x + it.v.x * n).mod(room.x),
-                      (it.p.y + it.v.y * n).mod(room.y)))
+    val newP = Point((it.p.x + it.v.x * n).mod(room.x), (it.p.y + it.v.y * n).mod(room.y))
+    it.copy(p = newP)
 }
 
 fun List<Robot>.score(room: Point): Int {
