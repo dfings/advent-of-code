@@ -2,9 +2,6 @@
 
 data class Point(val x: Int, val y: Int) 
 fun Point(x: String, y: String) = Point(x.toInt(), y.toInt())
-operator fun Point.plus(p: Point) = Point(x + p.x, y + p.y)
-operator fun Point.times(i: Int) = Point(x * i, y * i)
-fun Point.mod(p: Point) = Point(x.mod(p.x), y.mod(p.y))
 
 data class Robot(val p: Point, val v: Point)
 fun parseRobot(line: String): Robot {
@@ -13,7 +10,10 @@ fun parseRobot(line: String): Robot {
     return Robot(Point(px, py), Point(vx, vy))
 }
 
-fun List<Robot>.move(room: Point, n: Int) = map { it.copy(p = (it.p + it.v * n).mod(room)) }
+fun List<Robot>.move(room: Point, n: Int) = map { 
+    it.copy(p = Point((it.p.x + it.v.x * n).mod(room.x),
+                      (it.p.y + it.v.y * n).mod(room.y)))
+}
 
 fun List<Robot>.score(room: Point): Int {
     val xMid = room.x / 2
