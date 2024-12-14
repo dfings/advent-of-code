@@ -37,5 +37,5 @@ val room = Bathroom(101, 103)
 println(room.score(room.move(robots, 100)))
 
 val robotSequence = generateSequence(robots to 0) { room.move(it.first, 1) to it.second + 1 }
-val tree = robotSequence.first { isTree(it.first )}
+val tree = robotSequence.first { isTree(it.first)}
 println(tree.second)
