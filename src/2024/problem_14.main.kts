@@ -20,8 +20,8 @@ class Bathroom(val xSize: Int, val ySize: Int) {
     }
 
     fun score(robots: List<Robot>): Int {
-        val xMid = (xSize - 1) / 2
-        val yMid = (ySize - 1) / 2
+        val xMid = xSize / 2
+        val yMid = ySize / 2
         return robots.count { it.p.x < xMid && it.p.y < yMid } *
                robots.count { it.p.x < xMid && it.p.y > yMid } *
                robots.count { it.p.x > xMid && it.p.y < yMid } *
