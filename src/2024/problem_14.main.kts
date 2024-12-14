@@ -3,6 +3,8 @@
 data class Point(val x: Int, val y: Int) 
 fun Point(x: String, y: String) = Point(x.toInt(), y.toInt())
 operator fun Point.plus(p: Point) = Point(x + p.x, y + p.y)
+operator fun Point.times(i: Int) = Point(x * i, y * i)
+fun Point.mod(p: Point) = Point(x.mod(p.x), y.mod(p.y))
 
 data class Robot(val p: Point, val v: Point)
 fun parseRobot(line: String): Robot {
@@ -11,31 +13,24 @@ fun parseRobot(line: String): Robot {
     return Robot(Point(px, py), Point(vx, vy))
 }
 
-class Bathroom(val xSize: Int, val ySize: Int) {
-    fun move(robots: List<Robot>, times: Int) = robots.map {
-        it.copy(
-            p = Point((it.p.x + it.v.x * times).mod(xSize),
-                      (it.p.y + it.v.y * times).mod(ySize))
-        )
-    }
 
-    fun score(robots: List<Robot>): Int {
-        val xMid = xSize / 2
-        val yMid = ySize / 2
-        return robots.count { it.p.x < xMid && it.p.y < yMid } *
-               robots.count { it.p.x < xMid && it.p.y > yMid } *
-               robots.count { it.p.x > xMid && it.p.y < yMid } *
-               robots.count { it.p.x > xMid && it.p.y > yMid }
-    }
+fun List<Robot>.move(room: Point, n: Int) = map { Robot((it.p + it.v * n).mod(room), it.v) }
+fun  List<Robot>.score(room: Point): Int {
+    val xMid = room.x / 2
+    val yMid = room.y / 2
+    return count { it.p.x < xMid && it.p.y < yMid } *
+           count { it.p.x < xMid && it.p.y > yMid } *
+           count { it.p.x > xMid && it.p.y < yMid } *
+           count { it.p.x > xMid && it.p.y > yMid }
 }
 
-fun isTree(robots: List<Robot>) = robots.map { it.p }.toSet().size == robots.size
+fun List<Robot>.isTree() = map { it.p }.toSet().size == size
 
 val lines = java.io.File(args[0]).readLines()
 val robots = lines.map { parseRobot(it) }
-val room = Bathroom(101, 103)
-println(room.score(room.move(robots, 100)))
+val room = Point(101, 103)
+println(robots.move(room, 100).score(room))
 
-val robotSequence = generateSequence(robots to 0) { room.move(it.first, 1) to it.second + 1 }
-val tree = robotSequence.first { isTree(it.first)}
+val robotSequence = generateSequence(robots to 0) { it.first.move(room, 1) to it.second + 1 }
+val tree = robotSequence.first { it.first.isTree() }
 println(tree.second)
