@@ -29,8 +29,13 @@ class Bathroom(val xSize: Int, val ySize: Int) {
     }
 }
 
+fun isTree(robots: List<Robot>) = robots.map { it.p }.toSet().size == robots.size
 
 val lines = java.io.File(args[0]).readLines()
 val robots = lines.map { parseRobot(it) }
 val room = Bathroom(101, 103)
 println(room.score(room.move(robots, 100)))
+
+val robotSequence = generateSequence(robots to 0) { room.move(it.first, 1) to it.second + 1 }
+val tree = robotSequence.first { isTree(it.first )}
+println(tree.second)
