@@ -42,7 +42,6 @@ fun parseWarehouse(lines: List<String>): Warehouse {
     return Warehouse(robot!!, boxes, walls)
 }
 
-
 data class WideWarehouse(val robot: Point, val lBoxes: Set<Point>, val rBoxes: Set<Point>, val walls: Set<Point>) {
     fun next(d: Direction): WideWarehouse {
         val newRobot = robot + d
