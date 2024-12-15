@@ -23,22 +23,6 @@ data class Warehouse(val robot: Point, val boxes: Set<Point>, val walls: Set<Poi
     }
 }
 
-fun parseWarehouse(lines: List<String>): Warehouse {
-    var robot: Point? = null
-    val boxes = mutableSetOf<Point>()
-    val walls = mutableSetOf<Point>()
-    for (y in 0..lines.lastIndex) {
-        for (x in 0..lines[y].lastIndex) {
-            when (lines[y][x]) {
-                '@' -> robot = Point(x, y)
-                'O' -> boxes.add(Point(x, y))
-                '#' -> walls.add(Point(x, y))
-            }
-        }
-    }
-    return Warehouse(robot!!, boxes, walls)
-}
-
 typealias BigBox = Pair<Point, Point>
 data class WideWarehouse(val robot: Point, val boxes: Set<BigBox>, val walls: Set<Point>) {
     val boxPoints = boxes.flatMap { listOf(it.first to it, it.second to it) }.toMap()
@@ -65,6 +49,22 @@ data class WideWarehouse(val robot: Point, val boxes: Set<BigBox>, val walls: Se
         if (force.any { it in walls }) return this
         return WideWarehouse(newRobot, (boxes - oldBoxes) + newBoxes, walls)
     }
+}
+
+fun parseWarehouse(lines: List<String>): Warehouse {
+    var robot: Point? = null
+    val boxes = mutableSetOf<Point>()
+    val walls = mutableSetOf<Point>()
+    for (y in 0..lines.lastIndex) {
+        for (x in 0..lines[y].lastIndex) {
+            when (lines[y][x]) {
+                '@' -> robot = Point(x, y)
+                'O' -> boxes.add(Point(x, y))
+                '#' -> walls.add(Point(x, y))
+            }
+        }
+    }
+    return Warehouse(robot!!, boxes, walls)
 }
 
 fun Warehouse.wide() = WideWarehouse(
