@@ -58,7 +58,7 @@ data class WideWarehouse(val robot: Point, val lBoxes: Set<Point>, val rBoxes: S
                 oldRBoxes += force.filter { it in rBoxes}
                 force = force.map { it + d }.filter { it in lBoxes || it in rBoxes || it in walls }.toSet()
                 newLBoxes += oldLBoxes.map { it + d }
-                newRBoxes += oldRBoxes.map { it + d}
+                newRBoxes += oldRBoxes.map { it + d }
             } else {
                 val f = force.single()
                 if (f in lBoxes) {
