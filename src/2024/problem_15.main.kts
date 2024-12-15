@@ -61,7 +61,7 @@ data class WideWarehouse(val robot: Point, val lBoxes: Set<Point>, val rBoxes: S
         val oldLBoxes = mutableSetOf<Point>()
         val oldRBoxes = mutableSetOf<Point>()
         if (d == Direction.NORTH || d == Direction.SOUTH) {
-        var current = setOf(newRobot)
+            var current = setOf(newRobot)
             while (true) {
                 when {
                     current.any { it in walls } -> return this
