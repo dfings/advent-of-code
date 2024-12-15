@@ -16,17 +16,12 @@ data class Warehouse(val robot: Point, val boxes: Set<Point>, val walls: Set<Poi
         val newBoxes = mutableSetOf<Point>()
         val oldBoxes = mutableSetOf<Point>()
         var force = newRobot
-        while (true) {
-            when {
-                force in walls -> return this
-                force in boxes -> {
-                    oldBoxes.add(force)
-                    force = force + d
-                    newBoxes.add(force)
-                }
-                else -> break
-            }
+        while (force in boxes) {
+            oldBoxes.add(force)
+            newBoxes.add(force + d)
+            force = force + d
         }
+        if (force in walls) return this
         return Warehouse(newRobot, (boxes - oldBoxes) + newBoxes, walls)
     }
 }
