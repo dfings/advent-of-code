@@ -3,13 +3,9 @@
 enum class Direction(val x: Int, val y: Int) {
     NORTH(0, -1), EAST(1, 0), SOUTH(0, 1), WEST(-1, 0)
 }
-fun Char.toDirection() = when (this) {
-    '^' -> Direction.NORTH
-    'v' -> Direction.SOUTH
-    '>' -> Direction.EAST
-    '<' -> Direction.WEST
-    else -> throw IllegalArgumentException()
-}
+val directions = mapOf('^' to Direction.NORTH, 'v' to Direction.SOUTH,
+                       '>' to Direction.EAST, '<' to Direction.WEST)
+fun Char.toDirection() = directions.getValue(this)
 
 data class Point(val x: Int, val y: Int)
 operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
