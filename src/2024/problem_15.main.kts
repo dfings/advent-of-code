@@ -3,9 +3,6 @@
 enum class Direction(val x: Int, val y: Int) {
     NORTH(0, -1), EAST(1, 0), SOUTH(0, 1), WEST(-1, 0)
 }
-val directions = mapOf('^' to Direction.NORTH, 'v' to Direction.SOUTH,
-                       '>' to Direction.EAST, '<' to Direction.WEST)
-fun Char.toDirection() = directions.getValue(this)
 
 data class Point(val x: Int, val y: Int)
 operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
@@ -78,8 +75,11 @@ fun Warehouse.wide() = WideWarehouse(
 
 val lines = java.io.File(args[0]).readLines()
 val warehouseLines = lines.takeWhile { it != "" }
+val warehouseSize = warehouseLines.size
 val warehouse = parseWarehouse(warehouseLines)
-val instructions = lines.drop(warehouseLines.size + 1).joinToString("").map { it.toDirection() }
+val directions = mapOf('^' to Direction.NORTH, 'v' to Direction.SOUTH,
+                       '>' to Direction.EAST, '<' to Direction.WEST)
+val instructions = lines.drop(warehouseSize + 1).joinToString("").map { directions.getValue(it) }
 
 fun Iterable<Point>.score() = sumOf { 100 * it.y + it.x }
 println(instructions.fold(warehouse) { w, d -> w.next(d) }.boxes.score())
