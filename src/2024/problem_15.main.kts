@@ -49,9 +49,9 @@ data class WideWarehouse(val robot: Point, val lBoxes: Set<Point>, val rBoxes: S
         val newRBoxes = mutableSetOf<Point>()
         val oldLBoxes = mutableSetOf<Point>()
         val oldRBoxes = mutableSetOf<Point>()
-        if (d == Direction.NORTH || d == Direction.SOUTH) {
-            var force = setOf(newRobot)
-            while (true) {
+        var force = setOf(newRobot)
+        while (true) {
+            if (d == Direction.NORTH || d == Direction.SOUTH) {
                 when {
                     force.any { it in walls } -> return this
                     force.any { it in lBoxes || it in rBoxes } -> {                    
@@ -65,21 +65,18 @@ data class WideWarehouse(val robot: Point, val lBoxes: Set<Point>, val rBoxes: S
                     }
                     else -> break
                 }
-            }
-        } else {
-            var force = newRobot
-            while (true) {
+            } else {
                 when {
-                    force in walls -> return this
-                    force in lBoxes -> {
-                        oldLBoxes.add(force)
-                        force = force + d
-                        newLBoxes.add(force)
+                    force.single() in walls -> return this
+                    force.single() in lBoxes -> {
+                        oldLBoxes += force
+                        force = setOf(force.single() + d)
+                        newLBoxes += force
                     }
-                    force in rBoxes -> {
-                        oldRBoxes.add(force)
-                        force = force + d
-                        newRBoxes.add(force)
+                    force.single() in rBoxes -> {
+                        oldRBoxes += force
+                        force = setOf(force.single() + d)
+                        newRBoxes += force
                     }
                     else -> break
                 }
