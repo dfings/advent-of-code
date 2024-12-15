@@ -42,45 +42,36 @@ fun parseWarehouse(lines: List<String>): Warehouse {
     return Warehouse(robot!!, boxes, walls)
 }
 
-data class WideWarehouse(val robot: Point, val lBoxes: Set<Point>, val rBoxes: Set<Point>, val walls: Set<Point>) {
+typealias BigBox = Pair<Point, Point>
+data class WideWarehouse(val robot: Point, val boxes: Set<BigBox>, val walls: Set<Point>) {
+    val boxPoints = boxes.flatMap { listOf(it.first to it, it.second to it) }.toMap()
     fun next(d: Direction): WideWarehouse {
         val newRobot = robot + d
-        val newLBoxes = mutableSetOf<Point>()
-        val newRBoxes = mutableSetOf<Point>()
-        val oldLBoxes = mutableSetOf<Point>()
-        val oldRBoxes = mutableSetOf<Point>()
+        val newBoxes = mutableSetOf<BigBox>()
+        val oldBoxes = mutableSetOf<BigBox>()
         var force = setOf(newRobot)
-        while (force.all { it in lBoxes || it in rBoxes} && !force.isEmpty()) {
+        while (force.all { it in boxPoints } && !force.isEmpty()) {
             if (d == Direction.NORTH || d == Direction.SOUTH) {
-                force += force.filter { it in rBoxes }.map { it + Direction.WEST }
-                force += force.filter { it in lBoxes }.map { it + Direction.EAST }
-                oldLBoxes += force.filter { it in lBoxes}
-                oldRBoxes += force.filter { it in rBoxes}
-                force = force.map { it + d }.filter { it in lBoxes || it in rBoxes || it in walls }.toSet()
-                newLBoxes += oldLBoxes.map { it + d }
-                newRBoxes += oldRBoxes.map { it + d }
+                force += force.flatMap { boxPoints.getValue(it).toList() }
+                oldBoxes += force.map { boxPoints.getValue(it) }
+                force = force.map { it + d }.filter { it in boxPoints || it in walls }.toSet()
+                newBoxes += oldBoxes.map { it.first + d to it.second + d }
             } else {
                 val f = force.single()
-                if (f in lBoxes) {
-                    oldLBoxes += f
-                    force = setOf(f + d)
-                    newLBoxes += f + d
-                } else {
-                    oldRBoxes += f
-                    force = setOf(f + d)
-                    newRBoxes += f + d
-                }
+                val box = boxPoints.getValue(f)
+                oldBoxes += box
+                newBoxes += box.first + d to box.second + d
+                force = setOf(f + d + d)
             }
         }
         if (force.any { it in walls }) return this
-        return WideWarehouse(newRobot, (lBoxes - oldLBoxes) + newLBoxes, (rBoxes - oldRBoxes) + newRBoxes, walls)
+        return WideWarehouse(newRobot, (boxes - oldBoxes) + newBoxes, walls)
     }
 }
 
 fun Warehouse.makeWide() = WideWarehouse(
     Point(2 * robot.x, robot.y),
-    boxes.map { Point(2 * it.x, it.y) }.toSet(),
-    boxes.map { Point(2 * it.x + 1, it.y) }.toSet(),
+    boxes.map { Point(2 * it.x, it.y) to Point(2 * it.x + 1, it.y) }.toSet(),
     walls.flatMap { listOf(Point(2 * it.x, it.y), Point(2 * it.x + 1, it.y))}.toSet(),
 )
 
@@ -99,23 +90,4 @@ var w2 = warehouse.makeWide()
 for (d in instructions) {
     w2 = w2.next(d)
 }
-println(w2.lBoxes.sumOf { 100 * it.y + it.x })
-
-// For debugging.
-fun WideWarehouse.print() {
-    val maxPoint = walls.maxBy { it.x * it.y }
-    for (y in 0..maxPoint.y) {
-        val line = mutableListOf<String>()
-        for (x in 0..maxPoint.x) {
-            val p = Point(x, y)
-            line += when {
-                p == robot -> "@"
-                p in lBoxes -> "["
-                p in rBoxes -> "]"
-                p in walls -> "#"
-                else -> "."
-            }
-        }
-        println(line.joinToString(""))
-    }
-}
+println(w2.boxes.sumOf { 100 * it.first.y + it.first.x })
