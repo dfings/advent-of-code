@@ -24,8 +24,9 @@ data class Warehouse(val robot: Point, val boxes: Set<Point>, val walls: Set<Poi
 }
 
 typealias BigBox = Pair<Point, Point>
+operator fun Pair<Point, Point>.plus(d: Direction) = first + d to second + d
 data class WideWarehouse(val robot: Point, val boxes: Set<BigBox>, val walls: Set<Point>) {
-    val boxPoints = boxes.flatMap { listOf(it.first to it, it.second to it) }.toMap()
+    val boxPoints = boxes.associateBy { it.first } + boxes.associateBy { it.second }
     fun next(d: Direction): WideWarehouse {
         val newRobot = robot + d
         val newBoxes = mutableSetOf<BigBox>()
@@ -36,13 +37,13 @@ data class WideWarehouse(val robot: Point, val boxes: Set<BigBox>, val walls: Se
                 force += force.flatMap { boxPoints.getValue(it).toList() }
                 val boxes = force.map { boxPoints.getValue(it) }
                 oldBoxes += boxes
-                newBoxes += boxes.map { it.first + d to it.second + d }
+                newBoxes += boxes.map { it + d }
                 force = force.map { it + d }.filter { it in boxPoints || it in walls }.toSet()
             } else {
                 val f = force.single()
                 val box = boxPoints.getValue(f)
                 oldBoxes += box
-                newBoxes += box.first + d to box.second + d
+                newBoxes += box + d
                 force = setOf(f + d + d)
             }
         }
