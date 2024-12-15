@@ -30,6 +30,7 @@ data class Warehouse(val robot: Point, val boxes: Set<Point>, val walls: Set<Poi
         return Warehouse(newRobot, (boxes - oldBoxes) + newBoxes, walls)
     }
 }
+
 fun parseWarehouse(lines: List<String>): Warehouse {
     var robot: Point? = null
     val boxes = mutableSetOf<Point>()
@@ -93,28 +94,13 @@ data class WideWarehouse(val robot: Point, val lBoxes: Set<Point>, val rBoxes: S
         return WideWarehouse(newRobot, (lBoxes - oldLBoxes) + newLBoxes, (rBoxes - oldRBoxes) + newRBoxes, walls)
     }
 }
-fun parseWideWarehouse(lines: List<String>): WideWarehouse {
-    var robot: Point? = null
-    val lBoxes = mutableSetOf<Point>()
-    val rBoxes = mutableSetOf<Point>()
-    val walls = mutableSetOf<Point>()
-    for (y in 0..lines.lastIndex) {
-        for (x in 0..lines[y].lastIndex) {
-            when (lines[y][x]) {
-                '@' -> robot = Point(2 * x, y)
-                'O' -> { 
-                    lBoxes.add(Point(2 * x, y))
-                    rBoxes.add(Point(2 * x + 1, y))
-                }
-                '#' -> {
-                    walls.add(Point(2 * x, y))
-                    walls.add(Point(2 * x + 1, y))
-                }
-            }
-        }
-    }
-    return WideWarehouse(robot!!, lBoxes, rBoxes, walls)
-}
+
+fun Warehouse.makeWide() = WideWarehouse(
+    Point(2 * robot.x, robot.y),
+    boxes.map { Point(2 * it.x, it.y) }.toSet(),
+    boxes.map { Point(2 * it.x + 1, it.y) }.toSet(),
+    walls.flatMap { listOf(Point(2 * it.x, it.y), Point(2 * it.x + 1, it.y))}.toSet(),
+)
 
 fun WideWarehouse.print() {
     val maxPoint = walls.maxBy { it.x * it.y }
@@ -136,17 +122,17 @@ fun WideWarehouse.print() {
 
 val lines = java.io.File(args[0]).readLines()
 val warehouseLines = lines.takeWhile { it != "" }
-var warehouse = parseWarehouse(warehouseLines)
+val warehouse = parseWarehouse(warehouseLines)
 val instructions = lines.drop(warehouseLines.size + 1).joinToString("").map { it.toDirection() }
 
+var w = warehouse
 for (d in instructions) {
-    warehouse = warehouse.next(d)
+    w = w.next(d)
 }
-println(warehouse.boxes.sumOf { 100 * it.y + it.x })
+println(w.boxes.sumOf { 100 * it.y + it.x })
 
-
-var warehouse2 = parseWideWarehouse(warehouseLines)
+var w2 = warehouse.makeWide()
 for (d in instructions) {
-    warehouse2 = warehouse2.next(d)
+    w2 = w2.next(d)
 }
-println(warehouse2.lBoxes.sumOf { 100 * it.y + it.x })
+println(w2.lBoxes.sumOf { 100 * it.y + it.x })
