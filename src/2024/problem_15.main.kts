@@ -69,7 +69,7 @@ data class WideWarehouse(val robot: Point, val boxes: Set<BigBox>, val walls: Se
     }
 }
 
-fun Warehouse.makeWide() = WideWarehouse(
+fun Warehouse.wide() = WideWarehouse(
     Point(2 * robot.x, robot.y),
     boxes.map { Point(2 * it.x, it.y) to Point(2 * it.x + 1, it.y) }.toSet(),
     walls.flatMap { listOf(Point(2 * it.x, it.y), Point(2 * it.x + 1, it.y))}.toSet(),
@@ -80,14 +80,6 @@ val warehouseLines = lines.takeWhile { it != "" }
 val warehouse = parseWarehouse(warehouseLines)
 val instructions = lines.drop(warehouseLines.size + 1).joinToString("").map { it.toDirection() }
 
-var w = warehouse
-for (d in instructions) {
-    w = w.next(d)
-}
-println(w.boxes.sumOf { 100 * it.y + it.x })
-
-var w2 = warehouse.makeWide()
-for (d in instructions) {
-    w2 = w2.next(d)
-}
-println(w2.boxes.sumOf { 100 * it.first.y + it.first.x })
+fun Iterable<Point>.score() = sumOf { 100 * it.y + it.x }
+println(instructions.fold(warehouse) { w, d -> w.next(d) }.boxes.score())
+println(instructions.fold(warehouse.wide()) { w, d -> w.next(d) }.boxes.map { it.first }.score())
