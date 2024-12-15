@@ -60,17 +60,15 @@ data class WideWarehouse(val robot: Point, val lBoxes: Set<Point>, val rBoxes: S
                 newLBoxes += oldLBoxes.map { it + d }
                 newRBoxes += oldRBoxes.map { it + d}
             } else {
-                when {
-                    force.single() in lBoxes -> {
-                        oldLBoxes += force
-                        force = setOf(force.single() + d)
-                        newLBoxes += force
-                    }
-                    force.single() in rBoxes -> {
-                        oldRBoxes += force
-                        force = setOf(force.single() + d)
-                        newRBoxes += force
-                    }
+                val f = force.single()
+                if (f in lBoxes) {
+                    oldLBoxes += f
+                    force = setOf(f + d)
+                    newLBoxes += f + d
+                } else {
+                    oldRBoxes += f
+                    force = setOf(f + d)
+                    newRBoxes += f + d
                 }
             }
         }
