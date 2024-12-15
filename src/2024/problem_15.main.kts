@@ -50,24 +50,17 @@ data class WideWarehouse(val robot: Point, val lBoxes: Set<Point>, val rBoxes: S
         val oldLBoxes = mutableSetOf<Point>()
         val oldRBoxes = mutableSetOf<Point>()
         var force = setOf(newRobot)
-        while (true) {
+        while (force.all { it in lBoxes || it in rBoxes} && !force.isEmpty()) {
             if (d == Direction.NORTH || d == Direction.SOUTH) {
-                when {
-                    force.any { it in walls } -> return this
-                    force.any { it in lBoxes || it in rBoxes } -> {                    
-                        force += force.filter { it in rBoxes }.map { it + Direction.WEST }
-                        force += force.filter { it in lBoxes }.map { it + Direction.EAST }
-                        oldLBoxes += force.filter { it in lBoxes}
-                        oldRBoxes += force.filter { it in rBoxes}
-                        force = force.map { it + d }.filter { it in lBoxes || it in rBoxes || it in walls }.toSet()
-                        newLBoxes += oldLBoxes.map { it + d }
-                        newRBoxes += oldRBoxes.map { it + d}
-                    }
-                    else -> break
-                }
+                force += force.filter { it in rBoxes }.map { it + Direction.WEST }
+                force += force.filter { it in lBoxes }.map { it + Direction.EAST }
+                oldLBoxes += force.filter { it in lBoxes}
+                oldRBoxes += force.filter { it in rBoxes}
+                force = force.map { it + d }.filter { it in lBoxes || it in rBoxes || it in walls }.toSet()
+                newLBoxes += oldLBoxes.map { it + d }
+                newRBoxes += oldRBoxes.map { it + d}
             } else {
                 when {
-                    force.single() in walls -> return this
                     force.single() in lBoxes -> {
                         oldLBoxes += force
                         force = setOf(force.single() + d)
@@ -78,10 +71,10 @@ data class WideWarehouse(val robot: Point, val lBoxes: Set<Point>, val rBoxes: S
                         force = setOf(force.single() + d)
                         newRBoxes += force
                     }
-                    else -> break
                 }
             }
         }
+        if (force.any { it in walls }) return this
         return WideWarehouse(newRobot, (lBoxes - oldLBoxes) + newLBoxes, (rBoxes - oldRBoxes) + newRBoxes, walls)
     }
 }
