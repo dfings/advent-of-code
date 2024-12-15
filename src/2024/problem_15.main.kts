@@ -31,7 +31,7 @@ data class WideWarehouse(val robot: Point, val boxes: Set<BigBox>, val walls: Se
         val newBoxes = mutableSetOf<BigBox>()
         val oldBoxes = mutableSetOf<BigBox>()
         var force = setOf(newRobot)
-        while (force.all { it in boxPoints } && !force.isEmpty()) {
+        while (force.all { it in boxPoints } && force.isNotEmpty()) {
             if (d == Direction.NORTH || d == Direction.SOUTH) {
                 force += force.flatMap { boxPoints.getValue(it).toList() }
                 val boxes = force.map { boxPoints.getValue(it) }
