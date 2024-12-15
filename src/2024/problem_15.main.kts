@@ -9,8 +9,6 @@ fun Char.toDirection() = directions.getValue(this)
 
 data class Point(val x: Int, val y: Int)
 operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
-fun Point.score() = 100 * y + x
-fun Point.score2() = 100 * y + x
 
 data class Warehouse(val robot: Point, val boxes: Set<Point>, val walls: Set<Point>) {
     fun next(d: Direction): Warehouse {
@@ -144,11 +142,11 @@ val instructions = lines.drop(warehouseLines.size + 1).joinToString("").map { it
 for (d in instructions) {
     warehouse = warehouse.next(d)
 }
-println(warehouse.boxes.sumOf { it.score() })
+println(warehouse.boxes.sumOf { 100 * it.y + it.x })
 
 
 var warehouse2 = parseWideWarehouse(warehouseLines)
 for (d in instructions) {
     warehouse2 = warehouse2.next(d)
 }
-println(warehouse2.lBoxes.sumOf { it.score2() })
+println(warehouse2.lBoxes.sumOf { 100 * it.y + it.x })
