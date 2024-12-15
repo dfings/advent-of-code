@@ -21,14 +21,14 @@ data class Warehouse(val robot: Point, val boxes: Set<Point>, val walls: Set<Poi
         val newRobot = robot + d
         val newBoxes = mutableSetOf<Point>()
         val oldBoxes = mutableSetOf<Point>()
-        var current = newRobot
+        var force = newRobot
         while (true) {
             when {
-                current in walls -> return this
-                current in boxes -> {
-                    oldBoxes.add(current)
-                    current = current + d
-                    newBoxes.add(current)
+                force in walls -> return this
+                force in boxes -> {
+                    oldBoxes.add(force)
+                    force = force + d
+                    newBoxes.add(force)
                 }
                 else -> break
             }
@@ -61,16 +61,16 @@ data class WideWarehouse(val robot: Point, val lBoxes: Set<Point>, val rBoxes: S
         val oldLBoxes = mutableSetOf<Point>()
         val oldRBoxes = mutableSetOf<Point>()
         if (d == Direction.NORTH || d == Direction.SOUTH) {
-            var current = setOf(newRobot)
+            var force = setOf(newRobot)
             while (true) {
                 when {
-                    current.any { it in walls } -> return this
-                    current.any { it in lBoxes || it in rBoxes } -> {                    
-                        current += current.filter { it in rBoxes }.map { it + Direction.WEST }
-                        current += current.filter { it in lBoxes }.map { it + Direction.EAST }
-                        oldLBoxes += current.filter { it in lBoxes}
-                        oldRBoxes += current.filter { it in rBoxes}
-                        current = current.map { it + d }.filter { it in lBoxes || it in rBoxes || it in walls }.toSet()
+                    force.any { it in walls } -> return this
+                    force.any { it in lBoxes || it in rBoxes } -> {                    
+                        force += force.filter { it in rBoxes }.map { it + Direction.WEST }
+                        force += force.filter { it in lBoxes }.map { it + Direction.EAST }
+                        oldLBoxes += force.filter { it in lBoxes}
+                        oldRBoxes += force.filter { it in rBoxes}
+                        force = force.map { it + d }.filter { it in lBoxes || it in rBoxes || it in walls }.toSet()
                         newLBoxes += oldLBoxes.map { it + d }
                         newRBoxes += oldRBoxes.map { it + d}
                     }
@@ -78,19 +78,19 @@ data class WideWarehouse(val robot: Point, val lBoxes: Set<Point>, val rBoxes: S
                 }
             }
         } else {
-            var current = newRobot
+            var force = newRobot
             while (true) {
                 when {
-                    current in walls -> return this
-                    current in lBoxes -> {
-                        oldLBoxes.add(current)
-                        current = current + d
-                        newLBoxes.add(current)
+                    force in walls -> return this
+                    force in lBoxes -> {
+                        oldLBoxes.add(force)
+                        force = force + d
+                        newLBoxes.add(force)
                     }
-                    current in rBoxes -> {
-                        oldRBoxes.add(current)
-                        current = current + d
-                        newRBoxes.add(current)
+                    force in rBoxes -> {
+                        oldRBoxes.add(force)
+                        force = force + d
+                        newRBoxes.add(force)
                     }
                     else -> break
                 }
