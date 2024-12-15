@@ -53,9 +53,10 @@ data class WideWarehouse(val robot: Point, val boxes: Set<BigBox>, val walls: Se
         while (force.all { it in boxPoints } && !force.isEmpty()) {
             if (d == Direction.NORTH || d == Direction.SOUTH) {
                 force += force.flatMap { boxPoints.getValue(it).toList() }
-                oldBoxes += force.map { boxPoints.getValue(it) }
+                val boxes = force.map { boxPoints.getValue(it) }
+                oldBoxes += boxes
+                newBoxes += boxes.map { it.first + d to it.second + d }
                 force = force.map { it + d }.filter { it in boxPoints || it in walls }.toSet()
-                newBoxes += oldBoxes.map { it.first + d to it.second + d }
             } else {
                 val f = force.single()
                 val box = boxPoints.getValue(f)
