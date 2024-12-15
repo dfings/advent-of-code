@@ -84,6 +84,24 @@ fun Warehouse.makeWide() = WideWarehouse(
     walls.flatMap { listOf(Point(2 * it.x, it.y), Point(2 * it.x + 1, it.y))}.toSet(),
 )
 
+val lines = java.io.File(args[0]).readLines()
+val warehouseLines = lines.takeWhile { it != "" }
+val warehouse = parseWarehouse(warehouseLines)
+val instructions = lines.drop(warehouseLines.size + 1).joinToString("").map { it.toDirection() }
+
+var w = warehouse
+for (d in instructions) {
+    w = w.next(d)
+}
+println(w.boxes.sumOf { 100 * it.y + it.x })
+
+var w2 = warehouse.makeWide()
+for (d in instructions) {
+    w2 = w2.next(d)
+}
+println(w2.lBoxes.sumOf { 100 * it.y + it.x })
+
+// For debugging.
 fun WideWarehouse.print() {
     val maxPoint = walls.maxBy { it.x * it.y }
     for (y in 0..maxPoint.y) {
@@ -101,20 +119,3 @@ fun WideWarehouse.print() {
         println(line.joinToString(""))
     }
 }
-
-val lines = java.io.File(args[0]).readLines()
-val warehouseLines = lines.takeWhile { it != "" }
-val warehouse = parseWarehouse(warehouseLines)
-val instructions = lines.drop(warehouseLines.size + 1).joinToString("").map { it.toDirection() }
-
-var w = warehouse
-for (d in instructions) {
-    w = w.next(d)
-}
-println(w.boxes.sumOf { 100 * it.y + it.x })
-
-var w2 = warehouse.makeWide()
-for (d in instructions) {
-    w2 = w2.next(d)
-}
-println(w2.lBoxes.sumOf { 100 * it.y + it.x })
