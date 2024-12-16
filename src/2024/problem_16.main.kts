@@ -1,5 +1,7 @@
 #!/usr/bin/env kotlin
 
+import kotlin.time.measureTime
+
 enum class Direction(val x: Int, val y: Int) {
     NORTH(0, -1), EAST(1, 0), SOUTH(0, 1), WEST(-1, 0)
 }
@@ -20,11 +22,11 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
         if (p + right !in walls) add(copy(d = right) to 1000)
     }
 
-    fun findShortestPaths(): Pair<Int, Map<Reindeer, Set<Reindeer>>> {
+    fun findShortestPaths(): Pair<Int, Map<Reindeer, List<Reindeer>>> {
         val startReindeer = Reindeer(start, Direction.EAST)
         val minScores = mutableMapOf(startReindeer to 0)
         var minEndScore = Int.MAX_VALUE
-        val previous = mutableMapOf<Reindeer, MutableSet<Reindeer>>()
+        val previous = mutableMapOf<Reindeer, MutableList<Reindeer>>()
         val frontier = mutableSetOf(startReindeer)
         while (!frontier.isEmpty()) {
             val reindeer = frontier.minBy { minScores.getValue(it) }
@@ -37,7 +39,7 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
                 if (newScore <= oldScore && newScore <= minEndScore) {  
                     frontier.add(newReindeer)
                     minScores[newReindeer] = newScore
-                    val prev = previous.getOrPut(newReindeer) { mutableSetOf<Reindeer>() }
+                    val prev = previous.getOrPut(newReindeer) { mutableListOf<Reindeer>() }
                     if (newScore < oldScore) prev.clear()
                     prev += reindeer
                 }
@@ -46,7 +48,7 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
         return minEndScore to previous
     }
 
-    fun countPathPoints(previous: Map<Reindeer, Set<Reindeer>>): Int {
+    fun countPathPoints(previous: Map<Reindeer, List<Reindeer>>): Int {
         val frontier = ArrayDeque<Reindeer>(previous.keys.filter { it.p == end })
         val pathPoints = mutableSetOf<Reindeer>()
         while (!frontier.isEmpty()) {
@@ -80,3 +82,12 @@ val maze = parseMaze(lines)
 val (minScore, previous) = maze.findShortestPaths()
 println(minScore)
 println( maze.countPathPoints(previous))
+
+// Temporary for determining timing.
+repeat (1000) {
+    val t = measureTime {
+        val (minScore, previous) = maze.findShortestPaths()
+        val unused = maze.countPathPoints(previous)
+    }
+    println(t)
+}
