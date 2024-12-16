@@ -13,10 +13,10 @@ data class Reindeer(val p: Point, val d: Direction)
 
 data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
     fun neighbors(r: Reindeer) = buildList {
-        if (r.p + r.d !in walls) add(r.copy(p = r.p + r.d) to 1)
         val left = rotateLeft.getValue(r.d)
-        if (r.p + left !in walls) add(r.copy(d = left) to 1000)
         val right = rotateRight.getValue(r.d)
+        if (r.p + r.d !in walls) add(r.copy(p = r.p + r.d) to 1)
+        if (r.p + left !in walls) add(r.copy(d = left) to 1000)
         if (r.p + right !in walls) add(r.copy(d = right) to 1000)
     }
 
