@@ -20,20 +20,22 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
         if (p + right !in walls) add(copy(d = right) to 1000)
     }
 
-    fun findShortestPath(): Pair<Int, Map<Reindeer, Set<Reindeer>>> {
-        val minScores = mutableMapOf<Reindeer, Int>()
+    fun findShortestPaths(): Pair<Int, Map<Reindeer, Set<Reindeer>>> {
+        val startReindeer = Reindeer(start, Direction.EAST)
+        val minScores = mutableMapOf(startReindeer to 0)
         var minEndScore = Int.MAX_VALUE
         val previous = mutableMapOf<Reindeer, MutableSet<Reindeer>>()
-        val frontier = mutableSetOf(Reindeer(start, Direction.EAST) to 0)
+        val frontier = mutableSetOf(startReindeer)
         while (!frontier.isEmpty()) {
-            val (reindeer, score) = frontier.minBy { it.second }
+            val reindeer = frontier.minBy { minScores.getValue(it) }
+            val score = minScores.getValue(reindeer)
             if (reindeer.p == end) minEndScore = score
-            frontier.remove(reindeer to score)
+            frontier.remove(reindeer)
             for ((newReindeer, scoreDelta) in reindeer.neighbors()) {
                 val newScore = score + scoreDelta
                 val oldScore = minScores.get(newReindeer) ?: Int.MAX_VALUE
                 if (newScore <= oldScore && newScore <= minEndScore) {  
-                    frontier.add(newReindeer to newScore)
+                    frontier.add(newReindeer)
                     minScores[newReindeer] = newScore
                     val prev = previous.getOrPut(newReindeer) { mutableSetOf<Reindeer>() }
                     if (newScore < oldScore) prev.clear()
@@ -76,7 +78,6 @@ fun parseMaze(lines: List<String>): Maze {
 
 val lines = java.io.File(args[0]).readLines()
 val maze = parseMaze(lines)
-val (minScore, previous) = maze.findShortestPath()
+val (minScore, previous) = maze.findShortestPaths()
 println(minScore)
-val pathPoints = maze.countPathPoints(previous)
-println(pathPoints.size)
+println( maze.countPathPoints(previous).size)
