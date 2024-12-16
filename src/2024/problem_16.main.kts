@@ -12,12 +12,12 @@ operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
 data class Reindeer(val p: Point, val d: Direction)
 
 data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
-    fun neighbors(r: Reindeer) = buildList {
-        val left = rotateLeft.getValue(r.d)
-        val right = rotateRight.getValue(r.d)
-        if (r.p + r.d !in walls) add(r.copy(p = r.p + r.d) to 1)
-        if (r.p + left !in walls) add(r.copy(d = left) to 1000)
-        if (r.p + right !in walls) add(r.copy(d = right) to 1000)
+    fun Reindeer.neighbors() = buildList {
+        val left = rotateLeft.getValue(d)
+        val right = rotateRight.getValue(d)
+        if (p + d !in walls) add(copy(p = p + d) to 1)
+        if (p + left !in walls) add(copy(d = left) to 1000)
+        if (p + right !in walls) add(copy(d = right) to 1000)
     }
 
     fun findShortestPath(): Pair<Int, Map<Reindeer, Set<Reindeer>>> {
@@ -29,7 +29,7 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
             val (reindeer, score) = frontier.minBy { it.second }
             if (reindeer.p == end && score < minEndScore) minEndScore = score
             frontier.remove(reindeer to score)
-            for ((newReindeer, scoreDelta) in neighbors(reindeer)) {
+            for ((newReindeer, scoreDelta) in reindeer.neighbors()) {
                 val newScore = score + scoreDelta
                 val oldScore = minScores.get(newReindeer) ?: Int.MAX_VALUE
                 if (newScore <= oldScore && newScore <= minEndScore) {                        
