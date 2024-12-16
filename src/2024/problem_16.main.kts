@@ -30,9 +30,9 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
         val frontier = mutableSetOf(startReindeer)
         while (!frontier.isEmpty()) {
             val reindeer = frontier.minBy { minScores.getValue(it) }
+            frontier.remove(reindeer)
             val score = minScores.getValue(reindeer)
             if (reindeer.p == end) minEndScore = score
-            frontier.remove(reindeer)
             for ((newReindeer, scoreDelta) in reindeer.neighbors()) {
                 val newScore = score + scoreDelta
                 val oldScore = minScores[newReindeer] ?: Int.MAX_VALUE
