@@ -64,19 +64,14 @@ fun findPathPoints(start: Point, end: Point, previous: Map<Reindeer, List<Reinde
 }
 
 fun parseMaze(lines: List<String>): Maze {
-    var start: Point? = null
-    var end: Point? = null
-    val walls = mutableSetOf<Point>()
-    for (y in 0..lines.lastIndex) {
-        for (x in 0..lines[y].lastIndex) {
-            when (lines[y][x]) {
-                'S' -> start = Point(x, y)
-                'E' -> end = Point(x, y)
-                '#' -> walls += Point(x, y)
-            }
-        }
+    val pointToChar = lines.flatMapIndexed { y, line -> 
+        line.mapIndexed { x, it -> Point(x, y) to it }
     }
-    return Maze(start!!, walls, end!!)
+    return Maze(
+        pointToChar.single { it.second == 'S'}.first,
+        pointToChar.filter { it.second == '#' }.map { it.first }.toSet(),
+        pointToChar.single { it.second == 'E'}.first,
+    )
 }
 
 val lines = java.io.File(args[0]).readLines()
