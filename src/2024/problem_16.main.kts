@@ -37,10 +37,12 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
                 val newScore = score + scoreDelta
                 val oldScore = minScores[newReindeer] ?: Int.MAX_VALUE
                 if (newScore <= oldScore && newScore <= minEndScore) {  
-                    frontier.add(newReindeer)
                     minScores[newReindeer] = newScore
                     val prev = previous.getOrPut(newReindeer) { mutableListOf<Reindeer>() }
-                    if (newScore < oldScore) prev.clear()
+                    if (newScore < oldScore) {
+                        frontier.add(newReindeer)
+                        prev.clear()
+                    }
                     prev += reindeer
                 }
             }
@@ -84,7 +86,7 @@ println(minScore)
 println( maze.countPathPoints(previous))
 
 // Temporary for determining timing.
-repeat (1000) {
+repeat (0) {
     val t = measureTime {
         val (minScore, previous) = maze.findShortestPaths()
         val unused = maze.countPathPoints(previous)
