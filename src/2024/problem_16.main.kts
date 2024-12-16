@@ -18,8 +18,8 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
         val left = rotateLeft.getValue(d)
         val right = rotateRight.getValue(d)
         if (p + d !in walls) add(copy(p = p + d) to 1)
-        if (p + left !in walls) add(copy(d = left) to 1000)
-        if (p + right !in walls) add(copy(d = right) to 1000)
+        if (p + left !in walls) add(Reindeer(p = p + left, d = left) to 1001)
+        if (p + right !in walls) add(Reindeer(p = p + right, d = right) to 1001)
     }
 
     fun findShortestPaths(): Pair<Int, Map<Reindeer, List<Reindeer>>> {
@@ -86,7 +86,7 @@ println(minScore)
 println( maze.countPathPoints(previous))
 
 // Temporary for determining timing.
-repeat (0) {
+repeat (100) {
     val t = measureTime {
         val (minScore, previous) = maze.findShortestPaths()
         val unused = maze.countPathPoints(previous)
