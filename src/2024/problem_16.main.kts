@@ -75,7 +75,6 @@ fun parseMaze(lines: List<String>): Maze {
     return Maze(start!!, walls, end!!)
 }
 
-
 val lines = java.io.File(args[0]).readLines()
 val maze = parseMaze(lines)
 val (minScore, previous) = maze.findShortestPaths()
