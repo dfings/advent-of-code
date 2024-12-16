@@ -49,18 +49,18 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
         }
         return minEndScore to previous
     }
+}
 
-    fun countPathPoints(previous: Map<Reindeer, List<Reindeer>>): Int {
-        val frontier = ArrayDeque<Reindeer>(previous.keys.filter { it.p == end })
-        val pathPoints = mutableSetOf<Reindeer>()
-        while (!frontier.isEmpty()) {
-            val current = frontier.removeFirst()
-            if (pathPoints.add(current) && current.p != start) {
-                frontier.addAll(previous.getValue(current))
-            }
+fun findPathPoints(start: Point, end: Point, previous: Map<Reindeer, List<Reindeer>>): Set<Point> {
+    val frontier = ArrayDeque<Reindeer>(previous.keys.filter { it.p == end })
+    val pathPoints = mutableSetOf<Reindeer>()
+    while (!frontier.isEmpty()) {
+        val current = frontier.removeFirst()
+        if (pathPoints.add(current) && current.p != start) {
+            frontier.addAll(previous.getValue(current))
         }
-        return pathPoints.map { it.p }.toSet().size
     }
+    return pathPoints.map { it.p }.toSet()
 }
 
 fun parseMaze(lines: List<String>): Maze {
@@ -83,13 +83,30 @@ val lines = java.io.File(args[0]).readLines()
 val maze = parseMaze(lines)
 val (minScore, previous) = maze.findShortestPaths()
 println(minScore)
-println( maze.countPathPoints(previous))
+val pathPoints = findPathPoints(maze.start, maze.end, previous)
+println(pathPoints.size)
 
 // Temporary for determining timing.
-repeat (100) {
+repeat (0) {
     val t = measureTime {
         val (minScore, previous) = maze.findShortestPaths()
-        val unused = maze.countPathPoints(previous)
+        val unused = findPathPoints(maze.start, maze.end, previous)
     }
     println(t)
+}
+
+// Temporary for visualizing solutions.
+if (false) {
+    for (y in lines.indices) {
+    val builder = mutableListOf<String>()
+        for (x in 0..lines[y].lastIndex) {
+            val p = Point(x, y)
+            builder.add(when {
+                p in pathPoints -> "O"
+                p in maze.walls -> "#"
+                else -> "."
+            })
+        }
+        println(builder.joinToString(""))
+    }
 }
