@@ -22,17 +22,17 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
 
     fun findShortestPath(): Pair<Int, Map<Reindeer, Set<Reindeer>>> {
         val minScores = mutableMapOf<Reindeer, Int>()
-        val previous = mutableMapOf<Reindeer, MutableSet<Reindeer>>()
         var minEndScore = Int.MAX_VALUE
+        val previous = mutableMapOf<Reindeer, MutableSet<Reindeer>>()
         val frontier = mutableSetOf(Reindeer(start, Direction.EAST) to 0)
         while (!frontier.isEmpty()) {
             val (reindeer, score) = frontier.minBy { it.second }
-            if (reindeer.p == end && score < minEndScore) minEndScore = score
+            if (reindeer.p == end) minEndScore = score
             frontier.remove(reindeer to score)
             for ((newReindeer, scoreDelta) in reindeer.neighbors()) {
                 val newScore = score + scoreDelta
                 val oldScore = minScores.get(newReindeer) ?: Int.MAX_VALUE
-                if (newScore <= oldScore && newScore <= minEndScore) {                        
+                if (newScore <= oldScore && newScore <= minEndScore) {  
                     frontier.add(newReindeer to newScore)
                     minScores[newReindeer] = newScore
                     val prev = previous.getOrPut(newReindeer) { mutableSetOf<Reindeer>() }
