@@ -81,12 +81,13 @@ val pathPoints = findPathPoints(maze.start, maze.end, previous)
 println(pathPoints.size)
 
 // Temporary for determining timing.
+var len = 0
 repeat (0) {
     val t = measureTime {
         val (minScore, previous) = maze.findShortestPaths()
-        val unused = findPathPoints(maze.start, maze.end, previous)
+        len += findPathPoints(maze.start, maze.end, previous).size
     }
-    println(t)
+    println("$t $len")
 }
 
 // Temporary for visualizing solutions.
