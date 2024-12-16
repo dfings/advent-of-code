@@ -33,7 +33,7 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
             frontier.remove(reindeer)
             for ((newReindeer, scoreDelta) in reindeer.neighbors()) {
                 val newScore = score + scoreDelta
-                val oldScore = minScores.get(newReindeer) ?: Int.MAX_VALUE
+                val oldScore = minScores[newReindeer] ?: Int.MAX_VALUE
                 if (newScore <= oldScore && newScore <= minEndScore) {  
                     frontier.add(newReindeer)
                     minScores[newReindeer] = newScore
@@ -46,7 +46,7 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
         return minEndScore to previous
     }
 
-    fun countPathPoints(previous: Map<Reindeer, Set<Reindeer>>): Set<Point> {
+    fun countPathPoints(previous: Map<Reindeer, Set<Reindeer>>): Int {
         val frontier = ArrayDeque<Reindeer>(previous.keys.filter { it.p == end })
         val pathPoints = mutableSetOf<Reindeer>()
         while (!frontier.isEmpty()) {
@@ -55,7 +55,7 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
                 frontier.addAll(previous.getValue(current))
             }
         }
-        return pathPoints.map { it.p }.toSet()
+        return pathPoints.map { it.p }.toSet().size
     }
 }
 
@@ -80,4 +80,4 @@ val lines = java.io.File(args[0]).readLines()
 val maze = parseMaze(lines)
 val (minScore, previous) = maze.findShortestPaths()
 println(minScore)
-println( maze.countPathPoints(previous).size)
+println( maze.countPathPoints(previous))
