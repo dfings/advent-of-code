@@ -5,8 +5,7 @@ data class Program(
     var b: Long, 
     var c: Long,
     val instructions: List<Int>, 
-    var instructionPointer: Int = 0, 
-    var jumpFlag: Boolean = false,
+    var instructionPointer: Int = 0,
     val output: MutableList<Int> = mutableListOf<Int>(),
 ) {
     fun combo(value: Int) = when (value) {
@@ -22,10 +21,7 @@ data class Program(
             0 -> a = a shr combo(operand).toInt()
             1 -> b = b xor operand.toLong()
             2 -> b = combo(operand).mod(8L)
-            3 -> if (a != 0L) {
-                instructionPointer = operand
-                jumpFlag = true
-            }
+            3 -> if (a != 0L) instructionPointer = operand - 2
             4 -> b = b xor c
             5 -> output += combo(operand).mod(8L).toInt()
             6 -> b = a shr combo(operand).toInt()
@@ -35,11 +31,7 @@ data class Program(
 
     fun step() {
         execute(instructions[instructionPointer], instructions[instructionPointer + 1])
-        if (jumpFlag) {
-            jumpFlag = false
-        } else {
-            instructionPointer += 2
-        }
+        instructionPointer += 2
     }
 
     fun execute() {
