@@ -70,7 +70,7 @@ fun executeCorruptedProgram(a: Long): List<Int> {
 
 fun buildInput(target: List<Int>): Long {
     var a = if (target.size == 1) 0 else buildInput(target.drop(1)) shl 3
-    while(executeCorruptedProgram(a) != target) {
+    while (executeCorruptedProgram(a) != target) {
         a++
     }
     return a
