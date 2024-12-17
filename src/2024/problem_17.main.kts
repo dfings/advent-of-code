@@ -34,7 +34,7 @@ data class Program(
         instructionPointer += 2
     }
 
-    fun execute() {
+    fun run() {
         while (instructionPointer < instructions.size) {
             step()
         }
@@ -50,18 +50,18 @@ fun parseProgram(lines: List<String>): Program {
 val lines = java.io.File(args[0]).readLines()
 val program = parseProgram(lines)
 
-program.execute()
+program.run()
 println(program.output.joinToString(","))
 
-fun executeCorruptedProgram(a: Long): List<Int> {
+fun runCorruptedProgram(a: Long): List<Int> {
     val corruptedProgram = Program(a, 0, 0, program.instructions)
-    corruptedProgram.execute()
+    corruptedProgram.run()
     return corruptedProgram.output
 }
 
 fun buildInput(target: List<Int>): Long {
     var a = if (target.size == 1) 0 else buildInput(target.drop(1)) shl 3
-    while (executeCorruptedProgram(a) != target) {
+    while (runCorruptedProgram(a) != target) {
         a++
     }
     return a
