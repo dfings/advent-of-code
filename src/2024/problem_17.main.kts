@@ -16,7 +16,9 @@ data class Program(
         else -> throw IllegalArgumentException()
     }
 
-    fun execute(instruction: Int, operand: Int) {
+    fun step() {
+        val instruction = instructions[instructionPointer]
+        val operand = instructions[instructionPointer + 1]
         when (instruction) {
             0 -> a = a shr combo(operand).toInt()
             1 -> b = b xor operand.toLong()
@@ -27,10 +29,6 @@ data class Program(
             6 -> b = a shr combo(operand).toInt()
             7 -> c = a shr combo(operand).toInt()
         }
-    }
-
-    fun step() {
-        execute(instructions[instructionPointer], instructions[instructionPointer + 1])
         instructionPointer += 2
     }
 
