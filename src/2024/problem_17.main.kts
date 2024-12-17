@@ -17,9 +17,8 @@ data class Program(
     }
 
     fun step() {
-        val instruction = instructions[instructionPointer]
         val operand = instructions[instructionPointer + 1]
-        when (instruction) {
+        when (instructions[instructionPointer]) {
             0 -> a = a shr combo(operand).toInt()
             1 -> b = b xor operand.toLong()
             2 -> b = combo(operand).mod(8L)
