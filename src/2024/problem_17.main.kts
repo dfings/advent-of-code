@@ -57,13 +57,12 @@ fun parseProgram(lines: List<String>): Program {
 
 val lines = java.io.File(args[0]).readLines()
 val program = parseProgram(lines)
-val (a, b, c) = listOf(program.a, program.b, program.c)
 
 program.execute()
 println(program.output.joinToString(","))
 
 fun executeCorruptedProgram(a: Long): List<Int> {
-    val corruptedProgram = Program(a, b, c, program.instructions)
+    val corruptedProgram = Program(a, 0, 0, program.instructions)
     corruptedProgram.execute()
     return corruptedProgram.output
 }
