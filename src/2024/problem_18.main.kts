@@ -45,18 +45,18 @@ println(memory1.findShortestPathLength())
 
 var count = corrupted.lastIndex / 2
 var highestPass = 0
-var lowestFail = Int.MAX_VALUE
+var lowestFail = corrupted.size
 for (diff in generateSequence(count / 2) { max(it / 2, 1) }) {
     val cost = Grid(SIZE, corrupted.take(count).toSet()).findShortestPathLength()
     if (cost == -1) {
-        lowestFail = count
+        lowestFail = count - 1
         count -= diff
     } else {
-        highestPass = count
+        highestPass = count - 1
         count += diff
     }
     if (highestPass == lowestFail - 1) {
-        val c = corrupted[count]
+        val c = corrupted[lowestFail]
         println("${c.x},${c.y}")
         break
     }
