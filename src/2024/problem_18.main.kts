@@ -44,7 +44,7 @@ val memory1 = Grid(SIZE, corrupted.take(1024).toSet())
 println(memory1.findShortestPathLength())
 
 var count = corrupted.lastIndex / 2
-for (diff in generateSequence(count / 2) { max(it / 2, 1)}) {
+for (diff in generateSequence(count / 2) { max(it / 2, 1) }) {
     val len1 = Grid(SIZE, corrupted.take(count - 1).toSet()).findShortestPathLength()
     val len2 = Grid(SIZE, corrupted.take(count).toSet()).findShortestPathLength()
     when {
