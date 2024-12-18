@@ -1,5 +1,7 @@
 #!/usr/bin/env kotlin
 
+import kotlin.math.max
+
 enum class Direction(val x: Int, val y: Int) {
     NORTH(0, -1), EAST(1, 0), SOUTH(0, 1), WEST(-1, 0)
 }
@@ -41,11 +43,15 @@ val SIZE = 70
 val memory1 = Grid(SIZE, corrupted.take(1024).toSet())
 println(memory1.findShortestPathLength())
 
-for (i in 1..corrupted.size) {
-    val memory2 = Grid(SIZE, corrupted.take(i).toSet())
-    if (memory2.findShortestPathLength() == -1) {
-        val c = corrupted[i - 1]
-        println("${c.x},${c.y}")
-        break
+var count = corrupted.lastIndex / 2
+for (diff in generateSequence(count / 2) { max(it / 2, 1)}) {
+    val len1 = Grid(SIZE, corrupted.take(count - 1).toSet()).findShortestPathLength()
+    val len2 = Grid(SIZE, corrupted.take(count).toSet()).findShortestPathLength()
+    when {
+        len1 != -1 && len2 == -1 -> break
+        len2 != -1 -> count += diff
+        len1 == -1 -> count -= diff        
     }
 }
+val c = corrupted[count - 1]
+println("${c.x},${c.y}")
