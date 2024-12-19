@@ -1,22 +1,18 @@
 #!/usr/bin/env kotlin
 
-class TowelSet(val towels: List<String>) {
-    fun canMakePatternRecursive(pattern: String, partial: String): Boolean = when {
-        partial == pattern -> true
-        !pattern.startsWith(partial) -> false
-        partial.length >= pattern.length -> false
-        else -> towels.any { canMakePatternRecursive(pattern, partial + it) } 
-    }
-
-    fun canMakePattern(pattern: String) = canMakePatternRecursive(pattern, "")
-}
-
-
 val lines = java.io.File(args[0]).readLines()
 val towels = lines[0].split(", ")
 val patterns = lines.drop(2)
-println(towels)
-println(patterns)
 
-val towelSet = TowelSet(towels)
-println(patterns.count { towelSet.canMakePattern(it) })
+val cache = mutableMapOf<String, Long>()
+fun countTowelSequences(pattern: String, partial: String): Long = when {
+    partial == pattern -> 1L
+    !pattern.startsWith(partial) -> 0L
+    else -> cache.getOrPut(pattern.drop(partial.length)) {
+        towels.sumOf { countTowelSequences(pattern, partial + it) }
+    }
+}
+
+val sequenceCounts = patterns.map { countTowelSequences(it, "") }
+println(sequenceCounts.count {  it > 0 })
+println(sequenceCounts.sum())
