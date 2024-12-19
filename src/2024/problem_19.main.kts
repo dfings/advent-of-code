@@ -8,7 +8,7 @@ val cache = mutableMapOf<String, Long>()
 fun countSequences(pattern: String): Long = when {
     pattern.isEmpty() -> 1
     else -> cache.getOrPut(pattern) {
-        towels.filter { pattern.startsWith(it) }.sumOf { countSequences(pattern.drop(it.length)) }
+        towels.filter { pattern.startsWith(it) }.sumOf { countSequences(pattern.removePrefix(it)) }
     }
 }
 
