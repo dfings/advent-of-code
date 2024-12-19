@@ -5,13 +5,13 @@ val towels = lines[0].split(", ")
 val patterns = lines.drop(2)
 
 val cache = mutableMapOf<String, Long>()
-fun countTowelSequences(pattern: String): Long = when {
+fun countSequences(pattern: String): Long = when {
     pattern.isEmpty() -> 1
     else -> cache.getOrPut(pattern) {
-        towels.filter { pattern.startsWith(it) }.sumOf { countTowelSequences(pattern.drop(it.length)) }
+        towels.filter { pattern.startsWith(it) }.sumOf { countSequences(pattern.drop(it.length)) }
     }
 }
 
-val sequenceCounts = patterns.map { countTowelSequences(it) }
+val sequenceCounts = patterns.map { countSequences(it) }
 println(sequenceCounts.count {  it > 0 })
 println(sequenceCounts.sum())
