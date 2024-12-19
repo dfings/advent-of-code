@@ -8,6 +8,5 @@ fun String.countSequences(): Long = cache.getOrPut(this) {
     towels.filter { startsWith(it) }.sumOf { removePrefix(it).countSequences() }
 }
 
-val sequenceCounts = patterns.map { it.countSequences() }
-println(sequenceCounts.count {  it > 0 })
-println(sequenceCounts.sum())
+println(patterns.count { it.countSequences() > 0 })
+println(patterns.sumOf { it.countSequences() })
