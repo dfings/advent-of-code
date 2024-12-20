@@ -29,25 +29,25 @@ data class Track(val start: Point, val walls: Set<Point>, val end: Point) {
         }
         return minCost
     }
+}
 
-    fun analyzeCheats(costs: Map<Point, Int>, cheats: Int, target: Int): Int {
-        val effectiveCheats = mutableMapOf<Pair<Point, Point>, Int>()
-        for ((point, cost) in costs.entries) {
-            for (yDelta in -cheats..cheats) {
-                for (xDelta in -cheats..cheats) {
-                    val cheatCost = abs(xDelta) + abs(yDelta)
-                    val p = Point(point.x + xDelta, point.y + yDelta)
-                    if (cheatCost <= cheats && p in costs) {
-                        val savings = costs.getValue(p) - costs.getValue(point) - cheatCost
-                        if (savings >= target) {
-                            effectiveCheats.put(point to p, savings)
-                        }
+fun analyzeCheats(costs: Map<Point, Int>, cheats: Int, target: Int): Int {
+    val effectiveCheats = mutableMapOf<Pair<Point, Point>, Int>()
+    for ((point, cost) in costs.entries) {
+        for (yDelta in -cheats..cheats) {
+            for (xDelta in -cheats..cheats) {
+                val cheatCost = abs(xDelta) + abs(yDelta)
+                val p = Point(point.x + xDelta, point.y + yDelta)
+                if (cheatCost <= cheats && p in costs) {
+                    val savings = costs.getValue(p) - costs.getValue(point) - cheatCost
+                    if (savings >= target) {
+                        effectiveCheats.put(point to p, savings)
                     }
                 }
             }
         }
-        return effectiveCheats.size
     }
+    return effectiveCheats.size
 }
 
 
@@ -65,5 +65,5 @@ fun parseTrack(lines: List<String>): Track {
 val lines = java.io.File(args[0]).readLines()
 val track = parseTrack(lines)
 val minCosts = track.findMinCosts()
-println(track.analyzeCheats(minCosts, 2, 100))
-println(track.analyzeCheats(minCosts, 20, 100))
+println(analyzeCheats(minCosts, 2, 100))
+println(analyzeCheats(minCosts, 20, 100))
