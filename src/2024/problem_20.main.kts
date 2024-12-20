@@ -29,27 +29,29 @@ data class Track(val start: Point, val walls: Set<Point>, val end: Point) {
         }
         return minCost
     }
-}
 
-fun analyzeCheats(pathCosts: Map<Point, Int>, cheats: Int, target: Int): Int {
-    val effectiveCheats = mutableMapOf<Pair<Point, Point>, Int>()
-    for ((point, cost) in pathCosts.entries) {
-        for (yDelta in -cheats..cheats) {
-            for (xDelta in -cheats..cheats) {
-                val cheatCost = abs(xDelta) + abs(yDelta)
-                if (cheatCost > cheats) continue
-
-                val p = Point(point.x + xDelta, point.y + yDelta)
-                if (p !in pathCosts) continue
-                
-                val savings = pathCosts.getValue(p) - pathCosts.getValue(point) - cheatCost
-                if (savings < target) continue
-                
-                effectiveCheats.put(point to p, savings)
+    fun analyzeCheats(pathCosts: Map<Point, Int>, cheats: Int, target: Int): Int {
+        val pathLength = pathCosts.getValue(end)
+        val effectiveCheats = mutableMapOf<Pair<Point, Point>, Int>()
+        for ((cheatStart, cheatStartCost) in pathCosts.entries) {
+            if (pathLength - cheatStartCost < target) continue
+            for (yDelta in -cheats..cheats) {
+                val absYDelta = abs(yDelta)
+                for (xDelta in (-cheats + absYDelta)..(cheats - absYDelta)) {
+                    val cheatEnd = Point(cheatStart.x + xDelta, cheatStart.y + yDelta)
+                    val cheatEndCost = pathCosts[cheatEnd]
+                    if (cheatEndCost == null) continue
+                    
+                    val cheatCost = abs(xDelta) + absYDelta
+                    val savings = cheatEndCost - cheatStartCost - cheatCost
+                    if (savings < target) continue
+                            
+                    effectiveCheats.put(cheatStart to cheatEnd, savings)
+                }
             }
         }
+        return effectiveCheats.size
     }
-    return effectiveCheats.size
 }
 
 
@@ -67,5 +69,5 @@ fun parseTrack(lines: List<String>): Track {
 val lines = java.io.File(args[0]).readLines()
 val track = parseTrack(lines)
 val minCosts = track.findMinCosts()
-println(analyzeCheats(minCosts, 2, 100))
-println(analyzeCheats(minCosts, 20, 100))
+println(track.analyzeCheats(minCosts, 2, 100))
+println(track.analyzeCheats(minCosts, 20, 100))
