@@ -37,13 +37,15 @@ fun analyzeCheats(costs: Map<Point, Int>, cheats: Int, target: Int): Int {
         for (yDelta in -cheats..cheats) {
             for (xDelta in -cheats..cheats) {
                 val cheatCost = abs(xDelta) + abs(yDelta)
+                if (cheatCost > cheats) continue
+
                 val p = Point(point.x + xDelta, point.y + yDelta)
-                if (cheatCost <= cheats && p in costs) {
-                    val savings = costs.getValue(p) - costs.getValue(point) - cheatCost
-                    if (savings >= target) {
-                        effectiveCheats.put(point to p, savings)
-                    }
-                }
+                if (p !in costs) continue
+                
+                val savings = costs.getValue(p) - costs.getValue(point) - cheatCost
+                if (savings < target) continue
+                
+                effectiveCheats.put(point to p, savings)
             }
         }
     }
