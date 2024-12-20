@@ -31,18 +31,18 @@ data class Track(val start: Point, val walls: Set<Point>, val end: Point) {
     }
 }
 
-fun analyzeCheats(costs: Map<Point, Int>, cheats: Int, target: Int): Int {
+fun analyzeCheats(pathCosts: Map<Point, Int>, cheats: Int, target: Int): Int {
     val effectiveCheats = mutableMapOf<Pair<Point, Point>, Int>()
-    for ((point, cost) in costs.entries) {
+    for ((point, cost) in pathCosts.entries) {
         for (yDelta in -cheats..cheats) {
             for (xDelta in -cheats..cheats) {
                 val cheatCost = abs(xDelta) + abs(yDelta)
                 if (cheatCost > cheats) continue
 
                 val p = Point(point.x + xDelta, point.y + yDelta)
-                if (p !in costs) continue
+                if (p !in pathCosts) continue
                 
-                val savings = costs.getValue(p) - costs.getValue(point) - cheatCost
+                val savings = pathCosts.getValue(p) - pathCosts.getValue(point) - cheatCost
                 if (savings < target) continue
                 
                 effectiveCheats.put(point to p, savings)
