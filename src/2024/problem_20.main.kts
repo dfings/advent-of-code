@@ -30,7 +30,7 @@ fun analyzeCheats(path: List<Point>, maxCheatLength: Int, target: Int) =
             val savings = endIndex - startIndex - cheatLength
             if (cheatLength <= maxCheatLength && savings >= target) start to end else null
         }
-    }.distinct().size
+    }.toSet().size
 
 fun parseTrack(lines: List<String>): Track {
     val pointToChar = lines.flatMapIndexed { y, line -> 
