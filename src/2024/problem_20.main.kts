@@ -1,6 +1,7 @@
 #!/usr/bin/env kotlin
 
 import kotlin.math.abs
+import kotlin.time.measureTime
 
 enum class Direction(val x: Int, val y: Int) {
     NORTH(0, -1), EAST(1, 0), SOUTH(0, 1), WEST(-1, 0)
@@ -21,23 +22,19 @@ data class Track(val start: Point, val walls: Set<Point>, val end: Point) {
         }
     }
 }
-   
-fun analyzeCheats(path: List<Point>, pathIndexes: Map<Point, Int>, cheats: Int, target: Int): Int {
+
+fun analyzeCheats(path: List<Point>, cheats: Int, target: Int): Int {
     val effectiveCheats = mutableMapOf<Pair<Point, Point>, Int>()
-    for ((cheatStartIndex, cheatStart) in path.subList(0, path.lastIndex - 100).withIndex()) {
-        for (yDelta in -cheats..cheats) {
-            val absYDelta = abs(yDelta)
-            for (xDelta in (-cheats + absYDelta)..(cheats - absYDelta)) {
-                val cheatEnd = Point(cheatStart.x + xDelta, cheatStart.y + yDelta)
-                val cheatEndIndex = pathIndexes[cheatEnd]
-                if (cheatEndIndex == null) continue
-                
-                val cheatLength = abs(xDelta) + absYDelta
-                val savings = cheatEndIndex - cheatStartIndex - cheatLength
-                if (savings < target) continue
+    for ((startIndex, start) in path.subList(0, path.lastIndex - target).withIndex()) {
+        for ((endOffset, end) in path.subList(startIndex, path.size).withIndex()) {
+            val cheatLength = abs(start.x - end.x) + abs(start.y - end.y)
+            if (cheatLength > cheats) continue
+            
+            val endIndex = startIndex + endOffset
+            val savings = endIndex - startIndex - cheatLength
+            if (savings < target) continue
                         
-                effectiveCheats.put(cheatStart to cheatEnd, savings)
-            }
+            effectiveCheats.put(start to end, savings)
         }
     }
     return effectiveCheats.size
@@ -58,6 +55,5 @@ fun parseTrack(lines: List<String>): Track {
 val lines = java.io.File(args[0]).readLines()
 val track = parseTrack(lines)
 val path = track.findPath()
-val pathIndexes = path.mapIndexed { i, it -> it to i }.toMap()
-println(analyzeCheats(path, pathIndexes, 2, 100))
-println(analyzeCheats(path, pathIndexes, 20, 100))
+println(analyzeCheats(path, 2, 100))
+println(analyzeCheats(path, 20, 100))
