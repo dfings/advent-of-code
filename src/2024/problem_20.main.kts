@@ -33,7 +33,6 @@ fun analyzeCheats(path: List<Point>, maxCheatLength: Int, target: Int) =
         }
     }.distinct().size
 
-
 fun parseTrack(lines: List<String>): Track {
     val pointToChar = lines.flatMapIndexed { y, line -> 
         line.mapIndexed { x, it -> Point(x, y) to it }
