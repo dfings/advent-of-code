@@ -10,48 +10,38 @@ data class Point(val x: Int, val y: Int)
 operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
 
 data class Track(val start: Point, val walls: Set<Point>, val end: Point) {
-    fun Point.neighbors() = Direction.entries.map { this + it }.filter { it !in walls }
-
-    fun findMinCosts(): Map<Point, Int> {
-        val minCost = mutableMapOf(start to 0)
-        val frontier = mutableSetOf(start to 0)
-        while (!frontier.isEmpty()) {
-            val (point, cost) = frontier.minBy { it.second }
-            frontier.remove(point to cost)
-            for (n in point.neighbors()) {
-                val oldCost = minCost[n] ?: Int.MAX_VALUE
-                val newCost = cost + 1
-                if (newCost < oldCost) {  
-                    minCost[n] = newCost
-                    frontier.add(n to newCost)
-                }
+    fun findPath(): List<Point> {
+        val path = mutableListOf(start)
+        var current = start
+        while (current != end) {
+            current = Direction.entries.map { current + it }
+                .filter { it !in walls && it != path.getOrNull(path.lastIndex - 1) }
+                .single()
+            path += current
+        }
+        return path
+    }
+}
+   
+fun analyzeCheats(path: List<Point>, pathIndexes: Map<Point, Int>, cheats: Int, target: Int): Int {
+    val effectiveCheats = mutableMapOf<Pair<Point, Point>, Int>()
+    for ((cheatStartIndex, cheatStart) in path.subList(0, path.lastIndex - 100).withIndex()) {
+        for (yDelta in -cheats..cheats) {
+            val absYDelta = abs(yDelta)
+            for (xDelta in (-cheats + absYDelta)..(cheats - absYDelta)) {
+                val cheatEnd = Point(cheatStart.x + xDelta, cheatStart.y + yDelta)
+                val cheatEndIndex = pathIndexes[cheatEnd]
+                if (cheatEndIndex == null) continue
+                
+                val cheatLength = abs(xDelta) + absYDelta
+                val savings = cheatEndIndex - cheatStartIndex - cheatLength
+                if (savings < target) continue
+                        
+                effectiveCheats.put(cheatStart to cheatEnd, savings)
             }
         }
-        return minCost
     }
-
-    fun analyzeCheats(pathCosts: Map<Point, Int>, cheats: Int, target: Int): Int {
-        val pathLength = pathCosts.getValue(end)
-        val effectiveCheats = mutableMapOf<Pair<Point, Point>, Int>()
-        for ((cheatStart, cheatStartCost) in pathCosts.entries) {
-            if (pathLength - cheatStartCost < target) continue
-            for (yDelta in -cheats..cheats) {
-                val absYDelta = abs(yDelta)
-                for (xDelta in (-cheats + absYDelta)..(cheats - absYDelta)) {
-                    val cheatEnd = Point(cheatStart.x + xDelta, cheatStart.y + yDelta)
-                    val cheatEndCost = pathCosts[cheatEnd]
-                    if (cheatEndCost == null) continue
-                    
-                    val cheatCost = abs(xDelta) + absYDelta
-                    val savings = cheatEndCost - cheatStartCost - cheatCost
-                    if (savings < target) continue
-                            
-                    effectiveCheats.put(cheatStart to cheatEnd, savings)
-                }
-            }
-        }
-        return effectiveCheats.size
-    }
+    return effectiveCheats.size
 }
 
 
@@ -68,6 +58,7 @@ fun parseTrack(lines: List<String>): Track {
 
 val lines = java.io.File(args[0]).readLines()
 val track = parseTrack(lines)
-val minCosts = track.findMinCosts()
-println(track.analyzeCheats(minCosts, 2, 100))
-println(track.analyzeCheats(minCosts, 20, 100))
+val path = track.findPath()
+val pathIndexes = path.mapIndexed { i, it -> it to i }.toMap()
+println(analyzeCheats(path, pathIndexes, 2, 100))
+println(analyzeCheats(path, pathIndexes, 20, 100))
