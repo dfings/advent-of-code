@@ -10,16 +10,15 @@ data class Point(val x: Int, val y: Int)
 operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
 
 data class Track(val start: Point, val walls: Set<Point>, val end: Point) {
-    fun findPath(): List<Point> {
-        val path = mutableListOf(start)
+    fun findPath() = buildList {
         var current = start
+        add(start)
         while (current != end) {
             current = Direction.entries.map { current + it }
-                .filter { it !in walls && it != path.getOrNull(path.lastIndex - 1) }
+                .filter { it !in walls && it != getOrNull(lastIndex - 1) }
                 .single()
-            path += current
+            add(current)
         }
-        return path
     }
 }
    
