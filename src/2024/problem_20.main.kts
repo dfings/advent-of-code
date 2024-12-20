@@ -23,18 +23,15 @@ data class Track(val start: Point, val walls: Set<Point>, val end: Point) {
     }
 }
 
-fun analyzeCheats(path: List<Point>, maxCheatLength: Int, target: Int) = buildList {
-    path.subList(0, path.size - target).forEachIndexed { startIndex, start ->
-        path.subList(startIndex + target, path.size).forEachIndexed { endOffset, end ->
+fun analyzeCheats(path: List<Point>, maxCheatLength: Int, target: Int) =
+    path.subList(0, path.size - target).flatMapIndexed { startIndex, start ->
+        path.subList(startIndex + target, path.size).mapIndexedNotNull { endOffset, end ->
             val endIndex = startIndex + target + endOffset
             val cheatLength = abs(start.x - end.x) + abs(start.y - end.y)
             val savings = endIndex - startIndex - cheatLength
-            if (cheatLength <= maxCheatLength && savings >= target) {
-                add(start to end)
-            }
+            if (cheatLength <= maxCheatLength && savings >= target) start to end else null
         }
-    }
-}.distinct().size
+    }.distinct().size
 
 
 fun parseTrack(lines: List<String>): Track {
