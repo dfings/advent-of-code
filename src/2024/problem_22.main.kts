@@ -9,7 +9,7 @@ fun next(s: Long): Long {
 
 fun secretNumbers(s: Long) = generateSequence(s, ::next)
 
-fun IntArray.addPriceSequences(s: Long) {
+fun IntArray.addPrices(s: Long) {
     val prices = secretNumbers(s).map { (it % 10).toInt() }.take(2000).toList()
     val seen = BooleanArray(130321) { false }
     for (window in prices.windowed(5)) {
@@ -26,6 +26,8 @@ fun IntArray.addPriceSequences(s: Long) {
 val initialValues = java.io.File(args[0]).readLines().map { it.toLong() }
 println(initialValues.sumOf { secretNumbers(it).drop(2000).take(1).single() })
 
-val sequencePrices = IntArray(130321) { 0 }
-initialValues.map { sequencePrices.addPriceSequences(it) }
-println(sequencePrices.max())
+val priceChangesToPrice = IntArray(130321) { 0 }
+for (initialValue in initialValues) {
+    priceChangesToPrice.addPrices(initialValue)
+}
+println(priceChangesToPrice.max())
