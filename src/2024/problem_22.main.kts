@@ -1,18 +1,26 @@
 #!/usr/bin/env kotlin
 
-fun mixAndPrune(v: Long, s: Long) = (v xor s) % (1 shl 24)
-fun next(s: Long): Long {
-    val a = mixAndPrune(s shl 6, s)
+fun mixAndPrune(x: Long, y: Long) = (x xor y) and 0xFFFFFF
+fun next(current: Long): Long {
+    val a = mixAndPrune(current shl 6, current)
     val b = mixAndPrune(a shr 5, a)
     return mixAndPrune(b shl 11, b)
 }
 
-fun IntArray.addPrices(s: Long) {
+fun getIndex(initialValue: Long, index: Int): Long {
+    var current = initialValue
+    repeat (index) {
+        current = next(current)
+    }
+    return current
+}
+
+fun IntArray.addPrices(initialValue: Long) {
     val prices = IntArray(2001)
-    var v = s
+    var current = initialValue
     for (i in 0..2000) {
-        prices[i] = (v % 10).toInt()
-        v = next(v)
+        prices[i] = (current % 10).toInt()
+        current = next(current)
     }
     val seen = BooleanArray(130321)
     for (i in 0..prices.lastIndex - 4) {
@@ -28,7 +36,7 @@ fun IntArray.addPrices(s: Long) {
 }
 
 val initialValues = java.io.File(args[0]).readLines().map { it.toLong() }
-println(initialValues.sumOf { generateSequence(it, ::next).drop(2000).take(1).single() })
+println(initialValues.sumOf { getIndex(it, 2000) })
 
 val priceChangesToPrice = IntArray(130321)
 for (initialValue in initialValues) {
