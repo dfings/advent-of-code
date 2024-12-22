@@ -7,16 +7,19 @@ fun next(s: Long): Long {
     return mixAndPrune(b shl 11, b)
 }
 
-fun secretNumbers(s: Long) = generateSequence(s, ::next)
-
 fun IntArray.addPrices(s: Long) {
-    val prices = secretNumbers(s).map { (it % 10).toInt() }.take(2001).toList()
-    val seen = BooleanArray(130321) { false }
+    val prices = IntArray(2001)
+    var v = s
+    for (i in 0..2000) {
+        prices[i] = (v % 10).toInt()
+        v = next(v)
+    }
+    val seen = BooleanArray(130321)
     for (i in 0..prices.lastIndex - 4) {
-        val v = (prices[i + 1] - prices[i]).mod(19) * 6859 +
-            (prices[i + 2] - prices[i + 1]).mod(19) * 361 +
-            (prices[i + 3] - prices[i + 2]).mod(19) * 19 +
-            (prices[i + 4] - prices[i + 3]).mod(19)
+        val v = (prices[i + 1] - prices[i] + 9) * 6859 +
+            (prices[i + 2] - prices[i + 1] + 9) * 361 +
+            (prices[i + 3] - prices[i + 2] + 9) * 19 +
+            (prices[i + 4] - prices[i + 3] + 9)
         if (!seen[v]) {
             seen[v] = true
             this[v] += prices[i + 4]
@@ -25,9 +28,9 @@ fun IntArray.addPrices(s: Long) {
 }
 
 val initialValues = java.io.File(args[0]).readLines().map { it.toLong() }
-println(initialValues.sumOf { secretNumbers(it).drop(2000).take(1).single() })
+println(initialValues.sumOf { generateSequence(it, ::next).drop(2000).take(1).single() })
 
-val priceChangesToPrice = IntArray(130321) { 0 }
+val priceChangesToPrice = IntArray(130321)
 for (initialValue in initialValues) {
     priceChangesToPrice.addPrices(initialValue)
 }
