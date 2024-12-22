@@ -12,14 +12,12 @@ fun nextSecretNumber(s: Long): Long {
 }
 
 fun secretNumbers(s: Long) = generateSequence(s) { nextSecretNumber(it) }
-fun prices(s: Long) = secretNumbers(s).map { (it % 10).toInt() }
 
 fun getPriceSequenceMap(s: Long): Map<List<Int>, Int> {
-    val p = prices(s)
-    val changes = p.zipWithNext().map { (a, b) -> b - a }
-    val changeWindows = changes.take(2000).windowed(4)
+    val prices = secretNumbers(s).map { (it % 10).toInt() }.take(2000)
+    val changes = prices.zipWithNext().map { (a, b) -> b - a }.windowed(4)
     val output = mutableMapOf<List<Int>, Int>()
-    changeWindows.zip(p.drop(4)).forEach { (k, v) -> output.putIfAbsent(k, v) }
+    changes.zip(prices.drop(4)).forEach { (k, v) -> output.putIfAbsent(k, v) }
     return output
 }
 
