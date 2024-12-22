@@ -11,20 +11,20 @@ fun next(s: Long): Long {
 
 fun secretNumbers(s: Long) = generateSequence(s, ::next)
 
-fun getPriceSequenceMap(s: Long): Map<String, Int> {
+fun MutableMap<String, Int>.addPriceSequences(s: Long) {
     val prices = secretNumbers(s).map { (it % 10).toInt() }.take(2000)
-    val changes = prices.zipWithNext().map { (a, b) -> b - a }.windowed(4)
-    val output = HashMap<String, Int>()
-    changes.zip(prices.drop(4)).forEach { (k, v) -> output.putIfAbsent("$k", v) }
-    return output
+    val changes = prices.zipWithNext()
+        .map { (a, b) -> b - a }
+        .windowed(4)
+        .map { (a, b, c, d) -> "$a $b $c $d" }
+    for ((k, v) in changes.zip(prices.drop(4)).distinctBy { it.first }) {
+        put(k, v + (get(k) ?: 0))
+    }
 }
 
-val initial = java.io.File(args[0]).readLines().map { it.toLong() }
-println(initial.sumOf { secretNumbers(it).drop(2000).take(1).single() })
+val initialValues = java.io.File(args[0]).readLines().map { it.toLong() }
+println(initialValues.sumOf { secretNumbers(it).drop(2000).take(1).single() })
 
-val t = measureTime {
-val histograms = initial.map { getPriceSequenceMap(it) }
-val candidates = histograms.asSequence().flatMap { it.keys }.toSet()
-println(candidates.maxOf { c -> histograms.sumOf { it[c] ?: 0 } })
-}
-println(t)
+val sequencePrices = HashMap<String, Int>()
+initialValues.map { sequencePrices.addPriceSequences(it) }
+println(sequencePrices.values.max())
