@@ -1,9 +1,5 @@
 #!/usr/bin/env kotlin
 
-import kotlin.time.measureTime
-
-val arraySize = 19 * 19 * 19 * 19
-
 fun mixAndPrune(v: Long, s: Long) = (v xor s) % (1 shl 24)
 fun next(s: Long): Long {
     val a = mixAndPrune(s shl 6, s)
@@ -15,7 +11,7 @@ fun secretNumbers(s: Long) = generateSequence(s, ::next)
 
 fun IntArray.addPriceSequences(s: Long) {
     val prices = secretNumbers(s).map { (it % 10).toInt() }.take(2000)
-    val seen = BooleanArray(arraySize) { false }
+    val seen = BooleanArray(130321) { false }
     for (window in prices.windowed(5)) {
         val v = window.zipWithNext()
             .map { (a, b) -> (b - a).mod(19) }
@@ -30,9 +26,6 @@ fun IntArray.addPriceSequences(s: Long) {
 val initialValues = java.io.File(args[0]).readLines().map { it.toLong() }
 println(initialValues.sumOf { secretNumbers(it).drop(2000).take(1).single() })
 
-val t = measureTime {
-val sequencePrices = IntArray(arraySize) { 0 }
+val sequencePrices = IntArray(130321) { 0 }
 initialValues.map { sequencePrices.addPriceSequences(it) }
 println(sequencePrices.max())
-}
-println(t)
