@@ -12,14 +12,13 @@ fun secretNumbers(s: Long) = generateSequence(s, ::next)
 fun IntArray.addPrices(s: Long) {
     val prices = secretNumbers(s).map { (it % 10).toInt() }.take(2000).toList()
     val seen = BooleanArray(130321) { false }
-    for (i in 0..prices.lastIndex - 4) {
-        val v = (prices[i] - prices[i + 1]).mod(19) * 6859 +
-            (prices[i + 1] - prices[i + 2]).mod(19) * 361 +
-            (prices[i + 2] - prices[i + 3]).mod(19) * 19
-            (prices[i + 3] - prices[i + 4]).mod(19)
+    for (window in prices.windowed(5)) {
+        val v = window.zipWithNext()
+            .map { (a, b) -> (b - a).mod(19) }
+            .let { (a, b, c, d) -> a * 6859 + b * 361 + c * 19 + d }
         if (!seen[v]) {
             seen[v] = true
-            this[v] += prices[i + 4]
+            this[v] += window[4]
         }
     }
 }
