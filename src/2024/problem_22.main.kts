@@ -22,6 +22,4 @@ println(initial.sumOf { secretNumbers(it).drop(2000).take(1).single() })
 
 val histograms = initial.map { getPriceSequenceMap(it) }
 val candidates = histograms.asSequence().flatMap { it.keys }.toSet()
-val candidatePrices = candidates.map { c -> c to histograms.sumOf { it[c] ?: 0 }}
-println(candidatePrices.maxOf { it.second })
-
+println(candidates.maxOf { c -> histograms.sumOf { it[c] ?: 0 } })
