@@ -1,7 +1,5 @@
 #!/usr/bin/env kotlin
 
-import kotlin.time.measureTime
-
 fun mixAndPrune(v: Long, s: Long) = (v xor s) % (1 shl 24)
 fun next(s: Long): Long {
     val a = mixAndPrune(s shl 6, s)
