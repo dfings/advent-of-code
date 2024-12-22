@@ -2,10 +2,9 @@
 
 fun mixAndPrune(v: Long, s: Long) = (v xor s) % (1 shl 24)
 fun next(s: Long): Long {
-    var v = mixAndPrune(s shl 6, s)
-    v = mixAndPrune(v shr 5, v)
-    v = mixAndPrune(v shl 11, v)
-    return v
+    val a = mixAndPrune(s shl 6, s)
+    val b = mixAndPrune(a shr 5, a)
+    return mixAndPrune(b shl 11, b)
 }
 
 fun secretNumbers(s: Long) = generateSequence(s, ::next)
