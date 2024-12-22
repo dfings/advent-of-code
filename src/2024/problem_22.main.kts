@@ -10,7 +10,7 @@ fun next(s: Long): Long {
 fun secretNumbers(s: Long) = generateSequence(s, ::next)
 
 fun IntArray.addPriceSequences(s: Long) {
-    val prices = secretNumbers(s).map { (it % 10).toInt() }.take(2000)
+    val prices = secretNumbers(s).map { (it % 10).toInt() }.take(2000).toList()
     val seen = BooleanArray(130321) { false }
     for (window in prices.windowed(5)) {
         val v = window.zipWithNext()
