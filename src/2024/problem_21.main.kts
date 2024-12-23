@@ -55,23 +55,20 @@ val numberPathMap = numberPad.makeShortestPathMap()
 val dirPad = Pad(listOf(" ^A", "<v>"))
 val dirPadMap = dirPad.makeShortestPathMap()
 
-fun findMinDirPadSequence(line: String, state: String) {
-    val stateTransitions = line.zipWithNext().map { dirPadMap.getValue(it) }
-    println(stateTransitions)
-}
-
-fun findMinSequence(line: String) {
-    val initialState = "AAAA"
-    val stateTransitions = line.zipWithNext().map { numberPathMap.getValue(it) }
-    for (validPaths in stateTransitions) {
-        for (validPath in validPaths) {
-            println(validPath)
-            findMinDirPadSequence(validPath, initialState.drop(1))
-        }
+val cache = mutableMapOf<Pair<String, Int>, String>()
+fun findMinDirPadSequence(line: String, remainingDepth: Int): String = cache.getOrPut(line to remainingDepth) {
+    val stateTransitions: List<List<String>> = ("A" + line).zipWithNext().map { dirPadMap.getValue(it) }
+    if (remainingDepth == 0) {
+        stateTransitions.map  { it.minBy { it.length } }.joinToString("")
+    } else {
+        stateTransitions.map { it.map { findMinDirPadSequence(it, remainingDepth - 1) }.minBy { it.length } }.joinToString("")
     }
 }
 
-val lines = java.io.File(args[0]).readLines().map { "A" + it }
-for (line in lines.take(1)) {
-    findMinSequence(line)
+fun findMinSequence(line: String, numDirPads: Int): String {
+    val stateTransitions = line.zipWithNext().map { numberPathMap.getValue(it) }
+    return stateTransitions.map { it.map { findMinDirPadSequence(it, numDirPads - 2) }.minBy { it.length} }.joinToString("")
 }
+
+val lines = java.io.File(args[0]).readLines()
+println(lines.sumOf { it.dropLast(1).toInt() * findMinSequence("A" + it, 3).length})
