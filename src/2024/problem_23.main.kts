@@ -11,10 +11,10 @@ fun makeBitSet(bitIndexes: Iterable<Int> = emptyList()) =
 
 fun BitSet.bitIndexes() = stream().asSequence()
 fun BitSet.copy() = clone() as BitSet
-fun BitSet.intersect(other: BitSet) = copy().also { it.and(other) } 
-fun BitSet.union(other: BitSet) = copy().also { it.or(other) } 
-operator fun BitSet.plus(index: Int) = copy().also { it.set(index) }
-operator fun BitSet.minus(index: Int) = copy().also { it.set(index, false) }
+fun BitSet.intersect(other: BitSet) = copy().apply { and(other) } 
+fun BitSet.union(other: BitSet) = copy().apply { or(other) } 
+operator fun BitSet.plus(index: Int) = copy().apply { set(index) }
+operator fun BitSet.minus(index: Int) = copy().apply { set(index, false) }
 
 val lines = java.io.File(args[0]).readLines()
 val pairs = lines.map { makeBitSet(it.split("-").map { it.encode() }) }.toSet()
