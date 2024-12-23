@@ -27,7 +27,7 @@ fun Set<BitSet>.next() = flatMap { clique ->
 
 val triples = pairs.next()
 val ts = makeBitSet("ta".encode().."tz".encode())
-println(triples.count { clique -> clique.intersects(ts) })
+println(triples.count { it.intersects(ts) })
 
 var maximalCliques = triples
 while (maximalCliques.size > 1) {
