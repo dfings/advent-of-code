@@ -10,17 +10,18 @@ fun makeBitSet(bitIndexes: Iterable<Int> = emptyList()) =
     BitSet(26 * 26).apply { bitIndexes.forEach { set(it) } }
 
 fun BitSet.bitIndexes() = stream().asSequence()
-fun BitSet.intersect(other: BitSet) = (clone() as BitSet).also { it.and(other) } 
-fun BitSet.union(other: BitSet) = (clone() as BitSet).also { it.or(other) } 
-operator fun BitSet.plus(index: Int) = (clone() as BitSet).also { it.set(index) }
-operator fun BitSet.minus(index: Int) = (clone() as BitSet).also { it.set(index, false) }
+fun BitSet.copy() = clone() as BitSet
+fun BitSet.intersect(other: BitSet) = copy().also { it.and(other) } 
+fun BitSet.union(other: BitSet) = copy().also { it.or(other) } 
+operator fun BitSet.plus(index: Int) = copy().also { it.set(index) }
+operator fun BitSet.minus(index: Int) = copy().also { it.set(index, false) }
 
 val lines = java.io.File(args[0]).readLines()
 val pairs = lines.map { makeBitSet(it.split("-").map { it.encode() }) }.toSet()
 
 val links = pairs.flatMap { clique -> clique.bitIndexes().map { it to (clique - it)} }
     .groupingBy { it.first }
-    .reduce(makeBitSet()) { acc, it -> acc.union(it.second) }
+    .fold(makeBitSet()) { acc, it -> acc.union(it.second) }
 
 fun BitSet.intersectLinks() = bitIndexes().map { links.getValue(it) }.reduce(BitSet::intersect)
 fun Set<BitSet>.next() = flatMap { clique ->
