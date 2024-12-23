@@ -17,6 +17,6 @@ println(triples.count { clique -> clique.any { it.startsWith("t") } })
 
 var maximalCliques = triples
 while (maximalCliques.size > 1) {
-    maximalCliques = maximal.next()
+    maximalCliques = maximalCliques.next()
 }
 println(maximalCliques.single().sorted().joinToString(","))
