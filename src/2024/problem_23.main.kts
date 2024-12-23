@@ -3,11 +3,9 @@
 val lines = java.io.File(args[0]).readLines()
 val pairs = lines.map { it.split("-").toSet() }.toSet()
 
-val links = mutableMapOf<String, MutableSet<String>>()
-for (pair in pairs) {
-    links.getOrPut(pair.first()) { HashSet<String>() }.add(pair.last())
-    links.getOrPut(pair.last()) { HashSet<String>() }.add(pair.first())
-}
+val links = pairs.flatMap { listOf(it.toList(), it.toList().reversed()) }
+    .groupBy({ it[0] }, { it[1 ]})
+    .mapValues { it.value.toSet() }
 
 fun Set<String>.fullyConnected() = map { links.getValue(it) }.reduce(Set<String>::intersect)
 fun Set<Set<String>>.next() = flatMap { clique ->
