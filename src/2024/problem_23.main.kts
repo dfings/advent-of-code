@@ -1,15 +1,13 @@
 #!/usr/bin/env kotlin
 
 import java.util.BitSet
-import kotlin.streams.asSequence
-
 fun String.encode() = (this[0] - 'a') * 26 + (this[1] - 'a')
 fun Int.decode() = "${'a' + (this / 26)}${'a' + (this % 26)}"
 
 fun makeBitSet(bitIndexes: Iterable<Int> = emptyList()) = 
     BitSet(26 * 26).apply { bitIndexes.forEach { set(it) } }
 
-fun BitSet.bitIndexes() = stream().asSequence()
+fun BitSet.bitIndexes() = stream().toArray()
 fun BitSet.copy() = clone() as BitSet
 fun BitSet.intersect(other: BitSet) = copy().apply { and(other) } 
 fun BitSet.union(other: BitSet) = copy().apply { or(other) } 
