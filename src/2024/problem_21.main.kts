@@ -12,6 +12,7 @@ class Pad(lines: List<String>) {
     val pointMap = lines.flatMapIndexed { 
         y, line -> line.mapIndexed { x, it -> it to Point(x, y) } 
     }.filter { it.first != ' ' }.toMap()
+   
     val points = pointMap.values.toSet()
 
     data class Node(val point: Point, val path: List<Direction>)
@@ -56,20 +57,19 @@ val dirPad = Pad(listOf(" ^A", "<v>"))
 val dirPadMap = dirPad.makeShortestPathMap()
 
 val cache = mutableMapOf<Pair<String, Int>, Long>()
-fun findMinDirPadLength(line: String, remainingDepth: Int): Long = cache.getOrPut(line to remainingDepth) {
-    val stateTransitions: List<List<String>> = ("A" + line).zipWithNext().map { dirPadMap.getValue(it) }
-    if (remainingDepth == 0) {
-        stateTransitions.sumOf  { it.minOf { it.length } }.toLong()
-    } else {
-        stateTransitions.sumOf { it.map { findMinDirPadLength(it, remainingDepth - 1) }.min() }
-    }
+fun minLengthRecursive(line: String, remaining: Int): Long = cache.getOrPut(line to remaining) {
+    ("A" + line).zipWithNext()
+        .map { dirPadMap.getValue(it) }
+        .sumOf { it.minOf {
+            if (remaining == 1) it.length.toLong() else minLengthRecursive(it, remaining - 1)
+        } }
 }
 
-fun findMinSequence(line: String, numDirPadRobots: Int): Long {
-    val stateTransitions = line.zipWithNext().map { numberPathMap.getValue(it) }
-    return stateTransitions.sumOf { it.map { findMinDirPadLength(it, numDirPadRobots - 1) }.min() }
-}
+fun minLength(line: String, numDirPadRobots: Int): Long =
+    line.zipWithNext()
+        .map { numberPathMap.getValue(it) }
+        .sumOf { it.minOf { minLengthRecursive(it, numDirPadRobots) } }
 
 val lines = java.io.File(args[0]).readLines()
-println(lines.sumOf { it.dropLast(1).toLong() * findMinSequence("A" + it, 2) })
-println(lines.sumOf { it.dropLast(1).toLong() * findMinSequence("A" + it, 25) })
+println(lines.sumOf { it.dropLast(1).toLong() * minLength("A" + it, 2) })
+println(lines.sumOf { it.dropLast(1).toLong() * minLength("A" + it, 25) })
