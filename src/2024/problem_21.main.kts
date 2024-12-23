@@ -49,7 +49,6 @@ class Pad(lines: List<String>) {
         }.toMap()
 }
 
-
 val numberPad = Pad(listOf("789", "456", "123", " 0A"))
 val numberPathMap = numberPad.makeShortestPathMap()
 
