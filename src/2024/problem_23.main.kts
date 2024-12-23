@@ -7,9 +7,9 @@ val links = pairs.flatMap { listOf(it.toList(), it.toList().reversed()) }
     .groupBy({ it[0] }, { it[1 ]})
     .mapValues { it.value.toSet() }
 
-fun Set<String>.fullyConnected() = map { links.getValue(it) }.reduce(Set<String>::intersect)
+fun Set<String>.intersectLinks() = map { links.getValue(it) }.reduce(Set<String>::intersect)
 fun Set<Set<String>>.next() = flatMap { clique ->
-    clique.fullyConnected().map { clique + it }
+    clique.intersectLinks().map { clique + it }
 }.toSet()
 
 var triples = pairs.next()
