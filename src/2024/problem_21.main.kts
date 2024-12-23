@@ -67,7 +67,7 @@ fun findMinDirPadLength(line: String, remainingDepth: Int): Long = cache.getOrPu
 
 fun findMinSequence(line: String, numDirPadRobots: Int): Long {
     val stateTransitions = line.zipWithNext().map { numberPathMap.getValue(it) }
-    return stateTransitions.map { it.map { findMinDirPadLength(it, numDirPadRobots - 1) }.min() }.sum()
+    return stateTransitions.sumOf { it.map { findMinDirPadLength(it, numDirPadRobots - 1) }.min() }
 }
 
 val lines = java.io.File(args[0]).readLines()
