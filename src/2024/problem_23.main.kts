@@ -10,18 +10,12 @@ for (pair in pairs) {
 }
 
 fun Set<String>.fullyConnected() = map { links.getValue(it) }.reduce(Set<String>::intersect)
-fun Set<Set<String>>.next(): Set<Set<String>> {
-    val n = mutableSetOf<Set<String>>()
-    for (s in this) {
-        for (candidate in s.fullyConnected()) {
-            n.add(s + candidate)
-        }
-    }
-    return n
-}
+fun Set<Set<String>>.next() = flatMap { clique ->
+    clique.fullyConnected().map { clique + it }
+}.toSet()
 
 var triples = pairs.next()
-println(triples.count { it.any { it.startsWith("t") } })
+println(triples.count { clique -> clique.any { it.startsWith("t") } })
 
 var maximal = triples
 while (maximal.size > 1) {
