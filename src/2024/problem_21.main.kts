@@ -59,16 +59,14 @@ val dirPadMap = dirPad.makeShortestPathMap()
 val cache = mutableMapOf<Pair<String, Int>, Long>()
 fun minLengthRecursive(line: String, remaining: Int): Long = cache.getOrPut(line to remaining) {
     ("A" + line).zipWithNext()
-        .map { dirPadMap.getValue(it) }
-        .sumOf { it.minOf {
+        .sumOf { dirPadMap.getValue(it).minOf {
             if (remaining == 1) it.length.toLong() else minLengthRecursive(it, remaining - 1)
         } }
 }
 
 fun minLength(line: String, numDirPadRobots: Int): Long =
     line.zipWithNext()
-        .map { numberPathMap.getValue(it) }
-        .sumOf { it.minOf { minLengthRecursive(it, numDirPadRobots) } }
+        .sumOf { numberPathMap.getValue(it).minOf { minLengthRecursive(it, numDirPadRobots) } }
 
 val lines = java.io.File(args[0]).readLines()
 println(lines.sumOf { it.dropLast(1).toLong() * minLength("A" + it, 2) })
