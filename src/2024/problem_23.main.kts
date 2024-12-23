@@ -13,14 +13,12 @@ fun BitSet.intersect(other: BitSet) = (clone() as BitSet).apply { and(other) }
 operator fun BitSet.plus(index: Int) = (clone() as BitSet).apply { set(index) }
 
 val lines = java.io.File(args[0]).readLines()
-val pairs = lines.map { makeBitSet(it.split("-").map { it.encode() }) }.toSet()
+val input = lines.map { it.split("-").map { it.encode() } }
 
 val links = Array(26 * 26) { makeBitSet() }
-for (pair in pairs) {
-    for (bitIndex in pair.bitIndexes()) {
-        links[bitIndex].or(pair)
-        links[bitIndex].clear(bitIndex)
-    }
+for (link in input) {
+    links[link[0]].set(link[1])
+    links[link[1]].set(link[0])
 }
 
 fun BitSet.intersectLinks() = bitIndexes().map { links[it] }.reduce(BitSet::intersect)
@@ -28,7 +26,7 @@ fun Set<BitSet>.next() = flatMap { clique ->
     clique.intersectLinks().bitIndexes().map { clique + it }
 }.toSet()
 
-val triples = pairs.next()
+val triples = input.map { makeBitSet(it) }.toSet().next()
 val ts = makeBitSet("ta".encode().."tz".encode())
 println(triples.count { it.intersects(ts) })
 
