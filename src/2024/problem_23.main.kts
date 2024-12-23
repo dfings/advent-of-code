@@ -15,8 +15,8 @@ fun Set<Set<String>>.next() = flatMap { clique ->
 var triples = pairs.next()
 println(triples.count { clique -> clique.any { it.startsWith("t") } })
 
-var maximal = triples
-while (maximal.size > 1) {
-    maximal = maximal.next()
+var maximalCliques = triples
+while (maximalCliques.size > 1) {
+    maximalCliques = maximal.next()
 }
-println(maximal.single().sorted().joinToString(","))
+println(maximalCliques.single().sorted().joinToString(","))
