@@ -19,7 +19,7 @@ operator fun BitSet.minus(index: Int) = copy().also { it.set(index, false) }
 val lines = java.io.File(args[0]).readLines()
 val pairs = lines.map { makeBitSet(it.split("-").map { it.encode() }) }.toSet()
 
-val links = pairs.flatMap { clique -> clique.bitIndexes().map { it to (clique - it)} }
+val links = pairs.flatMap { clique -> clique.bitIndexes().map { it to (clique - it) } }
     .groupingBy { it.first }
     .fold(makeBitSet()) { acc, it -> acc.union(it.second) }
 
