@@ -59,9 +59,9 @@ val cache = mutableMapOf<Pair<String, Int>, Long>()
 fun findMinDirPadLength(line: String, remainingDepth: Int): Long = cache.getOrPut(line to remainingDepth) {
     val stateTransitions: List<List<String>> = ("A" + line).zipWithNext().map { dirPadMap.getValue(it) }
     if (remainingDepth == 0) {
-        stateTransitions.map  { it.minBy { it.length } }.sumOf { it.length }.toLong()
+        stateTransitions.sumOf  { it.minOf { it.length } }.toLong()
     } else {
-        stateTransitions.map { it.map { findMinDirPadLength(it, remainingDepth - 1) }.min() }.sum()
+        stateTransitions.sumOf { it.map { findMinDirPadLength(it, remainingDepth - 1) }.min() }
     }
 }
 
