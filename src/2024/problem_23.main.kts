@@ -1,50 +1,36 @@
 #!/usr/bin/env kotlin
 
+import java.util.BitSet
+import kotlin.streams.asSequence
+
+fun String.encode() = (this[0] - 'a') * 26 + (this[1] - 'a')
+fun Int.decode() = "${'a' + (this / 26)}${'a' + (this % 26)}"
+
+fun makeBitSet(bitIndexes: Iterable<Int> = emptyList()) = 
+    BitSet(26 * 26).apply { bitIndexes.forEach { set(it) } }
+
+fun BitSet.bitIndexes() = stream().asSequence()
+fun BitSet.intersect(other: BitSet) = (clone() as BitSet).also { it.and(other) } 
+operator fun BitSet.plus(index: Int) = (clone() as BitSet).also { it.set(index ) }
+
 val lines = java.io.File(args[0]).readLines()
-val pairs = lines.map { it.split("-").toSet() }.toSet()
+val pairs = lines.map { makeBitSet(it.split("-").map { it.encode() }) }.toSet()
 
-val links = pairs.flatMap { listOf(it.toList(), it.toList().reversed()) }
+val links = pairs.flatMap { listOf(it.bitIndexes().toList(), it.bitIndexes().toList().reversed()) }
     .groupBy({ it[0] }, { it[1 ]})
-    .mapValues { it.value.toSet() }
+    .mapValues { makeBitSet(it.value) }
 
-fun Set<String>.intersectLinks() = map { links.getValue(it) }.reduce(Set<String>::intersect)
-fun Set<Set<String>>.next() = flatMap { clique ->
-    clique.intersectLinks().map { clique + it }
+fun BitSet.intersectLinks() = bitIndexes().map { links.getValue(it) }.reduce(BitSet::intersect)
+fun Set<BitSet>.next() = flatMap { clique ->
+    clique.intersectLinks().bitIndexes().map { clique + it }
 }.toSet()
 
-var triples = pairs.next()
-println(triples.count { clique -> clique.any { it.startsWith("t") } })
+val triples = pairs.next()
+val ts = makeBitSet("ta".encode().."tz".encode())
+println(triples.count { clique -> clique.intersects(ts) })
 
 var maximalCliques = triples
 while (maximalCliques.size > 1) {
     maximalCliques = maximalCliques.next()
 }
-println(maximalCliques.single().sorted().joinToString(","))
-
-class BronKerboschSolver<V>(private val graph: Map<V, Set<V>>) {
-    private var result = emptyList<V>()
-
-    fun solve(): List<V> {
-        bronKerbosch(emptyList(), graph.keys.toList(), emptyList())
-        return result
-    }
-
-    private fun bronKerbosch(r: List<V>, p: List<V>, x: List<V>) {
-        if (p.isEmpty() && x.isEmpty()) {
-            if (result.size < r.size) result = r
-            return
-        }
-        val pivot = p.firstOrNull() ?: x.first()
-        val p1 = p.toMutableList()
-        val x1 = x.toMutableList()
-        for (v in (p - graph.getValue(pivot))) {
-            val es = graph.getValue(v)
-            bronKerbosch(r + v, p1.filter { it in es }, x1.filter { it in es })
-            p1 -= v
-            x1 += v
-        }
-    }
-}
-
-val solver = BronKerboschSolver(links)
-println(solver.solve().sorted().joinToString(","))
+println(maximalCliques.single().bitIndexes().sorted().map { it.decode() }.joinToString(","))
