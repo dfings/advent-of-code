@@ -18,6 +18,7 @@ class Pad(lines: List<String>) {
     fun Node.neighbors() = cardinalDirections.map { Node(point + it, path + it) }.filter { it.point in points }
 
     fun findShortestPaths(start: Char, end: Char): List<String> {
+        if (start == end) listOf("A")
         val endPoint = pointMap.getValue(end)
         var minEndScore = Int.MAX_VALUE
         val frontier = mutableSetOf(Node(pointMap.getValue(start), emptyList()) to 0)
@@ -42,7 +43,7 @@ class Pad(lines: List<String>) {
     fun makeShortestPathMap(): Map<Pair<Char, Char>, List<String>> = 
         pointMap.keys.flatMap { start ->
             pointMap.keys.mapNotNull { end ->
-                if (start == end) null else (start to end) to findShortestPaths(start, end)
+                (start to end) to findShortestPaths(start, end)
             }
         }.toMap()
 }
@@ -52,9 +53,25 @@ val numberPad = Pad(listOf("789", "456", "123", " 0A"))
 val numberPathMap = numberPad.makeShortestPathMap()
 
 val dirPad = Pad(listOf(" ^A", "<v>"))
-val dirPathMap = dirPad.makeShortestPathMap()
+val dirPadMap = dirPad.makeShortestPathMap()
 
-val lines = java.io.File(args[0]).readLines()
-for (line in lines) {
-    println(line.zipWithNext().map { numberPathMap.getValue(it) })
+fun findMinDirPadSequence(line: String, state: String) {
+    val stateTransitions = line.zipWithNext().map { dirPadMap.getValue(it) }
+    println(stateTransitions)
+}
+
+fun findMinSequence(line: String) {
+    val initialState = "AAAA"
+    val stateTransitions = line.zipWithNext().map { numberPathMap.getValue(it) }
+    for (validPaths in stateTransitions) {
+        for (validPath in validPaths) {
+            println(validPath)
+            findMinDirPadSequence(validPath, initialState.drop(1))
+        }
+    }
+}
+
+val lines = java.io.File(args[0]).readLines().map { "A" + it }
+for (line in lines.take(1)) {
+    findMinSequence(line)
 }
