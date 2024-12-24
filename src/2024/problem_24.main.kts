@@ -93,7 +93,6 @@ class RuleSet(logic: List<String>, val numBits: Int) {
         Rule(setOf(a, b), op, c)
     }
     val rulesMap = rules.map { (it.input to it.op) to it }.toMap()
-    
     val finalCarry = Array(numBits) { "" }
 
     fun analyze(bitIndex: Int) {
