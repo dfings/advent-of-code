@@ -23,7 +23,7 @@ data class XorGate(var a: Wire, var b: Wire) : Gate {
         get() = a.input.value xor b.input.value
 }
 
-val logicPattern = Regex("""(\w+) (\w+) (\w+) ->""")
+val logicPattern = Regex("""(\w+) (\w+) (\w+) -> (\w+)""")
 
 class Device {
     val wires = mutableMapOf<String, Wire>()
@@ -86,11 +86,57 @@ class Device {
     }
 }
 
+data class Rule(val input: Set<String>, val op: String, val output: String)
+class RuleSet(logic: List<String>, val numBits: Int) {
+    val rules = logic.map { 
+        val (a, op, b, c) = logicPattern.find(it)!!.destructured
+        Rule(setOf(a, b), op, c)
+    }
+    val rulesByInputOp = rules.map { (it.input to it.op) to it }.toMap()
+    val rulesByOutput = rules.map { it.output to it }.toMap()
+    
+    val finalCarry = Array(numBits) { "" }
+
+    fun analyze(bitIndex: Int) {
+        if (bitIndex == 0) {
+            if (rulesByInputOp[setOf("x00", "y00") to "XOR"]!!.output != "z00") {
+                throw IllegalArgumentException("Swap z00 into x00 XOR y00")
+            }
+            println("x00 XOR y00 -> z00")
+            finalCarry[0] = rulesByInputOp.getValue(setOf("x00", "y00") to "AND").output
+            println("x00 AND y00 -> ${finalCarry[0]}")
+        } else {
+            val i = if (bitIndex < 10) "0$bitIndex" else "$bitIndex"
+            val previousFinalCarry = finalCarry[bitIndex - 1]
+            val firstResult = rulesByInputOp.getValue(setOf("x$i", "y$i") to "XOR").output
+            println("x$i XOR y$i -> $firstResult")
+            val firstCarry = rulesByInputOp.getValue(setOf("x$i", "y$i") to "AND").output
+            println("x$i AND y$i -> $firstCarry")
+            if (rulesByInputOp.getValue(setOf(firstResult, previousFinalCarry) to "XOR").output != "z$i") {
+                throw IllegalArgumentException("Swap z$i into $firstResult XOR $previousFinalCarry")
+            }
+            println("$firstResult XOR $previousFinalCarry -> z$i")
+            val secondCarry = rulesByInputOp.getValue(setOf("$firstResult", "$previousFinalCarry") to "AND").output
+            println("$firstResult AND $previousFinalCarry -> $secondCarry")
+            finalCarry[bitIndex] = rulesByInputOp.getValue(setOf("$firstCarry", "$secondCarry") to "OR").output
+            println("$firstCarry OR $secondCarry -> ${finalCarry[bitIndex]}")
+        }
+        println()
+    }
+}
 
 val lines = java.io.File(args[0]).readLines()
+val logicLines = lines.dropWhile { it != "" }.drop(1)
 
 val device = Device()
 device.loadInput(lines.takeWhile { it != "" })
-device.loadLogic(lines.dropWhile { it != "" }.drop(1))
+device.loadLogic(logicLines)
 
 println(device.getOutput())
+
+// Right now this throws an exception if it detects an inconsistency
+// in the addition logic, which instructs you to change the input to continue.
+val ruleSet = RuleSet(logicLines, device.xInput.size)
+for (i in 0..ruleSet.numBits - 1) {
+    ruleSet.analyze(i)
+}
