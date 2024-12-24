@@ -58,16 +58,26 @@ class Device {
         return newWire
     }
 
+    fun setInput(x: Long, y: Long) {
+        setLong("x", x)
+        setLong("y", y)
+    }
+
     fun getOutput(): Long =
         getSortedWires("z")
             .mapIndexed { i, it -> if (it.input.value) 1L shl i else 0L }
             .reduce { acc, it -> acc or it }
+    
+    fun isCorrect(x: Long, y: Long): Boolean {
+        setInput(x, y)
+        return getOutput() == x + y
+    }
 
-    fun getSortedWires(wirePrefix: String): List<Wire> =
+    private fun getSortedWires(wirePrefix: String): List<Wire> =
         wires.entries.filter { it.key.startsWith(wirePrefix) }
             .sortedBy { it.key }.map { it.value }
 
-    fun setLong(wirePrefix: String, value: Long) {
+    private fun setLong(wirePrefix: String, value: Long) {
         val input = getSortedWires(wirePrefix).map { it.input as InputGate }
         for ((i, gate) in input.withIndex()) {
             gate.value = (value and (1L shl i)) != 0L
