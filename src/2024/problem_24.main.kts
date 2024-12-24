@@ -92,33 +92,32 @@ class RuleSet(logic: List<String>, val numBits: Int) {
         val (a, op, b, c) = logicPattern.find(it)!!.destructured
         Rule(setOf(a, b), op, c)
     }
-    val rulesByInputOp = rules.map { (it.input to it.op) to it }.toMap()
-    val rulesByOutput = rules.map { it.output to it }.toMap()
+    val rulesMap = rules.map { (it.input to it.op) to it }.toMap()
     
     val finalCarry = Array(numBits) { "" }
 
     fun analyze(bitIndex: Int) {
         if (bitIndex == 0) {
-            if (rulesByInputOp[setOf("x00", "y00") to "XOR"]!!.output != "z00") {
+            if (rulesMap.getValue(setOf("x00", "y00") to "XOR").output != "z00") {
                 throw IllegalArgumentException("Swap z00 into x00 XOR y00")
             }
             println("x00 XOR y00 -> z00")
-            finalCarry[0] = rulesByInputOp.getValue(setOf("x00", "y00") to "AND").output
+            finalCarry[0] = rulesMap.getValue(setOf("x00", "y00") to "AND").output
             println("x00 AND y00 -> ${finalCarry[0]}")
         } else {
             val i = if (bitIndex < 10) "0$bitIndex" else "$bitIndex"
             val previousFinalCarry = finalCarry[bitIndex - 1]
-            val firstResult = rulesByInputOp.getValue(setOf("x$i", "y$i") to "XOR").output
+            val firstResult = rulesMap.getValue(setOf("x$i", "y$i") to "XOR").output
             println("x$i XOR y$i -> $firstResult")
-            val firstCarry = rulesByInputOp.getValue(setOf("x$i", "y$i") to "AND").output
+            val firstCarry = rulesMap.getValue(setOf("x$i", "y$i") to "AND").output
             println("x$i AND y$i -> $firstCarry")
-            if (rulesByInputOp.getValue(setOf(firstResult, previousFinalCarry) to "XOR").output != "z$i") {
+            if (rulesMap.getValue(setOf(firstResult, previousFinalCarry) to "XOR").output != "z$i") {
                 throw IllegalArgumentException("Swap z$i into $firstResult XOR $previousFinalCarry")
             }
             println("$firstResult XOR $previousFinalCarry -> z$i")
-            val secondCarry = rulesByInputOp.getValue(setOf("$firstResult", "$previousFinalCarry") to "AND").output
+            val secondCarry = rulesMap.getValue(setOf("$firstResult", "$previousFinalCarry") to "AND").output
             println("$firstResult AND $previousFinalCarry -> $secondCarry")
-            finalCarry[bitIndex] = rulesByInputOp.getValue(setOf("$firstCarry", "$secondCarry") to "OR").output
+            finalCarry[bitIndex] = rulesMap.getValue(setOf("$firstCarry", "$secondCarry") to "OR").output
             println("$firstCarry OR $secondCarry -> ${finalCarry[bitIndex]}")
         }
         println()
