@@ -23,48 +23,63 @@ data class XorGate(var a: Wire, var b: Wire) : Gate {
         get() = a.input.value xor b.input.value
 }
 
-fun Map<String, Wire>.getSortedWires(wirePrefix: String): List<Wire> =
-    entries.filter { it.key.startsWith(wirePrefix) }
-        .sortedBy { it.key }.map { it.value }
+val logicPattern = Regex("""(\w+) (\w+) (\w+) ->""")
 
-fun Map<String, Wire>.setLong(wirePrefix: String, value: Long) {
-    val input = getSortedWires(wirePrefix).map { it.input as InputGate }
-    for ((i, gate) in input.withIndex()) {
-        gate.value = (value and (1L shl i)) != 0L
+class Device {
+    val wires = mutableMapOf<String, Wire>()
+    lateinit var initialLogic: Map<String, String>
+
+    fun loadInput(input: List<String>) {
+        for (definition in input) {
+            val (name, value) = definition.split(": ")
+            wires[name] = Wire(name, InputGate(value == "1"))
+        }
+    }
+
+    fun loadLogic(input: List<String>) {
+        initialLogic = input.map { it.takeLast(3) to it }.toMap()
+        for ((name, definition) in initialLogic.entries) {
+            addLogic(name, definition)
+        }
+    }
+
+    fun addLogic(name: String, definition: String): Wire {
+        wires[name]?.let { return it }
+        val (a, op, b) = logicPattern.find(definition)!!.destructured
+        val aWire = wires[a] ?: addLogic(a, initialLogic.getValue(a))
+        val bWire = wires[b] ?: addLogic(b, initialLogic.getValue(b))
+        val newWire = when (op) {
+            "AND" -> Wire(name, AndGate(aWire, bWire))
+            "OR" -> Wire(name, OrGate(aWire, bWire))
+            "XOR" -> Wire(name, XorGate(aWire, bWire))
+            else -> throw IllegalArgumentException(definition)
+        }
+        wires[name] = newWire
+        return newWire
+    }
+
+    fun getOutput(): Long =
+        getSortedWires("z")
+            .mapIndexed { i, it -> if (it.input.value) 1L shl i else 0L }
+            .reduce { acc, it -> acc or it }
+
+    fun getSortedWires(wirePrefix: String): List<Wire> =
+        wires.entries.filter { it.key.startsWith(wirePrefix) }
+            .sortedBy { it.key }.map { it.value }
+
+    fun setLong(wirePrefix: String, value: Long) {
+        val input = getSortedWires(wirePrefix).map { it.input as InputGate }
+        for ((i, gate) in input.withIndex()) {
+            gate.value = (value and (1L shl i)) != 0L
+        }
     }
 }
 
-fun Map<String, Wire>.toLong(wirePrefix: String) = 
-    getSortedWires(wirePrefix)
-        .mapIndexed { i, it -> if (it.input.value) 1L shl i else 0L }
-        .reduce { acc, it -> acc or it }
 
 val lines = java.io.File(args[0]).readLines()
-val wires = mutableMapOf<String, Wire>()
 
-for (line in lines.takeWhile { it != "" }) {
-    val (name, value) = line.split(": ")
-    wires[name] = Wire(name, InputGate(value == "1"))
-}
+val device = Device()
+device.loadInput(lines.takeWhile { it != "" })
+device.loadLogic(lines.dropWhile { it != "" }.drop(1))
 
-val logicPattern = Regex("""(\w+) (\w+) (\w+) ->""")
-val logic = lines.dropWhile { it != "" }.drop(1).map { it.takeLast(3) to it }.toMap()
-fun addLogicWireAndGate(name: String, definition: String): Wire {
-    wires[name]?.let { return it }
-    val (a, op, b) = logicPattern.find(definition)!!.destructured
-    val aWire = wires[a] ?: addLogicWireAndGate(a, logic.getValue(a))
-    val bWire = wires[b] ?: addLogicWireAndGate(b, logic.getValue(b))
-    val newWire = when (op) {
-        "AND" -> Wire(name, AndGate(aWire, bWire))
-        "OR" -> Wire(name, OrGate(aWire, bWire))
-        "XOR" -> Wire(name, XorGate(aWire, bWire))
-        else -> throw IllegalArgumentException(definition)
-    }
-    wires[name] = newWire
-    return newWire
-}
-for ((name, definition) in logic.entries) {
-    addLogicWireAndGate(name, definition)
-}
-
-println(wires.toLong("z"))
+println(device.getOutput())
