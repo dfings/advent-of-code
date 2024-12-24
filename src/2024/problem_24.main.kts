@@ -28,12 +28,18 @@ val logicPattern = Regex("""(\w+) (\w+) (\w+) ->""")
 class Device {
     val wires = mutableMapOf<String, Wire>()
     lateinit var initialLogic: Map<String, String>
+    lateinit var xInput: List<InputGate>
+    lateinit var yInput: List<InputGate>
+    lateinit var zWires: List<Wire>
 
     fun loadInput(input: List<String>) {
         for (definition in input) {
             val (name, value) = definition.split(": ")
             wires[name] = Wire(name, InputGate(value == "1"))
         }
+        val (x, y) = wires.entries.sortedBy { it.key }.partition { it.key[0] == 'x' }
+        xInput = x.map { it.value.input as InputGate }
+        yInput = y.map { it.value.input as InputGate }
     }
 
     fun loadLogic(input: List<String>) {
@@ -41,6 +47,7 @@ class Device {
         for ((name, definition) in initialLogic.entries) {
             addLogic(name, definition)
         }
+        zWires = wires.entries.filter { it.key[0] == 'z' }.sortedBy { it.key }.map { it.value }
     }
 
     private fun addLogic(name: String, definition: String): Wire {
@@ -59,29 +66,23 @@ class Device {
     }
 
     fun setInput(x: Long, y: Long) {
-        setLong("x", x)
-        setLong("y", y)
+        setLong(xInput, x)
+        setLong(yInput, y)
     }
 
-    fun getOutput(): Long =
-        getSortedWires("z")
-            .mapIndexed { i, it -> if (it.input.value) 1L shl i else 0L }
-            .reduce { acc, it -> acc or it }
+    private fun setLong(gates: List<InputGate>, value: Long) {
+        for ((i, gate) in gates.withIndex()) {
+            gate.value = (value and (1L shl i)) != 0L
+        }
+    }
+
+    fun getOutput(): Long = zWires
+        .mapIndexed { i, it -> if (it.input.value) 1L shl i else 0L }
+        .reduce { acc, it -> acc or it }
     
     fun isCorrect(x: Long, y: Long): Boolean {
         setInput(x, y)
         return getOutput() == x + y
-    }
-
-    private fun getSortedWires(wirePrefix: String): List<Wire> =
-        wires.entries.filter { it.key.startsWith(wirePrefix) }
-            .sortedBy { it.key }.map { it.value }
-
-    private fun setLong(wirePrefix: String, value: Long) {
-        val input = getSortedWires(wirePrefix).map { it.input as InputGate }
-        for ((i, gate) in input.withIndex()) {
-            gate.value = (value and (1L shl i)) != 0L
-        }
     }
 }
 
