@@ -43,7 +43,7 @@ class Device {
         }
     }
 
-    fun addLogic(name: String, definition: String): Wire {
+    private fun addLogic(name: String, definition: String): Wire {
         wires[name]?.let { return it }
         val (a, op, b) = logicPattern.find(definition)!!.destructured
         val aWire = wires[a] ?: addLogic(a, initialLogic.getValue(a))
