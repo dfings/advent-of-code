@@ -4,49 +4,55 @@ sealed interface Gate {
     val value: Boolean
 }
 
+data class Wire(val name: String, var input: Gate) {}
+
 data class InputGate(override val value: Boolean) : Gate
 
-data class AndGate(val a: Gate, val b: Gate) : Gate {
-    override val value:Boolean
-        get() = a.value && b.value
+data class AndGate(var a: Wire, var b: Wire) : Gate {
+    override val value: Boolean
+        get() = a.input.value && b.input.value
 }
 
-data class OrGate(val a: Gate, val b: Gate) : Gate {
-    override val value:Boolean
-        get() = a.value || b.value
+data class OrGate(var a: Wire, var b: Wire) : Gate {
+    override val value: Boolean
+        get() = a.input.value || b.input.value
 }
 
-data class XorGate(val a: Gate, val b: Gate) : Gate {
-    override val value:Boolean
-        get() = a.value xor b.value
+data class XorGate(var a: Wire, var b: Wire) : Gate {
+    override val value: Boolean
+        get() = a.input.value xor b.input.value
 }
 
 val lines = java.io.File(args[0]).readLines()
-val gates = mutableMapOf<String, Gate>()
+val wires = mutableMapOf<String, Wire>()
 
 for (line in lines.takeWhile { it != "" }) {
     val (name, value) = line.split(": ")
-    gates[name] = InputGate(value == "1")
+    wires[name] = Wire(name, InputGate(value == "1"))
 }
 
 val logicPattern = Regex("""(\w+) (\w+) (\w+) ->""")
 val logic = lines.dropWhile { it != "" }.drop(1).map { it.takeLast(3) to it }.toMap()
-fun addLogicGate(name: String, definition: String): Gate {
-    gates[name]?.let { return it }
+fun addLogicWireAndGate(name: String, definition: String): Wire {
+    wires[name]?.let { return it }
     val (a, op, b) = logicPattern.find(definition)!!.destructured
-    val aGate = gates[a] ?: addLogicGate(a, logic.getValue(a))
-    val bGate = gates[b] ?: addLogicGate(b, logic.getValue(b))
-    val newGate = when (op) {
-        "AND" -> AndGate(aGate, bGate)
-        "OR" -> OrGate(aGate, bGate)
-        "XOR" -> XorGate(aGate, bGate)
+    val aWire = wires[a] ?: addLogicWireAndGate(a, logic.getValue(a))
+    val bWire = wires[b] ?: addLogicWireAndGate(b, logic.getValue(b))
+    val newWire = when (op) {
+        "AND" -> Wire(name, AndGate(aWire, bWire))
+        "OR" -> Wire(name, OrGate(aWire, bWire))
+        "XOR" -> Wire(name, XorGate(aWire, bWire))
         else -> throw IllegalArgumentException(definition)
     }
-    gates[name] = newGate
-    return newGate
+    wires[name] = newWire
+    return newWire
 }
 for ((name, definition) in logic.entries) {
-    addLogicGate(name, definition)
+    addLogicWireAndGate(name, definition)
 }
-val zGates = gates.entries.filter { it.key.startsWith("z") }.sortedBy { it.key }.map { it.value.value }
-println(zGates.mapIndexed { i, it -> if (it) 1L shl i else 0L }.reduce { acc, it -> acc or it  })
+
+val zWires = wires.entries.filter { it.key.startsWith("z") }.sortedBy { it.key }
+val part1 = zWires.map { it.value.input.value }
+    .mapIndexed { i, it -> if (it) 1L shl i else 0L }
+    .reduce { acc, it -> acc or it }
+println(part1)
