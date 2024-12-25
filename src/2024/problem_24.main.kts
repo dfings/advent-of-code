@@ -109,11 +109,9 @@ class Device {
         } else {
             val i = if (bitIndex < 10) "0$bitIndex" else "$bitIndex"
             val previousFinalCarry = finalCarry[bitIndex - 1]
-            val firstResultWire = xorOutput.getValue(setOf("x$i", "y$i"))
-            val firstResult = firstResultWire.name
+            val firstResult = xorOutput.getValue(setOf("x$i", "y$i")).name
             println("x$i XOR y$i -> $firstResult")
-            val firstCarryWire = andOutput.getValue(setOf("x$i", "y$i"))
-            val firstCarry = firstCarryWire.name
+            val firstCarry = andOutput.getValue(setOf("x$i", "y$i")).name
             println("x$i AND y$i -> $firstCarry")
             val zWire = wires.getValue("z$i")
             val zOutKey = setOf(firstResult, previousFinalCarry)
@@ -133,8 +131,7 @@ class Device {
                 return
             }
             println("$firstResult XOR $previousFinalCarry -> z$i")
-            val secondCarryWire = andOutput.getValue(setOf("$firstResult", "$previousFinalCarry"))
-            val secondCarry = secondCarryWire.name
+            val secondCarry = andOutput.getValue(setOf("$firstResult", "$previousFinalCarry")).name
             println("$firstResult AND $previousFinalCarry -> $secondCarry")
             finalCarry[bitIndex] = orOutput.getValue(setOf("$firstCarry", "$secondCarry")).name
             println("$firstCarry OR $secondCarry -> ${finalCarry[bitIndex]}")
