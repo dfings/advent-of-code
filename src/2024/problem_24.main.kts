@@ -66,17 +66,6 @@ class Device {
         reindex()
     }
 
-    private fun reindex() {
-        val gates = wires.values.map { it.input }
-        val wiresByInputGate = java.util.IdentityHashMap<Gate, Wire>()
-        wires.values.associateByTo(wiresByInputGate) { it.input }
-        fun <T : BinaryGate> List<T>.makeWireMap() =
-            associateBy { it.key }.mapValues { wiresByInputGate.getValue(it.value) }
-        andOutput = gates.filterIsInstance<AndGate>().makeWireMap()
-        orOutput = gates.filterIsInstance<OrGate>().makeWireMap()
-        xorOutput = gates.filterIsInstance<XorGate>().makeWireMap()
-    }
-
     private fun addLogic(name: String, definition: String): Wire {
         wires[name]?.let { return it }
         val (a, op, b) = logicPattern.find(definition)!!.destructured
@@ -90,6 +79,17 @@ class Device {
         }
         wires[name] = newWire
         return newWire
+    }
+
+    private fun reindex() {
+        val gates = wires.values.map { it.input }
+        val wiresByInputGate = java.util.IdentityHashMap<Gate, Wire>()
+        wires.values.associateByTo(wiresByInputGate) { it.input }
+        fun <T : BinaryGate> List<T>.makeWireMap() =
+            associateBy { it.key }.mapValues { wiresByInputGate.getValue(it.value) }
+        andOutput = gates.filterIsInstance<AndGate>().makeWireMap()
+        orOutput = gates.filterIsInstance<OrGate>().makeWireMap()
+        xorOutput = gates.filterIsInstance<XorGate>().makeWireMap()
     }
 
     fun fixErrors() {
