@@ -120,14 +120,10 @@ class Device {
                 val zWireKey = (zWire.input as BinaryGate).key
                 val badWire1 = wires.getValue((zWireKey - zOutKey).single())
                 val badWire2 = wires.getValue((zOutKey - zWireKey).single())
-                swapInputs(badWire1, badWire2)
-                reindex()
-                fixErrors(bitIndex)
+                swapAndFix(bitIndex, badWire1, badWire2)
                 return
             } else if (zOutWire.name != zWire.name) {
-                swapInputs(zWire, zOutWire)
-                reindex()
-                fixErrors(bitIndex)
+                swapAndFix(bitIndex, zWire, zOutWire)
                 return
             }
             println("$firstResult XOR $previousFinalCarry -> z$i")
@@ -139,12 +135,14 @@ class Device {
         println()
     }
 
-    private fun swapInputs(a: Wire, b: Wire) {
+    private fun swapAndFix(bitIndex: Int, a: Wire, b: Wire) {
         swaps += a.name
         swaps += b.name
         val temp = a.input
         a.input = b.input
         b.input = temp
+        reindex()
+        fixErrors(bitIndex)
     }
 
     fun setInput(x: Long, y: Long) {
