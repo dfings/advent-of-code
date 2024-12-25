@@ -45,6 +45,7 @@ class Device {
     lateinit var orOutput: Map<Set<String>, Wire>
     lateinit var xorOutput: Map<Set<String>, Wire>
     lateinit var finalCarry: Array<String>
+    val swaps = mutableListOf<String>()
 
     fun loadInput(input: List<String>) {
         for (definition in input) {
@@ -93,11 +94,11 @@ class Device {
 
     fun fixErrors() {
         for (i in 0..zWires.lastIndex - 1) {
-            analyze(i)
+            fixErrors(i)
         }
     }
 
-    private fun analyze(bitIndex: Int) {
+    private fun fixErrors(bitIndex: Int) {
         if (bitIndex == 0) {
             if (xorOutput.getValue(setOf("x00", "y00")).name != "z00") {
                 throw IllegalArgumentException("Swap z00 into x00 XOR y00")
@@ -108,20 +109,45 @@ class Device {
         } else {
             val i = if (bitIndex < 10) "0$bitIndex" else "$bitIndex"
             val previousFinalCarry = finalCarry[bitIndex - 1]
-            val firstResult = xorOutput.getValue(setOf("x$i", "y$i")).name
+            val firstResultWire = xorOutput.getValue(setOf("x$i", "y$i"))
+            val firstResult = firstResultWire.name
             println("x$i XOR y$i -> $firstResult")
-            val firstCarry = andOutput.getValue(setOf("x$i", "y$i")).name
+            val firstCarryWire = andOutput.getValue(setOf("x$i", "y$i"))
+            val firstCarry = firstCarryWire.name
             println("x$i AND y$i -> $firstCarry")
-            if (xorOutput.getValue(setOf(firstResult, previousFinalCarry)).name != "z$i") {
-                throw IllegalArgumentException("Swap z$i into x$i XOR y$i")
+            val zWire = wires.getValue("z$i")
+            val zOutKey = setOf(firstResult, previousFinalCarry)
+            val zOutWire = xorOutput[zOutKey]
+            if (zOutWire == null) {
+                val zWireKey = (zWire.input as BinaryGate).key
+                val badWire1 = wires.getValue((zWireKey - zOutKey).single())
+                val badWire2 = wires.getValue((zOutKey - zWireKey).single())
+                swapInputs(badWire1, badWire2)
+                reindex()
+                fixErrors(bitIndex)
+                return
+            } else if (zOutWire.name != zWire.name) {
+                swapInputs(zWire, zOutWire)
+                reindex()
+                fixErrors(bitIndex)
+                return
             }
             println("$firstResult XOR $previousFinalCarry -> z$i")
-            val secondCarry = andOutput.getValue(setOf("$firstResult", "$previousFinalCarry")).name
+            val secondCarryWire = andOutput.getValue(setOf("$firstResult", "$previousFinalCarry"))
+            val secondCarry = secondCarryWire.name
             println("$firstResult AND $previousFinalCarry -> $secondCarry")
             finalCarry[bitIndex] = orOutput.getValue(setOf("$firstCarry", "$secondCarry")).name
             println("$firstCarry OR $secondCarry -> ${finalCarry[bitIndex]}")
         }
         println()
+    }
+
+    private fun swapInputs(a: Wire, b: Wire) {
+        swaps += a.name
+        swaps += b.name
+        val temp = a.input
+        a.input = b.input
+        b.input = temp
     }
 
     fun setInput(x: Long, y: Long) {
@@ -154,3 +180,4 @@ device.loadLogic(logicLines)
 
 println(device.getOutput())
 device.fixErrors()
+println(device.swaps.sorted().joinToString(","))
