@@ -167,11 +167,10 @@ class Device {
 }
 
 val lines = java.io.File(args[0]).readLines()
-val logicLines = lines.dropWhile { it != "" }.drop(1)
 
 val device = Device()
 device.loadInput(lines.takeWhile { it != "" })
-device.loadLogic(logicLines)
+device.loadLogic(lines.dropWhile { it != "" }.drop(1))
 
 println(device.getOutput())
 device.fixErrors()
