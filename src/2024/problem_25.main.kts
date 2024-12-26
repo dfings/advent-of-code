@@ -1,28 +1,17 @@
 #!/usr/bin/env kotlin
 
-import kotlin.time.measureTime
-
 val lines = java.io.File(args[0]).readLines()
 val (lockLines, keyLines) = lines.chunked(8).map { it.take(7) }.partition { it[0][0] == '#' }
 
 val locks = lockLines.map { lines -> (0..4).map { y -> lines.map { it[y] }.lastIndexOf('#') } }
 val keys = keyLines.map { lines -> (0..4).map { y -> 5 - lines.map { it[y] }.lastIndexOf('.') } }
 
-repeat (10) {
-var t = measureTime {
-val total = keys.sumOf { key ->
+
+var total = keys.sumOf { key ->
     locks.count { lock -> (0..4).all { i -> key[i] + lock[i] <= 5 }}
 }
 println(total)
-}
-println(t)
-}
 
-println()
-println()
-
-repeat (10) {
-var t = measureTime {
 val precomputed = IntArray(6 * 6 * 6 * 6 * 6)
 for (lock in locks) {
     for (i1 in 0..5) {
@@ -42,8 +31,5 @@ for (lock in locks) {
         }
     }
 }
-val total = keys.sumOf { precomputed[it[0] + it[1]*6 + it[2]*6*6 + it[3]*6*6*6 + it[4]*6*6*6*6]}
+total = keys.sumOf { precomputed[it[0] + it[1]*6 + it[2]*6*6 + it[3]*6*6*6 + it[4]*6*6*6*6]}
 println(total)
-}
-println(t)
-}
