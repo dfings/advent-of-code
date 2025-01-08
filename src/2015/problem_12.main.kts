@@ -1,7 +1,7 @@
 #!/usr/bin/env kotlin
 
 @file:Repository("https://repo1.maven.org/maven2/")
-@file:DependsOn(".org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.0")
+@file:DependsOn("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.0")
 
 import kotlinx.serialization.json.*
 
