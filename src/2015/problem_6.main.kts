@@ -1,6 +1,5 @@
 #!/usr/bin/env kotlin
 
-
 enum class Operation { TOGGLE, ON, OFF }
 data class Instruction(val op: Operation, val xRange: IntRange, val yRange: IntRange)
 
