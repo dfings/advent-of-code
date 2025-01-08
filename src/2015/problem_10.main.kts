@@ -4,11 +4,11 @@ fun List<Int>.lookSay(): List<Int> {
     var look = this
     val say = mutableListOf<Int>()
     while (!look.isEmpty()) {
-        val last = look.indexOfFirst { it != look[0] }
-        val took = look.subList(0, if (last == -1) look.size else last)
-        say.add(took.size)
-        say.add(took[0])
-        look = look.subList(took.size, look.size)
+        val end = look.indexOfFirst { it != look[0] }
+        val took = if (end == -1) look.size else end
+        say.add(took)
+        say.add(look[0])
+        look = look.subList(took, look.size)
     }
     return say
 }
