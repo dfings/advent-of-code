@@ -9,13 +9,10 @@ fun fitCheck(used: List<Jug>, unused: List<Jug>, remaining: Int): List<List<Jug>
     if (remaining == 0) {
         return listOf(used)
     }
-    val output = mutableListOf<List<Jug>>()
-    for ((i, jug) in unused.withIndex()) {
-        if (jug.liters <= remaining) {
-            output.addAll(fitCheck(used + jug, unused.drop(i + 1), remaining - jug.liters))
-        }
+    val canUse = unused.filter { it.liters <= remaining }
+    return canUse.withIndex().flatMap { (i, jug) -> 
+        fitCheck(used + jug, canUse.drop(i + 1), remaining - jug.liters) 
     }
-    return output
 }
 
 val combos = fitCheck(emptyList(), jugs, 150)
