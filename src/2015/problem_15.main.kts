@@ -16,10 +16,15 @@ fun parse(input: String): Ingredient {
 val lines = java.io.File(args[0]).readLines()
 val ingredients = lines.map { parse(it) }
 
-fun List<Ingredient>.score(counts: List<Int>) =
-    (0..3).map { i -> 
-        max(0, zip(counts).sumOf { (it, count) -> it.properties[i] * count })
-    }.reduce(Long::times)
+fun List<Ingredient>.score(counts: List<Int>): Long {
+    val properties = LongArray(4)
+    for (i in 0..3) {
+        for (j in indices) {
+            properties[i] += this[j].properties[i] * counts[j]
+        }
+    }
+    return properties.map { max(0, it) }.reduce(Long::times)
+}
 
 fun List<Ingredient>.calories(counts: List<Int>) = 
     zip(counts).sumOf { (it, count) -> it.calories * count}
