@@ -2,13 +2,14 @@
 
 fun factors(value: Int) = sequence<Int> {
     var i = 1
-    while (i * i <= value) {
+    while (i * i <=value) {
         if (value % i == 0) {
             yield(i)
-            if (value / i != i) yield(value / i)
+            yield(value / i)
         }
         i++
     }
+    if (value == i * i) yield(i)
 }
 
 fun presents(value: Int) = factors(value).sumOf { it * 10 }
