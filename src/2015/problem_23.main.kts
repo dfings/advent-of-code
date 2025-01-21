@@ -1,22 +1,14 @@
 #!/usr/bin/env kotlin
 
-sealed interface Instruction
-data class Half(val register: Int): Instruction
-data class Triple(val register: Int): Instruction
-data class Increment(val register: Int): Instruction
-data class Jump(val offset: Int): Instruction
-data class JumpIfEven(val register: Int, val offset: Int): Instruction
-data class JumpIfOne(val register: Int, val offset: Int): Instruction
+data class Instruction(val code: String, val register: Int, val offset: Int)
 
-fun Char.register() = this - 'a'
-fun parse(input: String): Instruction = when(input.take(3)) {
-    "hlf" -> Half(input[4].register())
-    "tpl" -> Triple(input[4].register())
-    "inc" -> Increment(input[4].register())
-    "jmp" -> Jump(input.drop(4).toInt())
-    "jie" -> JumpIfEven(input[4].register(), input.drop(7).toInt())
-    "jio" -> JumpIfOne(input[4].register(), input.drop(7).toInt())
-    else -> throw IllegalArgumentException(input)
+fun parse(input: String): Instruction {
+    val code = input.take(3)
+    return when (code) {
+        "hlf", "tpl", "inc" -> Instruction(code, input[4] - 'a', -1)
+        "jmp" -> Instruction(code, -1, input.drop(4).toInt())
+        else -> Instruction(code, input[4] - 'a', input.drop(7).toInt())
+    }
 }
 
 fun executeProgram(instructions: List<Instruction>, initialState: List<Long>): Long {
@@ -29,13 +21,13 @@ fun executeProgram(instructions: List<Instruction>, initialState: List<Long>): L
             instructionPointer += offset
             jumped = true
         }
-        when (i) {
-            is Half -> registers[i.register] /= 2L
-            is Triple -> registers[i.register] *= 3L
-            is Increment -> registers[i.register]++
-            is Jump -> jump(i.offset)
-            is JumpIfEven -> if (registers[i.register] % 2L == 0L) jump(i.offset)
-            is JumpIfOne -> if (registers[i.register] == 1L) jump(i.offset)
+        when (i.code) {
+            "hlf" -> registers[i.register] /= 2L
+            "tpl" -> registers[i.register] *= 3L
+            "inc" -> registers[i.register]++
+            "jmp" -> jump(i.offset)
+            "jie" -> if (registers[i.register] % 2L == 0L) jump(i.offset)
+            "jio" -> if (registers[i.register] == 1L) jump(i.offset)
         }
         if (!jumped) instructionPointer++
     }
