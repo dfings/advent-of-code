@@ -1,24 +1,13 @@
 #!/usr/bin/env kotlin
 
-import kotlin.math.abs
-import kotlin.math.sign
-
-fun MutableList<IndexedValue<Long>>.move(v: IndexedValue<Long>) {
-    var index = indexOfFirst { it.index == v.index }
-    repeat(abs(v.value).mod(size - 1)) {
-        val newIndex = (index + v.value.sign).mod(size)
-        set(index, get(newIndex))
-        set(newIndex, v)
-        index = newIndex
-    }
-}
-
 fun decrypt(values: List<Long>, rounds: Int): Long {
     val indexedValues = values.withIndex()
     val state = indexedValues.toMutableList()
     repeat (rounds) {
         for (v in indexedValues) {
-            state.move(v)
+            val index = state.indexOfFirst { it.index == v.index }
+            state.removeAt(index)
+            state.add((index + v.value).mod(state.size), v)
         }
     }
     val indexOfZero = state.indexOfFirst { it.value == 0L }
