@@ -14,9 +14,10 @@ fun MutableList<IndexedValue<Long>>.move(v: IndexedValue<Long>) {
 }
 
 fun decrypt(values: List<Long>, rounds: Int): Long {
-    val state = values.withIndex().toMutableList()
+    val indexedValues = values.withIndex()
+    val state = indexedValues.toMutableList()
     repeat (rounds) {
-        for (v in values.withIndex()) {
+        for (v in indexedValues) {
             state.move(v)
         }
     }
