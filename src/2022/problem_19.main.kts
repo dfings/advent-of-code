@@ -80,29 +80,20 @@ fun State.advance(b: Blueprint, limit: Int) = buildList<State> {
     }
 }
 
-fun findBestEndState(blueprint: Blueprint, limit: Int): State {
-    val previous = mutableMapOf<State, State>()
-    val frontier  = ArrayDeque<State>()
-    frontier.add(State())
-    var best = State()
-    while (!frontier.isEmpty()) {
-        val current = frontier.removeFirst()
-        for (next in current.advance(blueprint, limit)) {
-            if (next.minute < limit) {
-                frontier.add(next)
-            } else if (next.geodes > best.geodes) {
-                best = next
-            }
-        }
+fun findBestEndState(b: Blueprint, current: State, limit: Int): State? {
+    if (current.minute == limit) {
+        return current
     }
-    return best
+    return current.advance(b, limit)
+        .mapNotNull { findBestEndState(b, it, limit) }
+        .maxByOrNull { it.geodes }
 }
 
 val lines = java.io.File(args[0]).readLines()
 val blueprints = lines.map { parse(it) }
 
-val bestStates = blueprints.map { findBestEndState(it, 24) }
+val bestStates = blueprints.map { findBestEndState(it, State(), 24)!! }
 println(bestStates.mapIndexed { i, it -> (i + 1) * it.geodes }.sum())
 
-val bestStates2 = blueprints.take(3).map { findBestEndState(it, 32) }
+val bestStates2 = blueprints.take(3).map { findBestEndState(it, State(), 32)!! }
 println(bestStates2.map { it.geodes }.reduce(Int::times))
