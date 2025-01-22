@@ -55,8 +55,7 @@ fun  Map<String, Monkey>.evalWithInput(input: Long): Long {
 fun Map<String, Monkey>.findCorrectInput(lowerInput: Long, upperInput: Long): Long {
     val lowerOutput = evalWithInput(lowerInput)
     val upperOutput = evalWithInput(upperInput)
-    require(lowerOutput <= target)
-    require(upperOutput >= target)
+    require(lowerOutput <= target && upperOutput >= target)
     val midpointInput = (upperInput + lowerInput) / 2
     val midpointOutput = evalWithInput(midpointInput)
     return when {
