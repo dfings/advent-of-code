@@ -10,9 +10,8 @@ fun decrypt(values: List<Long>, rounds: Int): Long {
             state.add((index + v.value).mod(state.size), v)
         }
     }
-    val indexOfZero = state.indexOfFirst { it.value == 0L }
-    fun getValue(i: Int) = state[(indexOfZero + i).mod(state.size)].value
-    return getValue(1000) + getValue(2000) + getValue(3000)
+    val zeroIndex = state.indexOfFirst { it.value == 0L }
+    return listOf(1000, 2000, 3000).sumOf { state[(zeroIndex + it).mod(state.size)].value }
 }
 
 val lines = java.io.File(args[0]).readLines()
