@@ -24,7 +24,9 @@ fun parseInstructions(input: String): List<Instruction> {
     return output
 }
 
-fun List<String>.nextX(x: Int, y: Int, dir: Char): Int {
+typealias Map = List<String>
+
+fun Map.nextX(x: Int, y: Int, dir: Char): Int {
     val line = get(y)
     val xMin = line.indexOfFirst { it != ' '}
     val xMax = line.indexOfLast { it != ' '}
@@ -34,7 +36,7 @@ fun List<String>.nextX(x: Int, y: Int, dir: Char): Int {
     return if (line[newX] == '#') x else newX
 }
 
-fun List<String>.nextY(x: Int, y: Int, dir: Char): Int {
+fun Map.nextY(x: Int, y: Int, dir: Char): Int {
     val yMin = indexOfFirst { it.getOrElse(x) { ' ' } != ' '}
     val yMax = indexOfLast { it.getOrElse(x) { ' ' } != ' '}
     var newY = y + if (dir == 'v') 1 else -1
@@ -43,38 +45,33 @@ fun List<String>.nextY(x: Int, y: Int, dir: Char): Int {
     return if (get(newY).getOrNull(x) == '#') y else newY
 }
 
+fun Map.walk(): Int {
+    var x = get(0).indexOf('.')
+    var y = 0
+    var dir = '>'
+    for (instruction in instructions) {
+        check(this[y][x] == '.')
+        when (instruction) {
+            is Face -> dir = instruction.dir
+            is Move -> {
+                repeat (instruction.steps) {
+                    when (dir) {
+                        '>', '<' -> x = nextX(x, y, dir)
+                        '^', 'v' -> y = nextY(x, y, dir)
+                    }
+                    check(this[y][x] == '.')
+                }
+            }
+        }
+    }
+
+    val row = y + 1
+    val column = x + 1
+    val facing = ">v<^".indexOf(dir)
+    return 1000 * row + 4 * column + facing
+}
 
 val lines = java.io.File(args[0]).readLines()
 val map = lines.dropLast(2)
 val instructions = parseInstructions(lines.last())
-
-var x = lines[0].indexOf('.')
-var y = 0
-
-var dir = '>'
-for (instruction in instructions) {
-    check(map[y][x] == '.')
-    when (instruction) {
-        is Face -> dir = instruction.dir
-        is Move -> {
-            for (i in 1..instruction.steps) {
-                when (dir) {
-                    '>', '<' -> {
-                        val nextX = map.nextX(x, y, dir)
-                        if (x == nextX) break else x = nextX
-                    }
-                    '^', 'v' -> {
-                        val nextY = map.nextY(x, y, dir)
-                        if (y == nextY) break else y = nextY
-                    }
-                }
-                check(map[y][x] == '.')
-            }
-        }
-    }
-}
-
-val row = y + 1
-val column = x + 1
-val facing = ">v<^".indexOf(dir)
-println(1000 * row + 4 * column + facing)
+println(map.walk())
