@@ -25,49 +25,45 @@ fun parseInstructions(input: String): List<Instruction> {
 }
 
 typealias Map = List<String>
+data class Position(val x: Int, val y: Int, val dir: Char)
 
-fun Map.nextX(x: Int, y: Int, dir: Char): Int {
-    val line = get(y)
-    val xMin = line.indexOfFirst { it != ' '}
-    val xMax = line.indexOfLast { it != ' '}
-    var newX = x + if (dir == '>') 1 else -1
-    if (newX > xMax) newX = xMin
-    if (newX < xMin) newX = xMax
-    return if (line[newX] == '#') x else newX
-}
-
-fun Map.nextY(x: Int, y: Int, dir: Char): Int {
-    val yMin = indexOfFirst { it.getOrElse(x) { ' ' } != ' '}
-    val yMax = indexOfLast { it.getOrElse(x) { ' ' } != ' '}
-    var newY = y + if (dir == 'v') 1 else -1
-    if (newY > yMax) newY = yMin
-    if (newY < yMin) newY = yMax
-    return if (get(newY).getOrNull(x) == '#') y else newY
+fun Map.next(p: Position): Position {
+    if (p.dir == '<' || p.dir == '>') {
+        val line = get(p.y)
+        val xMin = line.indexOfFirst { it != ' '}
+        val xMax = line.indexOfLast { it != ' '}
+        var newX = p.x + if (p.dir == '>') 1 else -1
+        if (newX > xMax) newX = xMin
+        if (newX < xMin) newX = xMax
+        return if (line[newX] == '#') p else p.copy(x = newX)
+    } else {
+        val yMin = indexOfFirst { it.getOrElse(p.x) { ' ' } != ' '}
+        val yMax = indexOfLast { it.getOrElse(p.x) { ' ' } != ' '}
+        var newY = p.y + if (p.dir == 'v') 1 else -1
+        if (newY > yMax) newY = yMin
+        if (newY < yMin) newY = yMax
+        return if (get(newY).getOrNull(p.x) == '#') p else p.copy(y = newY)
+    }
 }
 
 fun Map.walk(): Int {
-    var x = get(0).indexOf('.')
-    var y = 0
-    var dir = '>'
+    var p = Position(get(0).indexOf('.'), 0, '>')
     for (instruction in instructions) {
-        check(this[y][x] == '.')
+        check(this[p.y][p.x] == '.')
         when (instruction) {
-            is Face -> dir = instruction.dir
+            is Face -> p = p.copy(dir = instruction.dir)
             is Move -> {
                 repeat (instruction.steps) {
-                    when (dir) {
-                        '>', '<' -> x = nextX(x, y, dir)
-                        '^', 'v' -> y = nextY(x, y, dir)
-                    }
-                    check(this[y][x] == '.')
+                    p = next(p)
+                    check(this[p.y][p.x] == '.')
                 }
             }
         }
     }
 
-    val row = y + 1
-    val column = x + 1
-    val facing = ">v<^".indexOf(dir)
+    val row = p.y + 1
+    val column = p.x + 1
+    val facing = ">v<^".indexOf(p.dir)
     return 1000 * row + 4 * column + facing
 }
 
