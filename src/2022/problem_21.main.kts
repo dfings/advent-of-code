@@ -43,7 +43,6 @@ fun Map<String, Monkey>.eval(name: String): Long {
 }
 
 println(monkeys.eval("root"))
-println()
 
 val root = monkeys.getValue("root") as OperatorMonkey
 val target = monkeys.eval(root.monkey2)
@@ -56,7 +55,6 @@ fun  Map<String, Monkey>.evalWithInput(input: Long): Long {
 fun Map<String, Monkey>.findCorrectInput(lowerInput: Long, upperInput: Long): Long {
     val lowerOutput = evalWithInput(lowerInput)
     val upperOutput = evalWithInput(upperInput)
-    println("$lowerInput $upperInput -> $lowerOutput $upperOutput")
     require(lowerOutput <= target)
     require(upperOutput >= target)
     val midpointInput = (upperInput + lowerInput) / 2
@@ -68,8 +66,4 @@ fun Map<String, Monkey>.findCorrectInput(lowerInput: Long, upperInput: Long): Lo
     }
 }
 
-val i = monkeys.findCorrectInput((monkeys.eval(root.monkey1) - target) / 10, 0)
-humn.output = i
-println(monkeys.eval(root.monkey1))
-println(monkeys.eval(root.monkey2))
-println(i)
+println(monkeys.findCorrectInput((monkeys.eval(root.monkey1) - target) / 10, 0))
