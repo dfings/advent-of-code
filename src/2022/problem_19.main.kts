@@ -34,7 +34,8 @@ fun State.canBuildOre() = oreRobots < b.maxOre && ore >= b.oreForOre
 fun State.canBuildClay() = clayRobots < b.clayForObsidian && ore >= b.oreForClay
 fun State.canBuildObsidian() = 
     obsidianRobots < b.obsidianForGeode && 
-    ore >= b.oreForObsidian && clay >= b.clayForObsidian
+    ore >= b.oreForObsidian && 
+    clay >= b.clayForObsidian
 fun State.canBuildGeode() = ore >= b.oreForGeode && obsidian >= b.obsidianForGeode
 
 fun State.buildOre() = copy(oreRobots = oreRobots + 1, ore = ore - b.oreForOre)
