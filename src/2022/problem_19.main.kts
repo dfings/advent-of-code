@@ -18,6 +18,7 @@ fun parse(input: String): Blueprint {
 }
 
 data class State(
+    val b: Blueprint,
     val minute: Int = 0,
     val oreRobots: Int = 1,
     val clayRobots: Int = 0,
@@ -29,25 +30,25 @@ data class State(
     val geodes: Int = 0,
 )
 
-fun State.canBuildOre(b: Blueprint) = oreRobots < b.maxOre && ore >= b.oreForOre
-fun State.canBuildClay(b: Blueprint) = clayRobots < b.clayForObsidian && ore >= b.oreForClay
-fun State.canBuildObsidian(b: Blueprint) = 
+fun State.canBuildOre() = oreRobots < b.maxOre && ore >= b.oreForOre
+fun State.canBuildClay() = clayRobots < b.clayForObsidian && ore >= b.oreForClay
+fun State.canBuildObsidian() = 
     obsidianRobots < b.obsidianForGeode && 
     ore >= b.oreForObsidian && clay >= b.clayForObsidian
-fun State.canBuildGeode(b: Blueprint) = ore >= b.oreForGeode && obsidian >= b.obsidianForGeode
+fun State.canBuildGeode() = ore >= b.oreForGeode && obsidian >= b.obsidianForGeode
 
-fun State.buildOre(b: Blueprint) = copy(oreRobots = oreRobots + 1, ore = ore - b.oreForOre)
-fun State.buildClay(b: Blueprint) = copy(clayRobots = clayRobots + 1, ore = ore - b.oreForClay)
-fun State.buildObsidian(b: Blueprint) = copy(
+fun State.buildOre() = copy(oreRobots = oreRobots + 1, ore = ore - b.oreForOre)
+fun State.buildClay() = copy(clayRobots = clayRobots + 1, ore = ore - b.oreForClay)
+fun State.buildObsidian() = copy(
     obsidianRobots = obsidianRobots + 1, 
     ore = ore - b.oreForObsidian, 
     clay = clay - b.clayForObsidian,
-    )
-fun State.buildGeode(b: Blueprint) = copy(
+)
+fun State.buildGeode() = copy(
     geodeRobots = geodeRobots + 1, 
     ore = ore - b.oreForGeode, 
     obsidian = obsidian - b.obsidianForGeode,
-    )
+)
 
 fun State.produce() = copy(
     minute = minute + 1,
@@ -65,35 +66,31 @@ fun State.advanceUntil(limit: Int, isReady: State.() -> Boolean): State? {
     return if (current.isReady() && current.minute < limit) current.produce() else null
 }
 
-fun State.advance(b: Blueprint, limit: Int) = buildList<State> {
+fun State.advance(limit: Int) = buildList<State> {
     if (obsidianRobots > 0) {
-        advanceUntil(limit) { canBuildGeode(b) }?.let { add(it.buildGeode(b)) }
+        advanceUntil(limit) { canBuildGeode() }?.let { add(it.buildGeode()) }
     }
     if (clayRobots > 0) {
-        advanceUntil(limit) { canBuildObsidian(b) }?.let { add(it.buildObsidian(b)) }
+        advanceUntil(limit) { canBuildObsidian() }?.let { add(it.buildObsidian()) }
     }
-    if (oreRobots > 0) {
-        advanceUntil(3 * limit / 4) { canBuildClay(b) }?.let { add(it.buildClay(b)) }
-    }
-    if (oreRobots > 0) {
-        advanceUntil(limit / 2) { canBuildOre(b) }?.let { add(it.buildOre(b)) }
-    }
+    advanceUntil(3 * limit / 4) { canBuildClay() }?.let { add(it.buildClay()) }
+    advanceUntil(limit / 2) { canBuildOre() }?.let { add(it.buildOre()) }
 }
 
-fun findBestEndState(b: Blueprint, current: State, limit: Int): State? {
+fun findBestEndState(current: State, limit: Int): State? {
     if (current.minute == limit) {
         return current
     }
-    return current.advance(b, limit)
-        .mapNotNull { findBestEndState(b, it, limit) }
+    return current.advance(limit)
+        .mapNotNull { findBestEndState(it, limit) }
         .maxByOrNull { it.geodes }
 }
 
 val lines = java.io.File(args[0]).readLines()
 val blueprints = lines.map { parse(it) }
 
-val bestStates = blueprints.map { findBestEndState(it, State(), 24)!! }
+val bestStates = blueprints.map { findBestEndState(State(it), 24)!! }
 println(bestStates.mapIndexed { i, it -> (i + 1) * it.geodes }.sum())
 
-val bestStates2 = blueprints.take(3).map { findBestEndState(it, State(), 32)!! }
+val bestStates2 = blueprints.take(3).map { findBestEndState(State(it), 32)!! }
 println(bestStates2.map { it.geodes }.reduce(Int::times))
