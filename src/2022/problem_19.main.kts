@@ -68,12 +68,8 @@ fun State.advanceUntil(limit: Int, isReady: State.() -> Boolean): State? {
 }
 
 fun State.advance(limit: Int) = buildList<State> {
-    if (obsidianRobots > 0) {
-        advanceUntil(limit) { canBuildGeode() }?.let { add(it.buildGeode()) }
-    }
-    if (clayRobots > 0) {
-        advanceUntil(limit) { canBuildObsidian() }?.let { add(it.buildObsidian()) }
-    }
+    if (obsidianRobots > 0) advanceUntil(limit) { canBuildGeode() }?.let { add(it.buildGeode()) }
+    if (clayRobots > 0) advanceUntil(limit) { canBuildObsidian() }?.let { add(it.buildObsidian()) }
     advanceUntil(3 * limit / 4) { canBuildClay() }?.let { add(it.buildClay()) }
     advanceUntil(limit / 2) { canBuildOre() }?.let { add(it.buildOre()) }
 }
