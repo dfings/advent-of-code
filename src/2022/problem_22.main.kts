@@ -5,7 +5,7 @@ val turnLeft = "^<v>^".zipWithNext().toMap()
 
 sealed interface Instruction
 data class Move(val steps: Int): Instruction
-data class Face(val dir: Char) : Instruction
+data class Turn(val dir: Char) : Instruction
 
 val pattern = Regex("""(\d+)(L|R)?""")
 fun parseInstructions(input: String): List<Instruction> {
@@ -14,12 +14,7 @@ fun parseInstructions(input: String): List<Instruction> {
     for (match in pattern.findAll(input)) {
         val (distance, turn) = match.destructured
         output += Move(distance.toInt())
-        dir = when (turn) {
-            "R" -> turnRight.getValue(dir)
-            "L" -> turnLeft.getValue(dir)
-            else -> dir
-        }
-        output.add(Face(dir))
+        if (!turn.isEmpty()) output += Turn(turn[0])
     }
     return output
 }
@@ -33,56 +28,62 @@ data class Map(val lines: List<String>) {
     val yMaxs = xRange.map { x -> lines.indexOfLast { it.getOrElse(x) { ' ' } != ' '} }
 
     fun Position.next(cube: Boolean = false): Position {
+        val xf = x / 50
+        val yf = y / 50
         val next = when (dir) {
             '<' -> when {
                 x - 1 >= xMins[y] -> copy(x = x - 1)
                 !cube -> copy(x = xMaxs[y])
-                y in 0..49 -> TODO()
-                y in 50..99 -> TODO()
-                y in 100..149 -> TODO()
-                else -> TODO()
+                yf == 0 -> copy(x = 0, y = 149 - y, dir = '>')
+                yf == 1 -> copy(x = y - 50, y = 100, dir = 'v')
+                yf == 2 -> copy(x = 50, y = 149 - y, dir = '>')
+                else -> copy(y - 100, y = 0, dir = 'v')
             }
             '>' -> when {
                 x + 1 <= xMaxs[y] -> copy(x = x + 1)
                 !cube -> copy(x = xMins[y])
-                y in 0..49 -> TODO()
-                y in 50..99 -> TODO()
-                y in 100..149 -> TODO()
-                else -> TODO()
+                yf == 0 -> copy(x = 99, y = 149 - y, dir = '<')
+                yf == 1 -> copy(x = y + 50, y = 49, dir = '^')
+                yf == 2 -> copy(x = 149, y = 149 - y, dir = '<')
+                else -> copy(x = y - 100, y = 149, dir = '^')
             }
             '^' -> when {
                 y - 1 >= yMins[x] -> copy(y = y - 1)
                 !cube -> copy(y = yMaxs[x])   
-                x in 0..49 -> TODO()
-                x in 50..99 -> TODO()
-                else -> TODO()
+                xf == 0 -> copy(x = 50, y = 50 + x, dir = '>')
+                xf == 1 -> copy(x = 0, y = 100 + x, dir = '>')
+                else -> copy(x = x - 100, y = 199, dir = '^')
             }
             else -> when {
                 y + 1 <= yMaxs[x] -> copy(y = y + 1)
                 !cube -> copy(y = yMins[x])
-                x in 0..49 -> TODO()
-                x in 50..99 -> TODO()
-                else -> TODO()
+                xf == 0 -> copy(x = x + 100 , y = 0, dir = 'v')
+                xf == 1 -> copy(x = 49, y = x + 100 , dir = '<')
+                else -> copy(x = 99, y = x - 50, dir = '<')
             }
         }
         return if (lines[next.y][next.x] == '#') this else next
     }
 
-    fun walk(cube: Boolean = false): Int {
+    fun walk(instructions: List<Instruction>, cube: Boolean = false): Int {
         var p = Position(lines[0].indexOf('.'), 0, '>')
         for (instruction in instructions) {
             check(lines[p.y][p.x] == '.')
             when (instruction) {
-                is Face -> p = p.copy(dir = instruction.dir)
+                is Turn -> when(instruction.dir) {
+                    'L' -> p = p.copy(dir = turnLeft.getValue(p.dir))
+                    'R' -> p = p.copy(dir = turnRight.getValue(p.dir))
+                }
                 is Move -> {
-                    repeat (instruction.steps) {
-                        p = p.next(cube)
+                    for (i in 1..instruction.steps) {
+                        val np = p.next(cube)
+                        if (np == p) break
+                        p = np
                         check(lines[p.y][p.x] == '.')
                     }
                 }
             }
         }
-
         val row = p.y + 1
         val column = p.x + 1
         val facing = ">v<^".indexOf(p.dir)
@@ -90,7 +91,11 @@ data class Map(val lines: List<String>) {
     }
 }
 
-val input = java.io.File(args[0]).readLines()
-val map = Map(input.dropLast(2))
-val instructions = parseInstructions(input.last())
-println(map.walk())
+fun solve(lines: List<String>) {
+    val map = Map(lines.dropLast(2))
+    val instructions = parseInstructions(lines.last())
+    println(map.walk(instructions))
+    println(map.walk(instructions, true))
+}
+
+solve(java.io.File(args[0]).readLines())
