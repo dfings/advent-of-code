@@ -26,25 +26,26 @@ fun parseInstructions(input: String): List<Instruction> {
 
 data class Position(val x: Int, val y: Int, val dir: Char)
 data class Map(val lines: List<String>) {
+    val xMins = lines.map { it.indexOfFirst { it != ' ' } }
+    val xMaxs = lines.map { it.indexOfLast { it != ' ' } }
+    val xRange = xMins.min()..xMaxs.max()
+    val yMins = xRange.map { x -> lines.indexOfFirst { it.getOrElse(x) { ' ' } != ' '} }
+    val yMaxs = xRange.map { x -> lines.indexOfLast { it.getOrElse(x) { ' ' } != ' '} }
+
     fun Position.next(): Position {
         if (dir == '<' || dir == '>') {
-            val line = lines[y]
-            val xMin = line.indexOfFirst { it != ' '}
-            val xMax = line.indexOfLast { it != ' '}
             var newX = x + if (dir == '>') 1 else -1
             val newP = when {
-                newX < xMin -> copy(x = xMax)
-                newX > xMax -> copy(x = xMin)
+                newX < xMins[y] -> copy(x = xMaxs[y])
+                newX > xMaxs[y] -> copy(x = xMins[y])
                 else -> copy(x = newX)
             }
             return if (lines[newP.y][newP.x] == '#') this else newP
         } else {
-            val yMin = lines.indexOfFirst { it.getOrElse(x) { ' ' } != ' '}
-            val yMax = lines.indexOfLast { it.getOrElse(x) { ' ' } != ' '}
             var newY = y + if (dir == 'v') 1 else -1
             val newP = when {
-                newY < yMin -> copy(y = yMax)
-                newY > yMax -> copy(y = yMin)
+                newY < yMins[x] -> copy(y = yMaxs[x])
+                newY > yMaxs[x] -> copy(y = yMins[x])
                 else -> copy(y = newY)
             }
             return if (lines[newP.y][newP.x] == '#') this else newP
