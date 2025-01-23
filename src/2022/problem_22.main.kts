@@ -32,16 +32,22 @@ data class Map(val lines: List<String>) {
             val xMin = line.indexOfFirst { it != ' '}
             val xMax = line.indexOfLast { it != ' '}
             var newX = x + if (dir == '>') 1 else -1
-            if (newX > xMax) newX = xMin
-            if (newX < xMin) newX = xMax
-            return if (line[newX] == '#') this else copy(x = newX)
+            val newP = when {
+                newX < xMin -> copy(x = xMax)
+                newX > xMax -> copy(x = xMin)
+                else -> copy(x = newX)
+            }
+            return if (lines[newP.y][newP.x] == '#') this else newP
         } else {
             val yMin = lines.indexOfFirst { it.getOrElse(x) { ' ' } != ' '}
             val yMax = lines.indexOfLast { it.getOrElse(x) { ' ' } != ' '}
             var newY = y + if (dir == 'v') 1 else -1
-            if (newY > yMax) newY = yMin
-            if (newY < yMin) newY = yMax
-            return if (lines[newY][x] == '#') this else copy(y = newY)
+            val newP = when {
+                newY < yMin -> copy(y = yMax)
+                newY > yMax -> copy(y = yMin)
+                else -> copy(y = newY)
+            }
+            return if (lines[newP.y][newP.x] == '#') this else newP
         }
     }
 
