@@ -8,13 +8,12 @@ data class Move(val steps: Int): Instruction
 data class Turn(val dir: Char) : Instruction
 
 val pattern = Regex("""(\d+)(L|R)?""")
-fun parseInstructions(input: String): List<Instruction> {
-    return pattern.findAll(input).toList().flatMap { match ->
+fun parseInstructions(input: String): List<Instruction> =
+    pattern.findAll(input).toList().flatMap { match ->
         val (distance, turn) = match.destructured
         val move = Move(distance.toInt())
         if (turn.isEmpty()) listOf(move) else listOf(move, Turn(turn[0]))
     }
-}
 
 data class Position(val x: Int, val y: Int, val dir: Char)
 data class Map(val lines: List<String>) {
