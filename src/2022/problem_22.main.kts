@@ -84,10 +84,8 @@ data class Map(val lines: List<String>) {
                 }
             }
         }
-        val row = p.y + 1
-        val column = p.x + 1
         val facing = ">v<^".indexOf(p.dir)
-        return 1000 * row + 4 * column + facing
+        return 1000 * (p.y + 1) + 4 * (p.x + 1) + facing
     }
 }
 
