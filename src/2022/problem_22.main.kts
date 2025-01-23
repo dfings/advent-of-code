@@ -32,12 +32,38 @@ data class Map(val lines: List<String>) {
     val yMins = xRange.map { x -> lines.indexOfFirst { it.getOrElse(x) { ' ' } != ' '} }
     val yMaxs = xRange.map { x -> lines.indexOfLast { it.getOrElse(x) { ' ' } != ' '} }
 
-    fun Position.next(): Position {
+    fun Position.next(cube: Boolean = false): Position {
         val next = when (dir) {
-            '<' -> copy(x = if (x - 1 < xMins[y]) xMaxs[y] else x - 1)
-            '>' -> copy(x = if (x + 1 > xMaxs[y]) xMins[y] else x + 1)
-            '^' -> copy(y = if (y - 1 < yMins[x]) yMaxs[x] else y - 1)
-            else -> copy(y = if (y + 1 > yMaxs[x]) yMins[x] else y + 1)
+            '<' -> when {
+                x - 1 >= xMins[y] -> copy(x = x - 1)
+                !cube -> copy(x = xMaxs[y])
+                y in 0..49 -> TODO()
+                y in 50..99 -> TODO()
+                y in 100..149 -> TODO()
+                else -> TODO()
+            }
+            '>' -> when {
+                x + 1 <= xMaxs[y] -> copy(x = x + 1)
+                !cube -> copy(x = xMins[y])
+                y in 0..49 -> TODO()
+                y in 50..99 -> TODO()
+                y in 100..149 -> TODO()
+                else -> TODO()
+            }
+            '^' -> when {
+                y - 1 >= yMins[x] -> copy(y = y - 1)
+                !cube -> copy(y = yMaxs[x])   
+                x in 0..49 -> TODO()
+                x in 50..99 -> TODO()
+                else -> TODO()
+            }
+            else -> when {
+                y + 1 <= yMaxs[x] -> copy(y = y + 1)
+                !cube -> copy(y = yMins[x])
+                x in 0..49 -> TODO()
+                x in 50..99 -> TODO()
+                else -> TODO()
+            }
         }
         return if (lines[next.y][next.x] == '#') this else next
     }
@@ -50,7 +76,7 @@ data class Map(val lines: List<String>) {
                 is Face -> p = p.copy(dir = instruction.dir)
                 is Move -> {
                     repeat (instruction.steps) {
-                        p = p.next()
+                        p = p.next(cube)
                         check(lines[p.y][p.x] == '.')
                     }
                 }
