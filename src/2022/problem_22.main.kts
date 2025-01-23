@@ -9,14 +9,11 @@ data class Turn(val dir: Char) : Instruction
 
 val pattern = Regex("""(\d+)(L|R)?""")
 fun parseInstructions(input: String): List<Instruction> {
-    var dir = '>'
-    val output = mutableListOf<Instruction>()
-    for (match in pattern.findAll(input)) {
+    return pattern.findAll(input).toList().flatMap { match ->
         val (distance, turn) = match.destructured
-        output += Move(distance.toInt())
-        if (!turn.isEmpty()) output += Turn(turn[0])
+        val move = Move(distance.toInt())
+        if (turn.isEmpty()) listOf(move) else listOf(move, Turn(turn[0]))
     }
-    return output
 }
 
 data class Position(val x: Int, val y: Int, val dir: Char)
