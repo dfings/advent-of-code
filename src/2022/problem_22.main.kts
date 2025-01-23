@@ -34,18 +34,10 @@ data class Map(val lines: List<String>) {
 
     fun Position.next(): Position {
         val next = when (dir) {
-            '<' -> copy(x = x - 1)
-            '>' -> copy(x = x + 1)
-            '^' -> copy(y = y - 1)
-            else -> copy(y = y + 1)
-        }.let {
-            when {
-                it.x < xMins[y] -> copy(x = xMaxs[y])
-                it.x > xMaxs[y] -> copy(x = xMins[y])
-                it.y < yMins[x] -> copy(y = yMaxs[x])
-                it.y > yMaxs[x] -> copy(y = yMins[x])
-                else -> it
-            }
+            '<' -> copy(x = if (x - 1 < xMins[y]) xMaxs[y] else x - 1)
+            '>' -> copy(x = if (x + 1 > xMaxs[y]) xMins[y] else x + 1)
+            '^' -> copy(y = if (y - 1 < yMins[x]) yMaxs[x] else y - 1)
+            else -> copy(y = if (y + 1 > yMaxs[x]) yMins[x] else y + 1)
         }
         return if (lines[next.y][next.x] == '#') this else next
     }
