@@ -30,32 +30,32 @@ data class Map(val lines: List<String>) {
             '<' -> when {
                 x - 1 >= xMins[y] -> copy(x = x - 1)
                 !cube -> copy(x = xMaxs[y])
-                yf == 0 -> copy(x = 0, y = 149 - y, dir = '>')
-                yf == 1 -> copy(x = y - 50, y = 100, dir = 'v')
-                yf == 2 -> copy(x = 50, y = 149 - y, dir = '>')
-                else -> copy(y - 100, y = 0, dir = 'v')
+                yf == 0 -> Position(x = 0, y = 149 - y, dir = '>')
+                yf == 1 -> Position(x = y - 50, y = 100, dir = 'v')
+                yf == 2 -> Position(x = 50, y = 149 - y, dir = '>')
+                else -> Position(y - 100, y = 0, dir = 'v')
             }
             '>' -> when {
                 x + 1 <= xMaxs[y] -> copy(x = x + 1)
                 !cube -> copy(x = xMins[y])
-                yf == 0 -> copy(x = 99, y = 149 - y, dir = '<')
-                yf == 1 -> copy(x = y + 50, y = 49, dir = '^')
-                yf == 2 -> copy(x = 149, y = 149 - y, dir = '<')
-                else -> copy(x = y - 100, y = 149, dir = '^')
+                yf == 0 -> Position(x = 99, y = 149 - y, dir = '<')
+                yf == 1 -> Position(x = y + 50, y = 49, dir = '^')
+                yf == 2 -> Position(x = 149, y = 149 - y, dir = '<')
+                else -> Position(x = y - 100, y = 149, dir = '^')
             }
             '^' -> when {
                 y - 1 >= yMins[x] -> copy(y = y - 1)
                 !cube -> copy(y = yMaxs[x])   
-                xf == 0 -> copy(x = 50, y = 50 + x, dir = '>')
-                xf == 1 -> copy(x = 0, y = 100 + x, dir = '>')
-                else -> copy(x = x - 100, y = 199, dir = '^')
+                xf == 0 -> Position(x = 50, y = 50 + x, dir = '>')
+                xf == 1 -> Position(x = 0, y = 100 + x, dir = '>')
+                else -> Position(x = x - 100, y = 199, dir = '^')
             }
             else -> when {
                 y + 1 <= yMaxs[x] -> copy(y = y + 1)
                 !cube -> copy(y = yMins[x])
-                xf == 0 -> copy(x = x + 100 , y = 0, dir = 'v')
-                xf == 1 -> copy(x = 49, y = x + 100 , dir = '<')
-                else -> copy(x = 99, y = x - 50, dir = '<')
+                xf == 0 -> Position(x = x + 100 , y = 0, dir = 'v')
+                xf == 1 -> Position(x = 49, y = x + 100 , dir = '<')
+                else -> Position(x = 99, y = x - 50, dir = '<')
             }
         }
         return if (lines[next.y][next.x] == '#') this else next
