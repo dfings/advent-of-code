@@ -45,7 +45,7 @@ data class Map(val lines: List<String>) {
         }
     }
 
-    fun walk(): Int {
+    fun walk(cube: Boolean = false): Int {
         var p = Position(lines[0].indexOf('.'), 0, '>')
         for (instruction in instructions) {
             check(lines[p.y][p.x] == '.')
