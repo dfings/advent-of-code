@@ -6,14 +6,19 @@ val turnLeft = (listOf(Direction.EAST) + Direction.entries.reversed()).zipWithNe
 
 sealed interface Instruction
 data class Move(val steps: Int): Instruction
-data class Turn(val dir: Char) : Instruction
+data object TurnLeft : Instruction
+data object TurnRight : Instruction
 
 val pattern = Regex("""(\d+)(L|R)?""")
 fun parseInstructions(input: String): List<Instruction> =
     pattern.findAll(input).toList().flatMap { match ->
         val (distance, turn) = match.destructured
         val move = Move(distance.toInt())
-        if (turn.isEmpty()) listOf(move) else listOf(move, Turn(turn[0]))
+        when (turn) {
+            "L" -> listOf(move, TurnLeft)
+            "R" -> listOf(move, TurnRight)
+            else -> listOf(move)
+        }
     }
 
 data class Position(val x: Int, val y: Int, val dir: Direction)
@@ -66,10 +71,8 @@ data class Map(val lines: List<String>) {
         var p = Position(lines[0].indexOf('.'), 0, Direction.EAST)
         for (instruction in instructions) {
             when (instruction) {
-                is Turn -> when(instruction.dir) {
-                    'L' -> p = p.copy(dir = turnLeft.getValue(p.dir))
-                    'R' -> p = p.copy(dir = turnRight.getValue(p.dir))
-                }
+                is TurnLeft -> p = p.copy(dir = turnLeft.getValue(p.dir))
+                is TurnRight -> p = p.copy(dir = turnRight.getValue(p.dir))
                 is Move -> {
                     for (i in 1..instruction.steps) {
                         val np = p.next(cube)
