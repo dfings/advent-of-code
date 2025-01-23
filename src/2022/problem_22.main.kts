@@ -64,7 +64,6 @@ data class Map(val lines: List<String>) {
     fun walk(instructions: List<Instruction>, cube: Boolean = false): Int {
         var p = Position(lines[0].indexOf('.'), 0, '>')
         for (instruction in instructions) {
-            check(lines[p.y][p.x] == '.')
             when (instruction) {
                 is Turn -> when(instruction.dir) {
                     'L' -> p = p.copy(dir = turnLeft.getValue(p.dir))
@@ -75,7 +74,6 @@ data class Map(val lines: List<String>) {
                         val np = p.next(cube)
                         if (np == p) break
                         p = np
-                        check(lines[p.y][p.x] == '.')
                     }
                 }
             }
