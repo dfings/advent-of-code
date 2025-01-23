@@ -33,23 +33,21 @@ data class Map(val lines: List<String>) {
     val yMaxs = xRange.map { x -> lines.indexOfLast { it.getOrElse(x) { ' ' } != ' '} }
 
     fun Position.next(): Position {
-        if (dir == '<' || dir == '>') {
-            var newX = x + if (dir == '>') 1 else -1
-            val newP = when {
-                newX < xMins[y] -> copy(x = xMaxs[y])
-                newX > xMaxs[y] -> copy(x = xMins[y])
-                else -> copy(x = newX)
+        val next = when (dir) {
+            '<' -> copy(x = x - 1)
+            '>' -> copy(x = x + 1)
+            '^' -> copy(y = y - 1)
+            else -> copy(y = y + 1)
+        }.let {
+            when {
+                it.x < xMins[y] -> copy(x = xMaxs[y])
+                it.x > xMaxs[y] -> copy(x = xMins[y])
+                it.y < yMins[x] -> copy(y = yMaxs[x])
+                it.y > yMaxs[x] -> copy(y = yMins[x])
+                else -> it
             }
-            return if (lines[newP.y][newP.x] == '#') this else newP
-        } else {
-            var newY = y + if (dir == 'v') 1 else -1
-            val newP = when {
-                newY < yMins[x] -> copy(y = yMaxs[x])
-                newY > yMaxs[x] -> copy(y = yMins[x])
-                else -> copy(y = newY)
-            }
-            return if (lines[newP.y][newP.x] == '#') this else newP
         }
+        return if (lines[next.y][next.x] == '#') this else next
     }
 
     fun walk(cube: Boolean = false): Int {
