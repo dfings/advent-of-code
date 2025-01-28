@@ -1,59 +1,34 @@
 #!/usr/bin/env kotlin
 
-fun String.canPlace(startIndex: Int, count: Int): Boolean {
-    if (length - startIndex < count) return false
-    val endIndex = startIndex + count
-    return getOrElse(startIndex - 1) { '.' } != '#' &&
-        getOrElse(endIndex) { '.' } != '#' &&
-        (startIndex..<endIndex).all { get(it) == '#' || get(it) == '?' }
-}
-
-fun String.validStarts(startIndex: Int) = sequence<Int> {
-    for (i in startIndex..lastIndex) {
-        when (get(i)) {
-            '?' -> yield(i)
-            '#' -> {
-                yield(i)
-                break
-            }
+val cache = mutableMapOf<Pair<String, List<Int>>, Long>()
+fun countValid(record: String, spec: List<Int>): Long = cache.getOrPut(record to spec) {
+     when {
+        record.isEmpty() -> if (spec.isEmpty()) 1 else 0
+        record[0] == '.' -> countValid(record.dropWhile { it == '.' }, spec)
+        record[0] == '?' -> countValid(record.drop(1), spec) + countValid("#" + record.drop(1), spec)
+        record[0] == '#' -> when {
+            spec.isEmpty() -> 0
+            record.take(spec[0]).let { it.length < spec[0] || it.any { it == '.' } } -> 0
+            spec[0] == record.length -> if (spec.size == 1) 1 else 0
+            record[spec[0]] == '#' -> 0
+            else -> countValid(record.drop(spec[0] + 1), spec.drop(1))
         }
+        else -> throw IllegalStateException()
     }
-}
-
-fun String.noSprings() = none { it == '#' }
-
-fun countValid(record: String, spec: List<Int>): Int {
-    if (spec.isEmpty()) return if (record.noSprings()) 1  else 0
-    val count = spec[0]
-    var total = 0
-    val validStarts = record.validStarts(0).toList()
-    for (i in validStarts) {
-        if (record.canPlace(i, count)) {
-            total += countValid(record.drop(i + count + 1), spec.subList(1, spec.size))
-        }
-    }
-    return total
 }
 
 fun parse(input: String) = input.split(" ").let { (r, s) -> 
     r to s.split(",").map { it.toInt() }
 }
+
 fun parse2(input: String) = input.split(" ").let { (r, s) -> 
     List(5) { r }.joinToString("?") to 
     List(5) { s }.joinToString(",").split(",").map { it.toInt() }
 }
 
 fun solve(lines: List<String>) {
-    var totalCount = 0
-    for (line in lines) {
-        val (records, spec) = parse(line)
-        println()
-        println("${records} ${spec.joinToString()}")
-        val count = countValid(records, spec)
-        println(count)
-        totalCount += count
-    }
-    println(totalCount)
+    println(lines.map { parse(it) }.sumOf { (record, spec) -> countValid(record, spec) })
+    println(lines.map { parse2(it) }.sumOf { (record, spec) -> countValid(record, spec) })
 }
 
 solve(java.io.File(args[0]).readLines())
