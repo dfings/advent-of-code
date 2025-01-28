@@ -6,14 +6,12 @@ fun countValid(record: String, spec: List<Int>): Long = cache.getOrPut(record to
         record.isEmpty() -> if (spec.isEmpty()) 1 else 0
         record[0] == '.' -> countValid(record.dropWhile { it == '.' }, spec)
         record[0] == '?' -> countValid(record.drop(1), spec) + countValid("#" + record.drop(1), spec)
-        record[0] == '#' -> when {
-            spec.isEmpty() -> 0
-            record.take(spec[0]).let { it.length < spec[0] || it.any { it == '.' } } -> 0
-            spec[0] == record.length -> if (spec.size == 1) 1 else 0
-            record[spec[0]] == '#' -> 0
-            else -> countValid(record.drop(spec[0] + 1), spec.drop(1))
-        }
-        else -> throw IllegalStateException()
+        // record[0] == '#'
+        spec.isEmpty() -> 0
+        record.take(spec[0]).let { it.length < spec[0] || it.any { it == '.' } } -> 0
+        spec[0] == record.length -> if (spec.size == 1) 1 else 0
+        record[spec[0]] == '#' -> 0
+        else -> countValid(record.drop(spec[0] + 1), spec.drop(1))
     }
 }
 
