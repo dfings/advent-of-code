@@ -1,24 +1,56 @@
 #!/usr/bin/env kotlin
 
-fun part1(lines: List<String>): Int {
-    var load = 0
-    for (x in lines[0].indices) {
-        var rock = -1
-        for (y in lines.indices) {
+enum class Direction { NORTH, WEST, SOUTH, EAST }
+
+val minus = setOf(Direction.NORTH, Direction.WEST)
+val tiltX = setOf(Direction.WEST, Direction.EAST)
+fun tilt(lines: List<String>, direction: Direction): List<String> {
+    val output = lines.map{ CharArray(it.length) { '.' } }
+    for (scan in lines.indices) {
+        var rock = if (direction in minus) -1 else lines.size
+        val range = if (direction in minus) lines.indices else lines.indices.reversed()
+        for (move in range) {
+            val x = if (direction in tiltX) move else scan
+            val y = if (direction in tiltX) scan else move
             when (lines[y][x]) {
-                '#' -> rock = y
+                '#' -> { 
+                    rock = move
+                    output[y][x] = '#'
+                }
                 'O' -> {
-                    rock++
-                    load += lines.size - rock
+                    rock += if (direction in minus) 1 else -1
+                    if (direction in tiltX) {
+                        output[y][rock] = 'O'
+                    } else {
+                        output[rock][x] = 'O'
+                    }
                 }
             }
         }
     }
-    return load
+    return output.map { it.joinToString("") }
 }
 
+fun List<String>.load() = withIndex().sumOf { (y, line) -> line.count { it == 'O' } * (size - y) }
+
 fun solve(lines: List<String>) {
-    println(part1(lines))
+    println(tilt(lines, Direction.NORTH).load())
+    val cache = mutableMapOf(lines to 0)
+    var state = lines
+    var index = 1
+    while (true) {
+        for (direction in Direction.entries) {
+            state = tilt(state, direction)
+        }
+        val start = cache.put(state, index++)
+        if (start != null) {
+            val cycleLength = (index - start - 1).toLong()
+            val targetIndex = start + (1000000000L - start).mod(cycleLength).toInt()
+            val targetState = cache.entries.single { it.value == targetIndex }.key
+            println(targetState.load())
+            return
+        }
+    }
 }
 
 solve(java.io.File(args[0]).readLines())
