@@ -1,5 +1,7 @@
 #!/usr/bin/env kotlin
 
+import java.util.PriorityQueue
+
 data class Point(val x: Int, val y: Int)
 enum class Direction(val dx: Int, val dy: Int) { EAST(1, 0), SOUTH(0, 1), WEST(-1, 0), NORTH(0, -1) }
 operator fun Point.plus(d: Direction) = Point(x + d.dx, y + d.dy)
@@ -27,6 +29,9 @@ fun Board.next() = copy(
 )
 
 data class State(val current: Point, val steps: Int)
+data class Node<T>(val state: T, val cost: Int) : Comparable<Node<T>> {
+    override fun compareTo(other: Node<T>) = cost.compareTo(other.cost)
+}
 
 fun next(current: Point, board: Board) = buildList<Point> {
     val xMax = board.xMax
@@ -39,17 +44,14 @@ fun next(current: Point, board: Board) = buildList<Point> {
 }
 
 fun findShortedPath(startingPoint: Point, boards: List<Board>, endingPoint: Point): Int {
-    val frontier = mutableSetOf(State(startingPoint, 0))
-    val seen = mutableSetOf<State>()
-    var dequeued = 0
-
     val upper = boards[0].xMax + boards[0].yMax + 1
     fun State.h() = steps + upper - current.x - current.y
 
+    val frontier = PriorityQueue(listOf(Node(State(startingPoint, 0), upper)))
+    val seen = mutableSetOf<State>()
+
     while (!frontier.isEmpty()) {
-        val state = frontier.minBy { it.h() }
-        frontier.remove(state)
-        dequeued++
+        val state = frontier.poll().state
         if (!seen.add(state)) continue
         val (current, distance) = state
         val board = boards[distance]
@@ -58,7 +60,8 @@ fun findShortedPath(startingPoint: Point, boards: List<Board>, endingPoint: Poin
         }
         val nextBoard = board.next()
         for (next in next(current, nextBoard)) {
-            frontier.add(State(next, distance + 1))
+            val nextState = State(next, distance + 1)
+            frontier.add(Node(nextState, nextState.h()))
         }
     }
     throw IllegalStateException()
