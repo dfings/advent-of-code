@@ -12,18 +12,18 @@ val turnLeft = (Direction.entries.reversed() + Direction.WEST).zipWithNext().toM
 
 data class State(val p: Point, val d: Direction)
 
-fun State.next() = buildList {
+fun State.next(ultra: Boolean) = buildList {
     val l = turnLeft.getValue(d)
     val r = turnRight.getValue(d)
-    add(State(p + d, l))
-    add(State(p + d, r))
-    add(State(p + d + d, l))
-    add(State(p + d + d, r))
-    add(State(p + d + d + d, l))
-    add(State(p + d + d + d, r))
+    var current = if (ultra) p + d + d + d else p
+    repeat(if (ultra) 7 else 3) {
+        current = current + d
+        add(State(current, l))
+        add(State(current, r))
+    }
 }
 
-fun findShortestPath(costs: List<List<Int>>): Int {
+fun findShortestPath(costs: List<List<Int>>, ultra: Boolean): Int {
     val start1 = State(Point(0, 0), Direction.EAST)
     val start2 = State(Point(0, 0), Direction.SOUTH)
     val end = Point(costs[0].lastIndex, costs.lastIndex)
@@ -36,10 +36,10 @@ fun findShortestPath(costs: List<List<Int>>): Int {
         frontier.remove(current)
         if (!seen.add(current)) continue
         if (current.p == end) return cost
-        for (next in current.next()) {
-            if (next.p.x in costs[0].indices && next.p.y in costs.indices) {
-                val (x1, y1) = current.p
-                val (x2, y2) = next.p
+        val (x1, y1) = current.p
+        for (next in current.next(ultra)) {
+            val (x2, y2) = next.p
+            if (x2 in costs[0].indices && y2 in costs.indices) {
                 val nextCost = cost + if (x1 == x2) {
                     (min(y1 + 1, y2)..max(y1 - 1, y2)).sumOf { costs[it][x1] }
                 } else {
@@ -58,7 +58,8 @@ fun findShortestPath(costs: List<List<Int>>): Int {
 
 fun solve(lines: List<String>) {
     val costs = lines.map { it.map { "$it".toInt() } }
-    println(findShortestPath(costs))
+    println(findShortestPath(costs, ultra = false))
+    println(findShortestPath(costs, ultra = true))
 }
 
 solve(java.io.File(args[0]).readLines())
