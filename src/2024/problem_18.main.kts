@@ -21,10 +21,9 @@ data class Grid(val lastIndex: Int, val corrupted: Set<Point>) {
         val seen = mutableSetOf<Point>()
         while (!frontier.isEmpty()) {
             val (point, cost) = frontier.removeFirst()
-            if (!seen.add(point)) continue
             if (point == end) return cost
             for (n in neighbors(point)) {
-                frontier.addLast(n to cost + 1)
+                if (seen.add(n)) frontier.addLast(n to cost + 1)
             }
         }
         return -1
