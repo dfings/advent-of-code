@@ -1,5 +1,6 @@
 #!/usr/bin/env kotlin
 
+import java.util.PriorityQueue
 import kotlin.math.abs
 
 enum class Type(val code: String, val roomX: Int, val cost: Int) {
@@ -11,7 +12,9 @@ enum class Type(val code: String, val roomX: Int, val cost: Int) {
 
 data class Point(val x: Int, val y: Int)
 data class Amphipod(val type: Type, val p: Point)
-data class State(val amphipods: List<Amphipod>, val totalEnergyCost: Int)
+data class State(val amphipods: List<Amphipod>, val totalEnergyCost: Int) : Comparable<State> {
+    override fun compareTo(other: State) = totalEnergyCost.compareTo(other.totalEnergyCost)
+}
 
 fun Point.manhattanDistance(p: Point): Int = abs(x - p.x) + abs(y - p.y)
 
@@ -63,11 +66,8 @@ fun String.toType() = Type.values().single { this == it.code }
 data class Solution(val totalEnergyCost: Int, val statesExplored: Int, val maxFrontierSize: Int)
 fun solve(initialState: State): Solution {
     val slotsPerRoom = initialState.amphipods.size / 4
-    val frontier = java.util.PriorityQueue<State>() { 
-        a, b -> a.totalEnergyCost.compareTo(b.totalEnergyCost) 
-    }
-    frontier += initialState
-    val seen = HashSet<List<Amphipod>>()
+    val frontier = PriorityQueue(listOf(initialState))
+    val seen = mutableSetOf<List<Amphipod>>()
     var maxFrontierSize = 0
     while (!frontier.isEmpty()) {
         if (frontier.size > maxFrontierSize) maxFrontierSize = frontier.size
@@ -84,7 +84,7 @@ fun solve(initialState: State): Solution {
     error("No solution!")
 }
 
-val regex = kotlin.text.Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
+val regex = Regex(".*(A|B|C|D).*(A|B|C|D).*(A|B|C|D).*(A|B|C|D)")
 val input = java.io.File(args[0]).readLines()
 val amphipods = input.drop(2).dropLast(1).flatMapIndexed { index, value ->
     val (a, b, c, d) = checkNotNull(regex.find(value)).destructured
