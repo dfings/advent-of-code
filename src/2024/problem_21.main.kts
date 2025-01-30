@@ -1,5 +1,7 @@
 #!/usr/bin/env kotlin
 
+import java.util.PriorityQueue
+
 enum class Direction(val x: Int, val y: Int, val c: Char) {
     UP(0, -1, '^'), RIGHT(1, 0, '>'), DOWN(0, 1, 'v'), LEFT(-1, 0, '<'), PUSH(0, 0, 'A')
 }
@@ -8,6 +10,10 @@ val cardinalDirections = Direction.entries.filter { it != Direction.PUSH }
 data class Point(val x: Int, val y: Int)
 operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
 
+data class Node<T>(val state: T, val cost: Int) : Comparable<Node<T>> {
+    override fun compareTo(other: Node<T>) = cost.compareTo(other.cost)
+}
+
 class Pad(lines: List<String>) {
     val pointMap = lines.flatMapIndexed { 
         y, line -> line.mapIndexed { x, it -> it to Point(x, y) } 
@@ -15,26 +21,25 @@ class Pad(lines: List<String>) {
    
     val points = pointMap.values.toSet()
 
-    data class Node(val point: Point, val path: List<Direction>)
-    fun Node.neighbors() = cardinalDirections.map { Node(point + it, path + it) }.filter { it.point in points }
+    data class State(val point: Point, val path: List<Direction>)
+    fun State.neighbors() = cardinalDirections.map { State(point + it, path + it) }.filter { it.point in points }
 
     fun findShortestPaths(start: Char, end: Char): List<String> {
         if (start == end) listOf("A")
         val endPoint = pointMap.getValue(end)
         var minEndScore = Int.MAX_VALUE
-        val frontier = mutableSetOf(Node(pointMap.getValue(start), emptyList()) to 0)
+        val frontier = PriorityQueue(listOf(Node(State(pointMap.getValue(start), emptyList()), 0)))
         val foundPaths = mutableListOf<List<Direction>>()
         while (!frontier.isEmpty()) {
-            val (node, score) = frontier.minBy { it.second }
-            frontier.remove(node to score)
-            if (node.point == endPoint) {
+            val (state, score) = frontier.poll()
+            if (state.point == endPoint) {
                 minEndScore = score
-                foundPaths.add(node.path + Direction.PUSH)
+                foundPaths.add(state.path + Direction.PUSH)
             }
-            for (newNode in node.neighbors()) {
+            for (newState in state.neighbors()) {
                 val newScore = score + 1
                 if (newScore <= minEndScore) {  
-                    frontier.add(newNode to newScore)
+                    frontier.add(Node(newState, newScore))
                 }
             }
         }
