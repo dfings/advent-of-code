@@ -1,5 +1,6 @@
 #!/usr/bin/env kotlin
 
+import java.util.PriorityQueue
 import kotlin.math.max
 
 enum class Direction(val x: Int, val y: Int) {
@@ -9,6 +10,10 @@ enum class Direction(val x: Int, val y: Int) {
 data class Point(val x: Int, val y: Int)
 operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
 
+data class Node<T>(val state: T, val cost: Int) : Comparable<Node<T>> {
+    override fun compareTo(other: Node<T>) = cost.compareTo(other.cost)
+}
+
 data class Grid(val lastIndex: Int, val corrupted: Set<Point>) {
     val range = 0..lastIndex
     fun neighbors(p: Point) = Direction.entries.map { p + it }
@@ -17,19 +22,14 @@ data class Grid(val lastIndex: Int, val corrupted: Set<Point>) {
     fun findShortestPathLength(): Int {
         val start = Point(0, 0)
         val end = Point(lastIndex, lastIndex)
-        val minCost = mutableMapOf(start to 0)
-        val frontier = mutableSetOf(start to 0)
+        val frontier = PriorityQueue(listOf(Node(start, 0)))    
+        val seen = mutableSetOf<Point>()
         while (!frontier.isEmpty()) {
-            val (point, cost) = frontier.minBy { it.second }
-            frontier.remove(point to cost)
+            val (point, cost) = frontier.poll()
+            if (!seen.add(point)) continue
             if (point == end) return cost
             for (n in neighbors(point)) {
-                val oldCost = minCost[n] ?: Int.MAX_VALUE
-                val newCost = cost + 1
-                if (newCost < oldCost) {  
-                    minCost[n] = newCost
-                    frontier.add(n to newCost)
-                }
+                frontier.add(Node(n, cost + 1))
             }
         }
         return -1
