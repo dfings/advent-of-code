@@ -19,7 +19,7 @@ class Graph(valves: List<Valve>) {
     }
 
     private fun findShortestPath(source: String, target: String): Int? {
-        val frontier = ArrayDeque<Pair<String, Int>>(listOf(source to 0))
+        val frontier = ArrayDeque(listOf(source to 0))
         val seen = mutableSetOf<String>(source)
         while (!frontier.isEmpty()) {
             val (name, distance) = frontier.removeFirst()
