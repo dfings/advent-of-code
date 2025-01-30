@@ -12,8 +12,8 @@ val turnRight = (Direction.entries + Direction.NORTH).zipWithNext().toMap()
 val turnLeft = (Direction.entries.reversed() + Direction.WEST).zipWithNext().toMap()
 
 data class State(val p: Point, val d: Direction)
-data class Node(val state: State, val cost: Int) : Comparable<Node> {
-    override fun compareTo(other: Node) = cost.compareTo(other.cost)
+data class Node<T>(val state: T, val cost: Int) : Comparable<Node<T>> {
+    override fun compareTo(other: Node<T>) = cost.compareTo(other.cost)
 }
 
 fun State.next(ultra: Boolean) = buildList {
@@ -29,9 +29,10 @@ fun State.next(ultra: Boolean) = buildList {
 
 fun findShortestPath(costs: List<List<Int>>, ultra: Boolean): Int {
     val end = Point(costs[0].lastIndex, costs.lastIndex)
-    val frontier = PriorityQueue<Node>()
-    frontier.add(Node(State(Point(0, 0), Direction.EAST), 0))
-    frontier.add(Node(State(Point(0, 0), Direction.SOUTH), 0))
+    val frontier = PriorityQueue(listOf(
+        Node(State(Point(0, 0), Direction.EAST), 0),
+        Node(State(Point(0, 0), Direction.SOUTH), 0),
+    ))
     val seen = mutableSetOf<State>()
     while (!frontier.isEmpty()) {
         val (current, cost) = frontier.poll()
