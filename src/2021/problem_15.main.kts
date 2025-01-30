@@ -1,41 +1,42 @@
 #!/usr/bin/env kotlin
 
-class Vertex(val x: Int, val y: Int, val weight: Int,  var distance: Int = Int.MAX_VALUE)
+import java.util.PriorityQueue
 
-class Graph(val vertexes: List<List<Vertex>>) {
-    val xMax = vertexes[0].lastIndex
-    val yMax = vertexes.lastIndex
-
-    fun computeShortestPath(): Int {
-        vertexes[0][0].distance = 0
-        val frontier = mutableSetOf<Vertex>(vertexes[0][0])
-        while (!frontier.isEmpty()) {
-            val vertex = frontier.minByOrNull { it.distance }!!
-            frontier.remove(vertex)
-            vertex.neighbors().filter { it.distance == Int.MAX_VALUE }.forEach { 
-                it.distance = vertex.distance + it.weight
-                frontier.add(it)
-            }
-        }
-        return vertexes[yMax][xMax].distance
-    }
-
-    fun Vertex.neighbors() = listOfNotNull(
-        vertexAt(x - 1, y), vertexAt(x + 1, y), 
-        vertexAt(x, y - 1), vertexAt(x, y + 1)
-    )
-    
-    fun vertexAt(x: Int, y: Int) =
-        if (x < 0 || x > xMax || y < 0 || y > yMax) null else vertexes[y][x]
+data class Point(val x: Int, val y: Int)
+data class Node<T>(val state: T, val cost: Int) : Comparable<Node<T>> {
+    override fun compareTo(other: Node<T>) = cost.compareTo(other.cost)
 }
 
-fun List<List<Int>>.toGraph() = 
-    Graph(mapIndexed { y, line ->  line.mapIndexed { x, weight -> Vertex(x, y, weight) } })
+class Graph(val costs: List<List<Int>>) {
+    val xMax = costs[0].lastIndex
+    val yMax = costs.lastIndex
+
+    fun computeShortestPath(): Int {
+        val frontier = PriorityQueue(listOf(Node(Point(0, 0), 0)))
+        val seen = mutableSetOf<Point>()
+        while (!frontier.isEmpty()) {
+            val (point, cost) = frontier.poll()
+            if (!seen.add(point)) continue
+            if (point.x == xMax && point.y == yMax) return cost
+            for (next in point.neighbors()) {
+                frontier.add(Node(next, cost + costs[next.y][next.x]))
+            }
+        }
+        return -1
+    }
+
+    fun Point.neighbors() = listOfNotNull(
+        pointAt(x - 1, y), pointAt(x + 1, y), 
+        pointAt(x, y - 1), pointAt(x, y + 1)
+    )
+    
+    fun pointAt(x: Int, y: Int) = if (x in 0..xMax && y in 0..yMax) Point(x, y) else null
+}
 
 val lines = java.io.File(args[0]).readLines()
 val originalMap = lines.map { it.map { it.digitToInt() } }
 
-println(originalMap.toGraph().computeShortestPath())
+println(Graph(originalMap).computeShortestPath())
 
 fun List<Int>.incrementBy(n: Int) = map { if (it + n < 10) it + n else 1 + ((it + n) % 10) }
 val replicatedRight = originalMap.map { line ->
@@ -44,4 +45,4 @@ val replicatedRight = originalMap.map { line ->
 val fullMap = (0..4).flatMap { n ->
     replicatedRight.map { it.incrementBy(n) }
 }
-println(fullMap.toGraph().computeShortestPath())
+println(Graph(fullMap).computeShortestPath())
