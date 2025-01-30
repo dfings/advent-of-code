@@ -28,8 +28,7 @@ fun simulate(lines: List<String>, start: Beam): Int {
         if (!seen.add(beam)) continue
         val next = beam.copy(p = beam.p + beam.d)
         if (next.p.x !in lines[0].indices || next.p.y !in lines.indices) continue
-        val char = lines[next.p.y][next.p.x]
-        when (char) {
+        when (lines[next.p.y][next.p.x]) {
             '.' -> active += next
             '/' -> active += next.reflectForward()
             '\\' -> active += next.reflectBackward()
