@@ -22,13 +22,11 @@ val lowPoints = (0..xMax).flatMap {
 println(lowPoints.sumOf { 1 + height(it.x, it.y)})
 
 fun basinSize(start: Point): Int {
-    val frontier = ArrayDeque<Point>()
-    val visited = HashSet<Point>()
-
-    frontier.add(start)
+    val frontier = ArrayDeque(listOf(start))
+    val seen = mutableSetOf<Point>()
     while (!frontier.isEmpty()) {
         val p = frontier.removeFirst()
-        if (height(p.x, p.y) < 9 && visited.add(p)) {
+        if (height(p.x, p.y) < 9 && seen.add(p)) {
             frontier.apply {
                 add(Point(p.x - 1, p.y))
                 add(Point(p.x + 1, p.y))
@@ -38,7 +36,7 @@ fun basinSize(start: Point): Int {
         }
     }
 
-    return visited.size
+    return seen.size
 }
 
 println(lowPoints.map(::basinSize).sorted().takeLast(3).reduce(Int::times))
