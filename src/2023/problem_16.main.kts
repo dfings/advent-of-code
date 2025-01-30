@@ -6,12 +6,19 @@ operator fun Point.plus(d: Direction) = Point(x + d.dx, y + d.dy)
 
 data class Beam(val p: Point, val d: Direction)
 
-val reflectForward = mapOf(Direction.NORTH to Direction.EAST, Direction.EAST to Direction.NORTH,
-                           Direction.SOUTH to Direction.WEST, Direction.WEST to Direction.SOUTH)
-val reflectBackward = mapOf(Direction.NORTH to Direction.WEST, Direction.WEST to Direction.NORTH,
-                            Direction.SOUTH to Direction.EAST, Direction.EAST to Direction.SOUTH)
+fun Beam.reflectForward() = copy(d = when(d) {
+    Direction.NORTH -> Direction.EAST
+    Direction.EAST -> Direction.NORTH
+    Direction.SOUTH -> Direction.WEST
+    Direction.WEST -> Direction.SOUTH
+})
 
-fun Beam.reflect(char: Char) = copy(d = (if (char == '/') reflectForward else reflectBackward).getValue(d))
+fun Beam.reflectBackward() = copy(d = when(d) {
+    Direction.NORTH -> Direction.WEST
+    Direction.WEST -> Direction.NORTH
+    Direction.SOUTH -> Direction.EAST
+    Direction.EAST -> Direction.SOUTH
+})
 
 fun simulate(lines: List<String>, start: Beam): Int {
     val seen = mutableSetOf<Beam>()
@@ -24,13 +31,20 @@ fun simulate(lines: List<String>, start: Beam): Int {
         val char = lines[next.p.y][next.p.x]
         when (char) {
             '.' -> active += next
-            '/', '\\' -> active += next.reflect(char)
+            '/' -> active += next.reflectForward()
+            '\\' -> active += next.reflectBackward()
             '|' -> when (beam.d) {
                 Direction.NORTH, Direction.SOUTH -> active += next
-                Direction.EAST, Direction.WEST -> active += listOf(next.reflect('/'), next.reflect('\\'))
+                Direction.EAST, Direction.WEST ->  {
+                    active += next.reflectForward()
+                    active += next.reflectBackward()
+                }
             }
             '-' -> when (beam.d) {
-                Direction.NORTH, Direction.SOUTH -> active += listOf(next.reflect('/'), next.reflect('\\'))
+                Direction.NORTH, Direction.SOUTH -> {
+                    active += next.reflectForward()
+                    active += next.reflectBackward()
+                }
                 Direction.EAST, Direction.WEST -> active += next
             }
         }
