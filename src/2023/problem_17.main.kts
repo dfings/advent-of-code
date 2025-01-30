@@ -1,5 +1,6 @@
 #!/usr/bin/env kotlin
 
+import java.util.PriorityQueue
 import kotlin.math.min
 import kotlin.math.max
 
@@ -11,6 +12,9 @@ val turnRight = (Direction.entries + Direction.NORTH).zipWithNext().toMap()
 val turnLeft = (Direction.entries.reversed() + Direction.WEST).zipWithNext().toMap()
 
 data class State(val p: Point, val d: Direction)
+data class Node(val state: State, val cost: Int) : Comparable<Node> {
+    override fun compareTo(other: Node) = cost.compareTo(other.cost)
+}
 
 fun State.next(ultra: Boolean) = buildList {
     val l = turnLeft.getValue(d)
@@ -24,16 +28,13 @@ fun State.next(ultra: Boolean) = buildList {
 }
 
 fun findShortestPath(costs: List<List<Int>>, ultra: Boolean): Int {
-    val start1 = State(Point(0, 0), Direction.EAST)
-    val start2 = State(Point(0, 0), Direction.SOUTH)
     val end = Point(costs[0].lastIndex, costs.lastIndex)
-    val frontier = mutableSetOf(start1, start2)
-    val minCost = mutableMapOf(start1 to 0, start2 to 0)
+    val frontier = PriorityQueue<Node>()
+    frontier.add(Node(State(Point(0, 0), Direction.EAST), 0))
+    frontier.add(Node(State(Point(0, 0), Direction.SOUTH), 0))
     val seen = mutableSetOf<State>()
     while (!frontier.isEmpty()) {
-        val current = frontier.minBy { minCost.getValue(it) }
-        val cost = minCost.getValue(current)
-        frontier.remove(current)
+        val (current, cost) = frontier.poll()
         if (!seen.add(current)) continue
         if (current.p == end) return cost
         val (x1, y1) = current.p
@@ -45,10 +46,7 @@ fun findShortestPath(costs: List<List<Int>>, ultra: Boolean): Int {
                 } else {
                     (min(x1 + 1, x2)..max(x1 - 1, x2)).sumOf { costs[y1][it] }
                 }
-                if (nextCost < minCost[next] ?: Int.MAX_VALUE) {
-                    minCost[next] = nextCost
-                    frontier.add(next)
-                }
+                frontier.add(Node(next, nextCost))
             }
         }
     }
