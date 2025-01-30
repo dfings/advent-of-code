@@ -1,5 +1,6 @@
 #!/usr/bin/env kotlin
 
+import java.util.PriorityQueue
 import kotlin.time.measureTime
 
 enum class Direction(val x: Int, val y: Int) {
@@ -12,6 +13,9 @@ data class Point(val x: Int, val y: Int)
 operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
 
 data class Reindeer(val p: Point, val d: Direction)
+data class Node<T>(val state: T, val cost: Int) : Comparable<Node<T>> {
+    override fun compareTo(other: Node<T>) = cost.compareTo(other.cost)
+}
 
 data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
     fun Reindeer.neighbors() = buildList {
@@ -27,10 +31,10 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
         val minScores = mutableMapOf(startReindeer to 0)
         var minEndScore = Int.MAX_VALUE
         val previous = mutableMapOf<Reindeer, MutableList<Reindeer>>()
-        val frontier = mutableSetOf(startReindeer to 0)
+        val frontier = PriorityQueue<Node<Reindeer>>()
+        froniter.add(Node(startReindeer, 0))
         while (!frontier.isEmpty()) {
-            val (reindeer, score) = frontier.minBy { it.second }
-            frontier.remove(reindeer to score)
+            val (reindeer, score) = frontier.poll()
             if (reindeer.p == end) minEndScore = score
             for ((newReindeer, scoreDelta) in reindeer.neighbors()) {
                 val newScore = score + scoreDelta
