@@ -31,8 +31,7 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
         val minScores = mutableMapOf(startReindeer to 0)
         var minEndScore = Int.MAX_VALUE
         val previous = mutableMapOf<Reindeer, MutableList<Reindeer>>()
-        val frontier = PriorityQueue<Node<Reindeer>>()
-        froniter.add(Node(startReindeer, 0))
+        val frontier = PriorityQueue(listOf(Node(startReindeer, 0)))
         while (!frontier.isEmpty()) {
             val (reindeer, score) = frontier.poll()
             if (reindeer.p == end) minEndScore = score
@@ -43,7 +42,7 @@ data class Maze(val start: Point, val walls: Set<Point>, val end: Point) {
                     minScores[newReindeer] = newScore
                     val prev = previous.getOrPut(newReindeer) { mutableListOf<Reindeer>() }
                     if (newScore < oldScore) {
-                        frontier.add(newReindeer to newScore)
+                        frontier.add(Node(newReindeer, newScore))
                         prev.clear()
                     }
                     prev += reindeer
