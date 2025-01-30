@@ -1,7 +1,5 @@
 #!/usr/bin/env kotlin
 
-import java.util.PriorityQueue
-
 enum class Direction(val x: Int, val y: Int, val c: Char) {
     UP(0, -1, '^'), RIGHT(1, 0, '>'), DOWN(0, 1, 'v'), LEFT(-1, 0, '<'), PUSH(0, 0, 'A')
 }
@@ -9,10 +7,6 @@ val cardinalDirections = Direction.entries.filter { it != Direction.PUSH }
 
 data class Point(val x: Int, val y: Int)
 operator fun Point.plus(d: Direction) = Point(x + d.x, y + d.y)
-
-data class Node<T>(val state: T, val cost: Int) : Comparable<Node<T>> {
-    override fun compareTo(other: Node<T>) = cost.compareTo(other.cost)
-}
 
 class Pad(lines: List<String>) {
     val pointMap = lines.flatMapIndexed { 
@@ -28,10 +22,10 @@ class Pad(lines: List<String>) {
         if (start == end) listOf("A")
         val endPoint = pointMap.getValue(end)
         var minEndScore = Int.MAX_VALUE
-        val frontier = PriorityQueue(listOf(Node(State(pointMap.getValue(start), emptyList()), 0)))
+        val frontier = ArrayDeque(listOf(State(pointMap.getValue(start), emptyList()) to 0))
         val foundPaths = mutableListOf<List<Direction>>()
         while (!frontier.isEmpty()) {
-            val (state, score) = frontier.poll()
+            val (state, score) = frontier.removeFirst()
             if (state.point == endPoint) {
                 minEndScore = score
                 foundPaths.add(state.path + Direction.PUSH)
@@ -39,7 +33,7 @@ class Pad(lines: List<String>) {
             for (newState in state.neighbors()) {
                 val newScore = score + 1
                 if (newScore <= minEndScore) {  
-                    frontier.add(Node(newState, newScore))
+                    frontier.add(newState to newScore)
                 }
             }
         }
