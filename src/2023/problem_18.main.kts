@@ -14,15 +14,16 @@ fun parse(input: String): Pair<Instruction, Instruction> {
            Instruction(Direction.entries[c.takeLast(1).toInt()], c.dropLast(1).toLong(16))
 }
 
+// Pick's theorem: A = i + b/2 - 1 => A + b/2 + 1 = i + b
 fun List<Instruction>.getPoints() = runningFold(Point(0, 0)) { acc, it -> acc + it }
-fun List<Instruction>.partialArea() = getPoints().zipWithNext().sumOf { (a, b) -> a.x * b.y - b.x * a.y } / 2L
-fun List<Instruction>.perimiter() = sumOf { it.distance }
-fun List<Instruction>.area() = partialArea() + perimiter() / 2 + 1
+fun List<Instruction>.area() = getPoints().zipWithNext().sumOf { (a, b) -> a.x * b.y - b.x * a.y } / 2L
+fun List<Instruction>.boundaryPoints() = sumOf { it.distance }
+fun List<Instruction>.interiorAndBoundaryPoints() = area() + boundaryPoints() / 2 + 1
 
 fun solve(lines: List<String>) {
     val instructions = lines.map { parse(it) }
-    println(instructions.map { it.first }.area())
-    println(instructions.map { it.second }.area())
+    println(instructions.map { it.first }.interiorAndBoundaryPoints())
+    println(instructions.map { it.second }.interiorAndBoundaryPoints())
 }
 
 solve(java.io.File(args[0]).readLines())
