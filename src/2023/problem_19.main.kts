@@ -46,13 +46,17 @@ fun Map<String, Workflow>.findAccepted(
     workflowName == "A" -> listOf(partRange)
     else -> buildList {
         val workflow = getValue(workflowName)
-        var current: PartRange = partRange
+        var current = partRange
         for (rule in workflow.rules) {
             if (rule.key.isEmpty()) {
                 addAll(findAccepted(rule.dest, current))
             } else {
-                addAll(findAccepted(rule.dest, current.with(rule.key, current.getValue(rule.key).overlap(rule.range))))
-                current = current.with(rule.key, current.getValue(rule.key).overlap(rule.inverse))
+                val range = current.getValue(rule.key)
+                val next = current.toMutableMap()
+                next.put(rule.key, range.overlap(rule.range))
+                addAll(findAccepted(rule.dest, next.toMap()))
+                next.put(rule.key, range.overlap(rule.inverse))                
+                current = next
             }
         }
     }
