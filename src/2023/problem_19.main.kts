@@ -13,33 +13,20 @@ fun <K, V> Map<K, V>.with(key: K, value: V) = toMutableMap().apply { put(key, va
 fun IntRange.overlap(other: IntRange) = max(first, other.first)..min(last, other.last)
 fun IntRange.size() = if (first > last) 0 else last - first + 1
 
-sealed class Rule(val dest: String) {
-    abstract fun apply(partRange: PartRange): Pair<PartRange, PartRange?>
-}
-
-class Filter(val key: String, val range: IntRange, val inverse: IntRange, dest: String) : Rule(dest) {
-    override fun apply(partRange: PartRange) =
-        partRange.with(key, partRange.getValue(key).overlap(range)) to
-        partRange.with(key, partRange.getValue(key).overlap(inverse))
-}
-
-class Dispatch(dest: String) : Rule(dest)  {
-    override fun apply(partRange: PartRange) = partRange to null
-}
-
+data class Rule(val key: String, val range: IntRange, val inverse: IntRange, val dest: String)
 data class Workflow(val name: String, val rules: List<Rule>)
 
 fun parseRule(input: String): Rule =
     when {
         '>' in input -> {
             val (key, value, dest) = input.split(">", ":")
-            Filter(key, (value.toInt() + 1)..4000, 0..value.toInt(), dest)
+            Rule(key, (value.toInt() + 1)..4000, 0..value.toInt(), dest)
         }
         '<' in input -> {
             val (key, value, dest) = input.split("<", ":")
-            Filter(key, 0..(value.toInt() - 1), value.toInt()..4000, dest)
+            Rule(key, 0..(value.toInt() - 1), value.toInt()..4000, dest)
         }
-        else -> Dispatch(input)
+        else -> Rule("", 0..4000, -1..-1, input)
     }
 
 fun parseWorkflow(input: String): Workflow {
@@ -59,11 +46,14 @@ fun Map<String, Workflow>.findAccepted(
     workflowName == "A" -> listOf(partRange)
     else -> buildList {
         val workflow = getValue(workflowName)
-        var current: PartRange? = partRange
+        var current: PartRange = partRange
         for (rule in workflow.rules) {
-            val (pass, fail) = rule.apply(current!!)  
-            addAll(findAccepted(rule.dest, pass))
-            current = fail
+            if (rule.key.isEmpty()) {
+                addAll(findAccepted(rule.dest, current))
+            } else {
+                addAll(findAccepted(rule.dest, current.with(rule.key, current.getValue(rule.key).overlap(rule.range))))
+                current = current.with(rule.key, current.getValue(rule.key).overlap(rule.inverse))
+            }
         }
     }
 }
