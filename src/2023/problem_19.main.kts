@@ -5,16 +5,13 @@ import kotlin.math.min
 
 typealias Part = Map<String, Int>
 typealias PartRange = Map<String, IntRange>
-
-fun PartRange.combos() = values.map { it.size().toLong() }.reduce(Long::times)
-fun PartRange.matches(part: Part) = entries.all { part.getValue(it.key) in it.value }
-fun <K, V> Map<K, V>.with(key: K, value: V) = toMutableMap().apply { put(key, value) }
+data class Rule(val key: String, val range: IntRange, val inverse: IntRange, val dest: String)
+data class Workflow(val name: String, val rules: List<Rule>)
 
 fun IntRange.overlap(other: IntRange) = max(first, other.first)..min(last, other.last)
 fun IntRange.size() = if (first > last) 0 else last - first + 1
-
-data class Rule(val key: String, val range: IntRange, val inverse: IntRange, val dest: String)
-data class Workflow(val name: String, val rules: List<Rule>)
+fun PartRange.combos() = values.map { it.size().toLong() }.reduce(Long::times)
+fun PartRange.matches(part: Part) = entries.all { part.getValue(it.key) in it.value }
 
 fun parseRule(input: String): Rule =
     when {
