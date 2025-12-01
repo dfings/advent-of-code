@@ -3,7 +3,7 @@
 import kotlin.math.abs
 
 fun solve(lines: List<String>) {
-    val turns = lines.map { (if (it[0] == 'L') -1  else 1) * it.drop(1).toInt() }
+    val turns = lines.map { (if (it[0] == 'L') -1 else 1) * it.drop(1).toInt() }
     val positions = turns.runningFold(50) { acc, it -> (acc + it).mod(100) }
     println(positions.count { it == 0 })
 
