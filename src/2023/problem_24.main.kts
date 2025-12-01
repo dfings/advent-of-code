@@ -3,7 +3,6 @@
 data class Point(val x: Double, val y: Double, val z: Double)
 data class Velocity(val dx: Double, val dy: Double, val dz: Double)
 data class Hail(val p: Point, val v: Velocity)
-data class Segment(val p1: Point, val p2: Point)
 
 fun String.parse(): Hail {
     val (first, second) = split(" @ ")
