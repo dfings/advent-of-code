@@ -3,13 +3,13 @@
 fun Long.repeat(n: Int) = List(n) { toString() }.joinToString("").toLong()
 
 fun findInvalid(start: Long, end: Long, n: Int): Set<Long> = buildSet {
-    val startString = start.toString()
-    var toTest = if (startString.length <= n - 1) 1 else startString.take(startString.length / n).toLong()
-    while (toTest.repeat(n) <= end) {
-        if (toTest.repeat(n) >= start) {
-            add(toTest.repeat(n))
+    val startStr = start.toString()
+    var seed = if (startStr.length <= n - 1) 1 else startStr.take(startStr.length / n).toLong()
+    while (seed.repeat(n) <= end) {
+        if (seed.repeat(n) >= start) {
+            add(seed.repeat(n))
         }
-        toTest++
+        seed++
     }
 }
 
