@@ -1,6 +1,6 @@
 #!/usr/bin/env kotlin
 
-fun Long.repeat(n: Int) = List(n) { toString() }.joinToString("").toLong()
+fun Long.repeat(n: Int) = toString().repeat(n).toLong()
 
 fun findInvalid(start: Long, end: Long, n: Int): Set<Long> = buildSet {
     val startStr = start.toString()
