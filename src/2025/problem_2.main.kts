@@ -4,6 +4,7 @@ fun Long.repeat(n: Int) = toString().repeat(n).toLong()
 
 fun findInvalid(start: Long, end: Long, n: Int): Set<Long> = buildSet {
     val startStr = start.toString()
+    if ((startStr.length..end.toString().length).all { it % n != 0 }) return@buildSet
     var seed = if (startStr.length <= n - 1) 1 else startStr.take(startStr.length / n).toLong()
     while (seed.repeat(n) <= end) {
         if (seed.repeat(n) >= start) {
