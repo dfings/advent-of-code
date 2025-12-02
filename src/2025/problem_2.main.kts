@@ -1,11 +1,11 @@
 #!/usr/bin/env kotlin
 
+fun Long.strLen() = toString().length
 fun Long.repeat(n: Int) = toString().repeat(n).toLong()
 
 fun findInvalid(start: Long, end: Long, n: Int): Set<Long> = buildSet {
-    val startStr = start.toString()
-    if ((startStr.length..end.toString().length).all { it % n != 0 }) return@buildSet
-    var seed = if (startStr.length <= n - 1) 1 else startStr.take(startStr.length / n).toLong()
+    if ((start.strLen()..end.strLen()).all { it % n != 0 }) return@buildSet
+    var seed = start.toString().run { if (length <= n - 1) 1L else take(length / n).toLong() }
     while (seed.repeat(n) <= end) {
         if (seed.repeat(n) >= start) {
             add(seed.repeat(n))
@@ -15,7 +15,7 @@ fun findInvalid(start: Long, end: Long, n: Int): Set<Long> = buildSet {
 }
 
 fun sumInvalid(start: Long, end: Long) =
-    (2..end.toString().length).flatMap { findInvalid(start, end, it) }.toSet().sum()
+    (2..end.strLen()).flatMap { findInvalid(start, end, it) }.toSet().sum()
 
 fun solve(input: String) {
     val ranges = input.split(",").map { it.split("-").map { it.toLong() } }
