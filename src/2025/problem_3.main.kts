@@ -1,7 +1,7 @@
 #!/usr/bin/env kotlin
 
 fun maxJoltage(bank: String, n: Int): Long {
-    val best = bank.dropLast(n - 1).maxBy { "$it".toInt() }
+    val best = bank.dropLast(n - 1).max()
     return if (n == 1) {
         "$best".toLong()
     } else {
