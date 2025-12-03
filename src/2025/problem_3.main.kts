@@ -3,8 +3,7 @@
 fun maxJoltage(bank: String, n: Int): String {
     if (n == 0) return ""
     val best = bank.dropLast(n - 1).max()
-    val rest = maxJoltage(bank.drop(bank.indexOf(best) + 1), n - 1)
-    return best + rest
+    return best + maxJoltage(bank.drop(bank.indexOf(best) + 1), n - 1)
 }
 
 fun solve(input: List<String>) {
