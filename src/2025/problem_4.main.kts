@@ -4,7 +4,7 @@ fun List<List<Char>>.isPaper(x: Int, y: Int): Boolean =
     y in indices && x in get(y).indices && this[y][x] == '@'
 
 fun List<List<Char>>.countPaper(x: Int, y: Int): Int =
-    (-1..1).sumOf{ j -> (-1..1).sumOf { i -> if (isPaper(x + i, y + j)) 1 else 0 } }
+    (-1..1).sumOf{ j -> (-1..1).count { i -> isPaper(x + i, y + j) } }
 
 fun MutableList<MutableList<Char>>.maybeRemove(remove: Boolean): Int {
     var count = 0
