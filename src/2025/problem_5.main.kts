@@ -30,7 +30,6 @@ fun solve(input: List<String>) {
         if (count == ranges.size) break
     }
     println(ranges.sumOf { it.endInclusive - it.start + 1 })
-
 }
 
 solve(java.io.File(args[0]).readLines())
