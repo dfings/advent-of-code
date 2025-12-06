@@ -3,7 +3,7 @@
 val whitespace = "\\s+".toRegex()
 
 fun parse1(input: List<String>): List<List<Long>> {
-    val numbers = input.map { it.trim().split(whitespace).map { it.toLong() }}
+    val numbers = input.map { it.trim().split(whitespace).map { it.toLong() } }
     return numbers[0].indices.map { i -> numbers.map { it[i] } }
 }
 
