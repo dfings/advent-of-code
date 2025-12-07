@@ -10,20 +10,20 @@ class GameState(val start: Point, val splitters: Set<Point>) {
 
     fun step(): Boolean {
         if (current.first().y == yMax) return false
-        val next = mutableListOf<Point>()
+        val next = mutableSetOf<Point>()
         for (p in current) {
             val n = p.copy(y = p.y + 1)
+            next.add(n)
             link(n, p)
             if (n in splitters) {
+                next.remove(n)
                 for (s in n.split()) {
                     next.add(s)
                     link(s, p)
                 }
-            } else {
-                next.add(n)
             }
         }
-        current = next.toSet()
+        current = next
         return true
     }
 
