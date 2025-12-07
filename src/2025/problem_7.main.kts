@@ -1,6 +1,7 @@
 #!/usr/bin/env kotlin
 
 data class Point(val x: Int, val y: Int)
+fun Point.split() = listOf(copy(x = x - 1), copy(x = x + 1))
 
 class GameState(val start: Point, val splitters: Set<Point>) {
     val yMax = splitters.maxOf { it.y } + 1
@@ -14,7 +15,7 @@ class GameState(val start: Point, val splitters: Set<Point>) {
             val n = p.copy(y = p.y + 1)
             link(n, p)
             if (n in splitters) {
-                for (s in listOf(n.copy(x = n.x - 1), n.copy(x = n.x + 1))) {
+                for (s in n.split()) {
                     next.add(s)
                     link(s, p)
                 }
