@@ -42,7 +42,7 @@ fun solve(lines: List<String>) {
     println(points.map { unionFind.count(it.index) }.sortedBy { -it }.take(3).reduce(Int::times))
     for (link in links.drop(1000)) {
         unionFind.union(link.a.index, link.b.index)
-        if (points.count { unionFind.count(it.index) > 0 } == 1) {
+        if (points.singleOrNull { unionFind.count(it.index) > 0 } != null) {
             println(link.a.x * link.b.x)
             break
         }
