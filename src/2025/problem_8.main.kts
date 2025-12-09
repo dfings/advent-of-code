@@ -5,7 +5,7 @@ import kotlin.math.sqrt
 data class Point(val index: Int, val x: Long, val y: Long, val z: Long)
 data class Link(val a: Point, val b: Point, val distance: Double)
 
-class UnionFind(n: Int) {
+class UnionFind(val n: Int) {
     val parent = IntArray(n) { it }
 
     fun find(x: Int): Int {
@@ -19,7 +19,18 @@ class UnionFind(n: Int) {
         if (rootX != rootY) parent[rootX] = rootY
     }
 
-    fun count(x: Int): Int = parent.count { find(it) == x }
+    fun counts(): IntArray {
+        val histogram = IntArray(n)
+        for (i in 0..<n) {
+            histogram[find(i)]++
+        }
+        return histogram
+    }
+
+    fun isSingle(): Boolean {
+        val found = find(0)
+        return (1..<n).all { found == find(it) }
+    }
 }
 
 fun distance(a: Point, b: Point): Double =
@@ -39,10 +50,10 @@ fun solve(lines: List<String>) {
     for (link in links.take(1000)) {
         unionFind.union(link.a.index, link.b.index)
     }
-    println(points.map { unionFind.count(it.index) }.sortedBy { -it }.take(3).reduce(Int::times))
+    println(unionFind.counts().sortedBy { -it }.take(3).reduce(Int::times))
     for (link in links.drop(1000)) {
         unionFind.union(link.a.index, link.b.index)
-        if (points.singleOrNull { unionFind.count(it.index) > 0 } != null) {
+        if (unionFind.isSingle()) {
             println(link.a.x * link.b.x)
             break
         }
