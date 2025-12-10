@@ -1,5 +1,7 @@
 #!/usr/bin/env kotlin
 
+import java.util.PriorityQueue
+
 data class Machine1(val target: Int, val buttons: List<Int>)
 data class State1(val value: Int, val cost: Int, val lastButton: Int)
 
@@ -17,10 +19,10 @@ fun String.parse1(): Machine1 {
 
 fun Machine1.solve(): Int {
     val minCost = mutableMapOf(0 to 0)
-    val frontier = mutableSetOf(State1(0, 0, 0))
+    val frontier = java.util.PriorityQueue<State1> { a, b -> a.cost.compareTo(b.cost) }
+    frontier.add(State1(0, 0, 0))
     while (!frontier.isEmpty()) {
-        val state = frontier.minBy { it.cost }
-        frontier.remove(state)
+        val state = frontier.poll()
         if (state.value == target) return state.cost
         for (button in buttons) {
             if (button != state.lastButton) {
@@ -53,7 +55,8 @@ var solved = 0
 fun Machine2.solve(): Int {
     val initialValue = List(target.size) { 0 }
     val minCost = mutableMapOf(initialValue to 0)
-    val frontier = mutableSetOf(State2(initialValue, 0, 0))
+    val frontier = java.util.PriorityQueue<State2> { a, b -> a.cost.compareTo(b.cost) }
+    frontier.add(State2(initialValue, 0, 0))
     while (!frontier.isEmpty()) {
         val state = frontier.minBy { it.cost }
         frontier.remove(state)
