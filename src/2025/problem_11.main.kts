@@ -16,8 +16,8 @@ fun Map<String, List<String>>.countPaths(from: String): PathCount = pathCountCac
         PathCount(a.total + b.total, a.dac + b.dac, a.fft + b.fft, a.both + b.both)
     }
     when (from) {
-        "dac" -> out.copy(dac = out.total, both = if (out.fft > 0) out.fft else 0)
-        "fft" -> out.copy(fft = out.total, both = if (out.dac > 0) out.dac else 0)
+        "dac" -> out.copy(dac = out.total, both = out.fft)
+        "fft" -> out.copy(fft = out.total, both = out.dac)
         else -> out
     }
 }
