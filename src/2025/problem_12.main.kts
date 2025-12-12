@@ -8,17 +8,16 @@ fun String.parseArea(): Area {
     return Area(l.toInt(), w.toInt(), boxes.split(" ").map { it.toInt() })
 }
 
+fun Area.fits(shapes: List<Int>): Boolean = when {
+    (length / 3 * 3) * (width / 3 * 3) >= boxes.map { it * 9 }.sum() -> true
+    length * width < boxes.mapIndexed { i, it -> it * shapes[i] }.sum() -> false
+    else -> TODO("Implement real packing algorithm :(")
+}
+
 fun solve(lines: List<String>) {
     val shapes = lines.takeWhile { "x" !in it }.chunked(5).map { it.joinToString().count { it == '#' } }
     val areas = lines.takeLastWhile { it.isNotEmpty() }.map { it.parseArea() }
-    val fullSquareCount = areas.count { area ->
-        (area.length / 3 * 3) * (area.width / 3 * 3) >= area.boxes.map { it * 9 }.sum()
-    }
-    val perfectPackCount = areas.count { area ->
-        area.length * area.width >= area.boxes.mapIndexed { i, it -> it * shapes[i] }.sum()
-    }
-    check(fullSquareCount == perfectPackCount)
-    println(fullSquareCount)
+    println(areas.count { it.fits(shapes) })
 }
 
 solve(java.io.File(args[0]).readLines())
